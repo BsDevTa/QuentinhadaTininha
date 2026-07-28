@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "QuentinhasDaTininha.Aplicacao/1.0.0": {
+        "dependencies": {
+          "QuentinhasDaTininha.Dominio": "1.0.0"
+        },
+        "runtime": {
+          "QuentinhasDaTininha.Aplicacao.dll": {}
+        }
+      },
+      "QuentinhasDaTininha.Dominio/1.0.0": {
+        "runtime": {
+          "QuentinhasDaTininha.Dominio.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "QuentinhasDaTininha.Aplicacao/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "QuentinhasDaTininha.Dominio/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
