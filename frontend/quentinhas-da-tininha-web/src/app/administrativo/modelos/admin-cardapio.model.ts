@@ -108,6 +108,19 @@ export interface FuncionamentoAdminSalvar {
   horarioFuncionamento: string;
 }
 
+export interface DisponibilidadeDataAdmin {
+  data: string;
+  status: string;
+  liberado: boolean;
+  bloqueado: boolean;
+  permitirPedidos: boolean;
+  motivo: string | null;
+}
+
+export interface DisponibilidadeDataMotivoAdmin {
+  motivo: string | null;
+}
+
 export interface ConfiguracoesPublicasAdmin {
   nomeRestaurante: string;
   whatsapp: string;
