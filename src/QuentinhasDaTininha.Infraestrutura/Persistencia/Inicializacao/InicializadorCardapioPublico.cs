@@ -15,6 +15,11 @@ public class InicializadorCardapioPublico
 
     public async Task InicializarAsync(CancellationToken cancellationToken = default)
     {
+        if (await JaExisteCardapioConfiguradoAsync(cancellationToken))
+        {
+            return;
+        }
+
         var agora = DateTimeOffset.UtcNow;
         var categoria = await ObterOuCriarCategoriaAsync(agora, cancellationToken);
         await ObterOuAtualizarRestauranteAsync(agora, cancellationToken);
@@ -26,6 +31,14 @@ public class InicializadorCardapioPublico
         await ConfigurarCardapiosAsync(pratos, cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<bool> JaExisteCardapioConfiguradoAsync(
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.CardapiosDiaPratos
+            .AsNoTracking()
+            .AnyAsync(cancellationToken);
     }
 
     private async Task<Categoria> ObterOuCriarCategoriaAsync(
