@@ -50,7 +50,7 @@ import { StatusRestauranteComponent } from '../../componentes/status-restaurante
           [diaAtual]="diaAtual"
           [selecionarDia]="selecionarDia"
           [whatsappRestaurante]="restaurante()?.whatsapp ?? ''"
-          [restauranteAberto]="restaurante()?.estaAberto ?? false"
+          [restauranteAberto]="restaurante()?.permitirPedidos ?? false"
           [mensagemStatus]="restaurante()?.mensagemStatus ?? ''"
         />
       }
@@ -96,12 +96,12 @@ export class InicioPage implements OnInit {
 
   protected readonly criarLinkPedido = (prato: Prato): string => {
     const whatsapp = this.restaurante()?.whatsapp ?? '';
-    if (!this.restaurante()?.estaAberto || !whatsapp.trim()) {
+    if (!this.restaurante()?.permitirPedidos || !whatsapp.trim()) {
       return '#cardapio';
     }
 
-    const valor = this.pedidoService.calcularPreco(prato, 'P', 'dinheiro_pix');
-    return this.whatsappService.criarLinkPedido(prato, 'P', 'dinheiro_pix', [], valor, whatsapp);
+    const valor = this.pedidoService.calcularPreco(prato, 'P', 'pix');
+    return this.whatsappService.criarLinkPedido(prato, 'P', 'pix', [], valor, whatsapp);
   };
 
   protected linkPedidoGeral(): string {
@@ -171,9 +171,11 @@ export class InicioPage implements OnInit {
       endereco: 'Rua Apolinario de Santana, 129 - Engenho Velho da Federacao',
       horarioFuncionamento: 'Segunda a sabado, das 10h as 14h',
       estaAberto: false,
+      permitirPedidos: false,
+      motivoBloqueio: 'Status indisponivel',
       mensagemStatus: 'Nao conseguimos carregar o status do restaurante agora.',
       urlLogo: '/assets/logo-tininha.svg',
-      formasPagamento: ['Pix', 'Visa', 'Mastercard', 'Hipercard']
+      formasPagamento: ['Dinheiro', 'PIX', 'Cartão']
     };
   }
 }

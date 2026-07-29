@@ -128,6 +128,8 @@ export class CardapioService {
       return {
         ...this.restaurante(),
         estaAberto: false,
+        permitirPedidos: false,
+        motivoBloqueio: 'Hoje nao temos atendimento. Consulte o cardapio dos outros dias.',
         mensagemStatus: 'Hoje nao temos atendimento. Consulte o cardapio dos outros dias.'
       };
     }
@@ -165,9 +167,11 @@ export class CardapioService {
       endereco: restaurante.endereco ?? 'Rua Apolinario de Santana, 129 - Engenho Velho da Federacao',
       horarioFuncionamento: restaurante.horarioFuncionamento ?? 'Segunda a sabado, das 10h as 14h',
       estaAberto: restaurante.estaAberto,
+      permitirPedidos: restaurante.permitirPedidos ?? restaurante.estaAberto,
+      motivoBloqueio: restaurante.motivoBloqueio,
       mensagemStatus: restaurante.mensagemStatus,
       urlLogo: restaurante.urlLogo ?? '/assets/logo-tininha.svg',
-      formasPagamento: ['Pix', 'Visa', 'Mastercard', 'Hipercard']
+      formasPagamento: ['Dinheiro', 'PIX', 'Cartão']
     };
   }
 
@@ -190,6 +194,8 @@ interface CardapioDiaApi {
 interface RestauranteApi {
   nome: string;
   estaAberto: boolean;
+  permitirPedidos?: boolean;
+  motivoBloqueio?: string | null;
   mensagemStatus: string;
   whatsapp: string | null;
   instagram: string | null;

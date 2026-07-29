@@ -14,9 +14,11 @@ export const restauranteMock: Restaurante = {
   endereco: 'Rua Apolinario de Santana, 129 - Engenho Velho da Federacao',
   horarioFuncionamento: 'Segunda a sábado, das 10h às 14h',
   estaAberto: true,
+  permitirPedidos: true,
+  motivoBloqueio: null,
   mensagemStatus: 'Atendimento aberto para pedidos de hoje. Chama no WhatsApp e combina sua quentinha.',
   urlLogo: '/assets/logo-tininha.svg',
-  formasPagamento: ['Pix', 'Visa', 'Mastercard', 'Hipercard']
+  formasPagamento: ['Dinheiro', 'PIX', 'Cartão']
 };
 
 export const acompanhamentosMock: Acompanhamento[] = [

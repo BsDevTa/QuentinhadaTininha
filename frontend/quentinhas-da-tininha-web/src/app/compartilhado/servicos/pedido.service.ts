@@ -72,7 +72,7 @@ export class PedidoService {
   }
 
   calcularPreco(prato: Prato, tamanho: TamanhoRefeicao, formaPagamento: FormaPagamento): number {
-    if (tamanho === 'P' && formaPagamento === 'dinheiro_pix') {
+    if (tamanho === 'P' && formaPagamento !== 'cartao') {
       return prato.precos.pequenaDinheiroPix;
     }
 
@@ -80,7 +80,7 @@ export class PedidoService {
       return prato.precos.pequenaCartao;
     }
 
-    if (tamanho === 'G' && formaPagamento === 'dinheiro_pix') {
+    if (tamanho === 'G' && formaPagamento !== 'cartao') {
       return prato.precos.grandeDinheiroPix;
     }
 
@@ -128,6 +128,13 @@ export class PedidoService {
   }
 
   rotuloPagamento(formaPagamento: FormaPagamento): string {
-    return formaPagamento === 'dinheiro_pix' ? 'Dinheiro ou Pix' : 'Cartão';
+    switch (formaPagamento) {
+      case 'dinheiro':
+        return 'Dinheiro';
+      case 'pix':
+        return 'PIX';
+      case 'cartao':
+        return 'Cartão';
+    }
   }
 }

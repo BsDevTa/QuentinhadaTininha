@@ -1,10 +1,12 @@
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   FormaPagamento,
   PersonalizacaoPedido,
   Prato,
-  TamanhoRefeicao
+  TamanhoRefeicao,
+  TipoEntrega
 } from '../../../compartilhado/modelos/cardapio.model';
 import { PedidoService } from '../../../compartilhado/servicos/pedido.service';
 import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.service';
@@ -12,7 +14,7 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
 @Component({
   selector: 'app-cartao-prato',
   standalone: true,
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, FormsModule],
   template: `
     <article class="item-prato" [class.item-prato--indisponivel]="!prato.estaDisponivel" [class.item-prato--aberto]="aberto">
       <button
@@ -69,11 +71,45 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
             <div class="radio-cards">
               @for (opcao of pagamentos; track opcao.valor) {
                 <label [class.ativo]="formaPagamento() === opcao.valor">
-                  <input type="radio" [name]="'pagamento-' + prato.id" [checked]="formaPagamento() === opcao.valor" (change)="formaPagamento.set(opcao.valor)" />
+                  <input type="radio" [name]="'pagamento-' + prato.id" [checked]="formaPagamento() === opcao.valor" (change)="selecionarFormaPagamento(opcao.valor)" />
                   <span>{{ opcao.rotulo }}</span>
                 </label>
               }
             </div>
+
+            @if (formaPagamento() === 'dinheiro') {
+              <div class="grupo-opcoes">
+                <strong>Precisa de troco?</strong>
+                <div class="opcoes-inline">
+                  <label [class.ativo]="!precisaTroco()">
+                    <input type="radio" [name]="'troco-' + prato.id" [checked]="!precisaTroco()" (change)="precisaTroco.set(false); valorTrocoTexto.set('')" />
+                    Não
+                  </label>
+                  <label [class.ativo]="precisaTroco()">
+                    <input type="radio" [name]="'troco-' + prato.id" [checked]="precisaTroco()" (change)="precisaTroco.set(true)" />
+                    Sim
+                  </label>
+                </div>
+
+                @if (precisaTroco()) {
+                  <label class="campo-pedido">
+                    Troco para quanto?
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      inputmode="decimal"
+                      placeholder="Ex.: 50,00"
+                      [ngModel]="valorTrocoTexto()"
+                      (ngModelChange)="atualizarValorTroco($event)"
+                    />
+                  </label>
+                  @if (erroTroco(); as erro) {
+                    <small class="aviso-pedido">{{ erro }}</small>
+                  }
+                }
+              </div>
+            }
           </section>
 
           <section>
@@ -121,11 +157,47 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
             </div>
           </section>
 
+          <section>
+            <h4>4. Escolha retirada ou entrega</h4>
+            <div class="radio-cards">
+              @for (opcao of tiposEntrega; track opcao.valor) {
+                <label [class.ativo]="tipoEntrega() === opcao.valor">
+                  <input type="radio" [name]="'entrega-' + prato.id" [checked]="tipoEntrega() === opcao.valor" (change)="selecionarTipoEntrega(opcao.valor)" />
+                  <span>{{ opcao.rotulo }}</span>
+                </label>
+              }
+            </div>
+
+            @if (tipoEntrega() === 'entrega') {
+              <div class="pedido-campos">
+                <label class="campo-pedido">
+                  Endereço
+                  <input type="text" placeholder="Rua, número e complemento" [ngModel]="enderecoEntrega()" (ngModelChange)="enderecoEntrega.set($event)" />
+                </label>
+                <label class="campo-pedido">
+                  Bairro
+                  <input type="text" placeholder="Informe o bairro" [ngModel]="bairro()" (ngModelChange)="bairro.set($event)" />
+                </label>
+                <label class="campo-pedido campo-pedido--largo">
+                  Referência
+                  <input type="text" placeholder="Ponto de referência" [ngModel]="referencia()" (ngModelChange)="referencia.set($event)" />
+                </label>
+              </div>
+              @if (entregaInvalida()) {
+                <small class="aviso-pedido">Informe endereço, bairro e referência para entrega.</small>
+              }
+            }
+          </section>
+
           <section class="resumo-pedido">
             <h4>Seu pedido</h4>
             <p><strong>Prato:</strong> {{ prato.nome }}</p>
             <p><strong>Tamanho:</strong> {{ tamanho() }}</p>
             <p><strong>Pagamento:</strong> {{ rotuloPagamento }}</p>
+            @if (formaPagamento() === 'dinheiro') {
+              <p><strong>Troco:</strong> {{ resumoTroco }}</p>
+            }
+            <p><strong>Entrega:</strong> {{ resumoEntrega }}</p>
             <p><strong>Acompanhamentos:</strong> {{ resumoAcompanhamentos }}</p>
             <strong class="total-pedido">Total: {{ total() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
           </section>
@@ -136,7 +208,7 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
             </a>
           } @else {
             <button class="botao botao-pedido-expandido" type="button" disabled>
-              Pedido indisponivel no momento
+              {{ textoBotaoIndisponivel }}
             </button>
           }
         </div>
@@ -157,7 +229,13 @@ export class CartaoPratoComponent {
 
   protected readonly imagemFalhou = signal(false);
   protected readonly tamanho = signal<TamanhoRefeicao>('P');
-  protected readonly formaPagamento = signal<FormaPagamento>('dinheiro_pix');
+  protected readonly formaPagamento = signal<FormaPagamento>('pix');
+  protected readonly precisaTroco = signal(false);
+  protected readonly valorTrocoTexto = signal('');
+  protected readonly tipoEntrega = signal<TipoEntrega>('retirada');
+  protected readonly enderecoEntrega = signal('');
+  protected readonly bairro = signal('');
+  protected readonly referencia = signal('');
   protected readonly acompanhamentoIds = signal<string[]>([]);
   protected readonly tipoFeijaoId = signal<string | null>(null);
 
@@ -166,17 +244,58 @@ export class CartaoPratoComponent {
     { valor: 'G', rotulo: 'Grande' }
   ];
   protected readonly pagamentos: { valor: FormaPagamento; rotulo: string }[] = [
-    { valor: 'dinheiro_pix', rotulo: 'Dinheiro ou Pix' },
-    { valor: 'cartao', rotulo: 'Cartao' }
+    { valor: 'dinheiro', rotulo: 'Dinheiro' },
+    { valor: 'pix', rotulo: 'PIX' },
+    { valor: 'cartao', rotulo: 'Cartão' }
+  ];
+  protected readonly tiposEntrega: { valor: TipoEntrega; rotulo: string }[] = [
+    { valor: 'retirada', rotulo: 'Retirada' },
+    { valor: 'entrega', rotulo: 'Entrega' }
   ];
 
   protected readonly grupo = computed(() => this.pedidoService.obterGrupo(this.prato));
+  protected readonly valorTroco = computed(() => {
+    const valor = Number(this.valorTrocoTexto().replace(',', '.'));
+    return Number.isFinite(valor) && valor > 0 ? valor : null;
+  });
+  protected readonly erroTroco = computed(() => {
+    if (this.formaPagamento() !== 'dinheiro' || !this.precisaTroco()) {
+      return null;
+    }
+
+    const valorTroco = this.valorTroco();
+    if (valorTroco === null) {
+      return 'Informe o valor para troco.';
+    }
+
+    if (valorTroco <= this.total()) {
+      return 'O valor para troco deve ser maior que o total do pedido.';
+    }
+
+    return null;
+  });
+  protected readonly entregaInvalida = computed(() =>
+    this.tipoEntrega() === 'entrega' &&
+    (!this.normalizarTexto(this.enderecoEntrega()) ||
+      !this.normalizarTexto(this.bairro()) ||
+      !this.normalizarTexto(this.referencia()))
+  );
+  protected readonly pedidoValido = computed(() =>
+    !this.erroTroco() &&
+    !this.entregaInvalida()
+  );
   protected readonly personalizacao = computed<PersonalizacaoPedido>(() => ({
     pratoId: this.prato.id,
     tamanho: this.tamanho(),
     formaPagamento: this.formaPagamento(),
     acompanhamentoIds: this.acompanhamentoIds(),
-    tipoFeijaoId: this.tipoFeijaoId()
+    tipoFeijaoId: this.tipoFeijaoId(),
+    precisaTroco: this.formaPagamento() === 'dinheiro' && this.precisaTroco(),
+    valorTroco: this.formaPagamento() === 'dinheiro' && this.precisaTroco() ? this.valorTroco() : null,
+    tipoEntrega: this.tipoEntrega(),
+    enderecoEntrega: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.enderecoEntrega()) : null,
+    bairro: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.bairro()) : null,
+    referencia: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.referencia()) : null
   }));
   protected readonly acompanhamentosSelecionados = computed(() =>
     this.pedidoService.listarAcompanhamentosSelecionados(this.personalizacao(), this.grupo())
@@ -185,7 +304,7 @@ export class CartaoPratoComponent {
     this.pedidoService.calcularPreco(this.prato, this.tamanho(), this.formaPagamento())
   );
   protected readonly linkWhatsapp = computed(() => {
-    if (!this.restauranteAberto || !this.whatsappRestaurante.trim()) {
+    if (!this.restauranteAberto || !this.whatsappRestaurante.trim() || !this.pedidoValido()) {
       return null;
     }
 
@@ -195,7 +314,15 @@ export class CartaoPratoComponent {
       this.formaPagamento(),
       this.acompanhamentosSelecionados(),
       this.total(),
-      this.whatsappRestaurante
+      this.whatsappRestaurante,
+      {
+        precisaTroco: this.personalizacao().precisaTroco,
+        valorTroco: this.personalizacao().valorTroco,
+        tipoEntrega: this.personalizacao().tipoEntrega,
+        enderecoEntrega: this.personalizacao().enderecoEntrega,
+        bairro: this.personalizacao().bairro,
+        referencia: this.personalizacao().referencia
+      }
     );
   });
 
@@ -208,8 +335,60 @@ export class CartaoPratoComponent {
     return this.pedidoService.rotuloPagamento(this.formaPagamento());
   }
 
+  protected get resumoTroco(): string {
+    if (!this.precisaTroco()) {
+      return 'Não precisa';
+    }
+
+    const valorTroco = this.valorTroco();
+    return valorTroco === null
+      ? 'aguardando valor'
+      : `para ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTroco)}`;
+  }
+
+  protected get resumoEntrega(): string {
+    if (this.tipoEntrega() === 'retirada') {
+      return 'Retirada no local';
+    }
+
+    const endereco = this.normalizarTexto(this.enderecoEntrega());
+    const bairro = this.normalizarTexto(this.bairro());
+    return endereco && bairro ? `${endereco} - ${bairro}` : 'aguardando endereço';
+  }
+
+  protected get textoBotaoIndisponivel(): string {
+    if (!this.restauranteAberto) {
+      return 'Pedido indisponivel no momento';
+    }
+
+    return 'Complete os dados do pedido';
+  }
+
   protected deveMostrarImagem(): boolean {
     return Boolean(this.prato.urlImagem.trim()) && !this.imagemFalhou();
+  }
+
+  protected selecionarFormaPagamento(formaPagamento: FormaPagamento): void {
+    this.formaPagamento.set(formaPagamento);
+
+    if (formaPagamento !== 'dinheiro') {
+      this.precisaTroco.set(false);
+      this.valorTrocoTexto.set('');
+    }
+  }
+
+  protected selecionarTipoEntrega(tipoEntrega: TipoEntrega): void {
+    this.tipoEntrega.set(tipoEntrega);
+
+    if (tipoEntrega === 'retirada') {
+      this.enderecoEntrega.set('');
+      this.bairro.set('');
+      this.referencia.set('');
+    }
+  }
+
+  protected atualizarValorTroco(valor: string | number | null): void {
+    this.valorTrocoTexto.set(valor === null ? '' : String(valor));
   }
 
   protected acompanhamentoSelecionado(id: string): boolean {
@@ -232,5 +411,10 @@ export class CartaoPratoComponent {
     this.acompanhamentoIds.update((ids) =>
       ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]
     );
+  }
+
+  private normalizarTexto(texto: string): string | null {
+    const valor = texto.trim();
+    return valor ? valor : null;
   }
 }

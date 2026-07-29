@@ -1,6 +1,7 @@
 export type DiaSemana = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type TamanhoRefeicao = 'P' | 'G';
-export type FormaPagamento = 'dinheiro_pix' | 'cartao';
+export type FormaPagamento = 'dinheiro' | 'pix' | 'cartao';
+export type TipoEntrega = 'retirada' | 'entrega';
 export type TipoSelecaoAcompanhamento = 'MULTIPLA' | 'EXCLUSIVA';
 export type TipoGrupoAcompanhamento =
   | 'padrao'
@@ -59,6 +60,12 @@ export interface PersonalizacaoPedido {
   formaPagamento: FormaPagamento;
   acompanhamentoIds: string[];
   tipoFeijaoId: string | null;
+  precisaTroco: boolean;
+  valorTroco: number | null;
+  tipoEntrega: TipoEntrega;
+  enderecoEntrega: string | null;
+  bairro: string | null;
+  referencia: string | null;
 }
 
 export interface CardapioDia {
@@ -76,6 +83,8 @@ export interface Restaurante {
   endereco: string;
   horarioFuncionamento: string;
   estaAberto: boolean;
+  permitirPedidos: boolean;
+  motivoBloqueio?: string | null;
   mensagemStatus: string;
   urlLogo: string;
   formasPagamento: string[];
