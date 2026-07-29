@@ -49,6 +49,8 @@ public class PratoConfiguracao : IEntityTypeConfiguration<Prato>
 
         builder.HasIndex(prato => prato.CategoriaId);
 
+        builder.HasIndex(prato => prato.GrupoAcompanhamentoId);
+
         builder.HasIndex(prato => prato.Nome);
 
         builder.HasIndex(prato => prato.EstaAtivo);
@@ -61,6 +63,16 @@ public class PratoConfiguracao : IEntityTypeConfiguration<Prato>
             .WithMany(categoria => categoria.Pratos)
             .HasForeignKey(prato => prato.CategoriaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(prato => prato.GrupoAcompanhamento)
+            .WithMany(grupo => grupo.Pratos)
+            .HasForeignKey(prato => prato.GrupoAcompanhamentoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(prato => prato.Precos)
+            .WithOne(preco => preco.Prato)
+            .HasForeignKey(preco => preco.PratoId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(prato => prato.PratoAcompanhamentos)
             .WithOne(pratoAcompanhamento => pratoAcompanhamento.Prato)

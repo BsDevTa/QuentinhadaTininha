@@ -1,3 +1,5 @@
+using QuentinhasDaTininha.Dominio.Enumeracoes;
+
 namespace QuentinhasDaTininha.Dominio.Entidades;
 
 public class Acompanhamento
@@ -9,8 +11,12 @@ public class Acompanhamento
     public bool EstaAtivo { get; set; }
     public bool EstaDisponivel { get; set; }
     public string? MotivoIndisponibilidade { get; set; }
+    public TipoSelecaoAcompanhamento TipoSelecao { get; set; } =
+        TipoSelecaoAcompanhamento.Multipla;
+    public string? GrupoExclusivo { get; set; }
     public int OrdemExibicao { get; set; }
     public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset AtualizadoEm { get; set; } = DateTimeOffset.UtcNow;
     public ICollection<PratoAcompanhamento> PratoAcompanhamentos { get; set; } = new List<PratoAcompanhamento>();
+    public ICollection<GrupoAcompanhamentoItem> GruposAcompanhamentoItens { get; set; } = new List<GrupoAcompanhamentoItem>();
 }

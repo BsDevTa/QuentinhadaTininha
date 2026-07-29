@@ -108,7 +108,10 @@ builder.Services.AddScoped<IServicoHorarioFuncionamento, ServicoHorarioFuncionam
 builder.Services.AddScoped<IServicoFechamentoExcepcional, ServicoFechamentoExcepcional>();
 builder.Services.AddScoped<IServicoConfiguracaoRestaurante, ServicoConfiguracaoRestaurante>();
 builder.Services.AddScoped<IServicoCardapioPublico, ServicoCardapioPublico>();
+builder.Services.AddScoped<IServicoDataLocal, ServicoDataLocal>();
+builder.Services.AddScoped<IServicoCardapioDiaPublico, ServicoCardapioDiaPublico>();
 builder.Services.AddScoped<InicializadorAdministrador>();
+builder.Services.AddScoped<InicializadorCardapioPublico>();
 builder.Services.AddHttpClient("SupabaseStorage", httpClient =>
 {
     httpClient.Timeout = TimeSpan.FromSeconds(30);
@@ -150,6 +153,18 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DesenvolvimentoFrontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:4200",
+                "http://127.0.0.1:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -181,6 +196,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
+builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -188,10 +205,30 @@ using (var scope = app.Services.CreateScope())
     var inicializadorAdministrador =
         scope.ServiceProvider.GetRequiredService<InicializadorAdministrador>();
 
+    var administradorNome = builder.Configuration["ADMIN_NOME"] ??
+        builder.Configuration["AdministradorInicial:Nome"];
+    var administradorEmail = builder.Configuration["ADMIN_EMAIL"] ??
+        builder.Configuration["AdministradorInicial:Email"];
+    var administradorSenha = builder.Configuration["ADMIN_SENHA"] ??
+        builder.Configuration["AdministradorInicial:Senha"];
+
+    if (string.IsNullOrWhiteSpace(administradorNome) ||
+        string.IsNullOrWhiteSpace(administradorEmail) ||
+        string.IsNullOrWhiteSpace(administradorSenha))
+    {
+        app.Logger.LogWarning(
+            "Administrador inicial nao configurado. Defina ADMIN_NOME, ADMIN_EMAIL e ADMIN_SENHA ou AdministradorInicial:* em User Secrets.");
+    }
+
     await inicializadorAdministrador.InicializarAsync(
-        builder.Configuration["AdministradorInicial:Nome"],
-        builder.Configuration["AdministradorInicial:Email"],
-        builder.Configuration["AdministradorInicial:Senha"]);
+        administradorNome,
+        administradorEmail,
+        administradorSenha);
+
+    var inicializadorCardapioPublico =
+        scope.ServiceProvider.GetRequiredService<InicializadorCardapioPublico>();
+
+    await inicializadorCardapioPublico.InicializarAsync();
 }
 
 if (app.Environment.IsDevelopment())
@@ -200,9 +237,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("DesenvolvimentoFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

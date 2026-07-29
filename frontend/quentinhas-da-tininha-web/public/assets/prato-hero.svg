@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 520" role="img" aria-label="Prato de comida caseira">
+  <defs>
+    <radialGradient id="p" cx="50%" cy="50%" r="58%"><stop stop-color="#fff"/><stop offset=".75" stop-color="#f4f2ed"/><stop offset="1" stop-color="#d9d4ca"/></radialGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#6f160d" flood-opacity=".22"/></filter>
+  </defs>
+  <ellipse cx="350" cy="270" rx="310" ry="210" fill="#ff7900"/>
+  <path d="M96 188c154-91 339-126 547-64-72-86-414-85-547 64z" fill="#f59a00"/>
+  <ellipse cx="350" cy="270" rx="245" ry="170" fill="url(#p)" filter="url(#shadow)"/>
+  <ellipse cx="350" cy="270" rx="205" ry="132" fill="#fbfbf8"/>
+  <path d="M275 170c64-21 120-6 150 31-43 20-98 25-158 10z" fill="#fff"/>
+  <circle cx="390" cy="206" r="7" fill="#f2eee6"/><circle cx="421" cy="221" r="7" fill="#f2eee6"/><circle cx="360" cy="225" r="7" fill="#f2eee6"/>
+  <path d="M160 225c54-51 121-55 152-14 20 26 3 76-43 101-57 31-123 16-141-28-9-21 0-43 32-59z" fill="#7f3218"/>
+  <circle cx="198" cy="236" r="16" fill="#9b4423"/><circle cx="235" cy="257" r="15" fill="#b4572b"/><circle cx="172" cy="279" r="13" fill="#9b4423"/>
+  <path d="M198 320c42-14 78-2 101 35-31 55-128 64-161 22-18-24 2-44 60-57z" fill="#d56d1f"/>
+  <path d="M204 326c36 19 58 24 88 31" stroke="#773015" stroke-width="8" opacity=".35" stroke-linecap="round"/>
+  <path d="M432 265c41-28 109-24 146 7-34 26-95 50-154 33z" fill="#f3d06e"/>
+  <path d="M432 266c45 10 91 12 136 4M428 284c47 12 91 16 129 13" stroke="#c98719" stroke-width="5" opacity=".5"/>
+  <path d="M430 330c57-20 121-15 154 27-45 28-116 28-166 4z" fill="#f5f0df"/>
+  <circle cx="478" cy="351" r="9" fill="#e95600"/><circle cx="520" cy="340" r="9" fill="#e95600"/><circle cx="550" cy="361" r="7" fill="#16864b"/>
+</svg>

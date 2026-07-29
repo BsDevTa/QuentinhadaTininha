@@ -32,6 +32,14 @@ public class AcompanhamentoConfiguracao : IEntityTypeConfiguration<Acompanhament
         builder.Property(acompanhamento => acompanhamento.MotivoIndisponibilidade)
             .HasMaxLength(250);
 
+        builder.Property(acompanhamento => acompanhamento.TipoSelecao)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired();
+
+        builder.Property(acompanhamento => acompanhamento.GrupoExclusivo)
+            .HasMaxLength(80);
+
         builder.Property(acompanhamento => acompanhamento.OrdemExibicao)
             .IsRequired();
 
@@ -47,6 +55,11 @@ public class AcompanhamentoConfiguracao : IEntityTypeConfiguration<Acompanhament
         builder.HasMany(acompanhamento => acompanhamento.PratoAcompanhamentos)
             .WithOne(pratoAcompanhamento => pratoAcompanhamento.Acompanhamento)
             .HasForeignKey(pratoAcompanhamento => pratoAcompanhamento.AcompanhamentoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(acompanhamento => acompanhamento.GruposAcompanhamentoItens)
+            .WithOne(item => item.Acompanhamento)
+            .HasForeignKey(item => item.AcompanhamentoId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

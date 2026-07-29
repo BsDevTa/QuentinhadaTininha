@@ -39,7 +39,6 @@ public class ServicoAutenticacao : IServicoAutenticacao
         var emailNormalizado = requisicao.Email.Trim().ToLowerInvariant();
 
         var usuario = await _dbContext.UsuariosAdministrativos
-            .AsNoTracking()
             .FirstOrDefaultAsync(
                 usuarioAdministrativo => usuarioAdministrativo.Email == emailNormalizado,
                 cancellationToken);
@@ -56,10 +55,14 @@ public class ServicoAutenticacao : IServicoAutenticacao
 
         var expiraEm = DateTimeOffset.UtcNow.AddMinutes(_expiracaoEmMinutos);
         var token = _servicoToken.GerarToken(usuario, expiraEm);
+        usuario.UltimoAcessoEm = DateTimeOffset.UtcNow;
+        usuario.AtualizadoEm = usuario.UltimoAcessoEm.Value;
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         return new LoginResposta
         {
             Token = token,
+            TipoToken = "Bearer",
             ExpiraEm = expiraEm,
             Usuario = new UsuarioAutenticadoDto
             {

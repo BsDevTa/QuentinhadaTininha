@@ -44,6 +44,10 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Property<bool>("EstaDisponivel")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("GrupoExclusivo")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<string>("MotivoIndisponibilidade")
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
@@ -59,6 +63,11 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Property<decimal>("PrecoAdicional")
                         .HasPrecision(10, 2)
                         .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("TipoSelecao")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -199,6 +208,14 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)");
 
+                    b.Property<string>("HorarioFuncionamento")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("Instagram")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<string>("MensagemAberto")
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
@@ -276,6 +293,61 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.HasIndex("DataFechamento");
 
                     b.ToTable("fechamento_excepcional", (string)null);
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<bool>("EstaAtivo")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique();
+
+                    b.ToTable("grupo_acompanhamento", (string)null);
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamentoItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AcompanhamentoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GrupoAcompanhamentoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Obrigatorio")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OrdemExibicao")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcompanhamentoId");
+
+                    b.HasIndex("GrupoAcompanhamentoId", "AcompanhamentoId")
+                        .IsUnique();
+
+                    b.ToTable("grupo_acompanhamento_item", (string)null);
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.HistoricoAlteracao", b =>
@@ -381,6 +453,9 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Property<bool>("EstaDisponivel")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("GrupoAcompanhamentoId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("MotivoIndisponibilidade")
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
@@ -408,6 +483,8 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.HasIndex("EstaAtivo");
 
                     b.HasIndex("EstaDisponivel");
+
+                    b.HasIndex("GrupoAcompanhamentoId");
 
                     b.HasIndex("Nome");
 
@@ -438,6 +515,37 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.HasIndex("AcompanhamentoId");
 
                     b.ToTable("prato_acompanhamento", (string)null);
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.PrecoPrato", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FormaPagamento")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("PratoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Tamanho")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PratoId", "Tamanho", "FormaPagamento")
+                        .IsUnique();
+
+                    b.ToTable("preco_prato", (string)null);
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.UsuarioAdministrativo", b =>
@@ -503,6 +611,25 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Navigation("Prato");
                 });
 
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamentoItem", b =>
+                {
+                    b.HasOne("QuentinhasDaTininha.Dominio.Entidades.Acompanhamento", "Acompanhamento")
+                        .WithMany("GruposAcompanhamentoItens")
+                        .HasForeignKey("AcompanhamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamento", "GrupoAcompanhamento")
+                        .WithMany("Itens")
+                        .HasForeignKey("GrupoAcompanhamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Acompanhamento");
+
+                    b.Navigation("GrupoAcompanhamento");
+                });
+
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.HistoricoAlteracao", b =>
                 {
                     b.HasOne("QuentinhasDaTininha.Dominio.Entidades.UsuarioAdministrativo", "UsuarioAdministrativo")
@@ -521,7 +648,14 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamento", "GrupoAcompanhamento")
+                        .WithMany("Pratos")
+                        .HasForeignKey("GrupoAcompanhamentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Categoria");
+
+                    b.Navigation("GrupoAcompanhamento");
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.PratoAcompanhamento", b =>
@@ -543,8 +677,21 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Navigation("Prato");
                 });
 
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.PrecoPrato", b =>
+                {
+                    b.HasOne("QuentinhasDaTininha.Dominio.Entidades.Prato", "Prato")
+                        .WithMany("Precos")
+                        .HasForeignKey("PratoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Prato");
+                });
+
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.Acompanhamento", b =>
                 {
+                    b.Navigation("GruposAcompanhamentoItens");
+
                     b.Navigation("PratoAcompanhamentos");
                 });
 
@@ -558,11 +705,20 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Navigation("Pratos");
                 });
 
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamento", b =>
+                {
+                    b.Navigation("Itens");
+
+                    b.Navigation("Pratos");
+                });
+
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.Prato", b =>
                 {
                     b.Navigation("CardapiosDiaPratos");
 
                     b.Navigation("PratoAcompanhamentos");
+
+                    b.Navigation("Precos");
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.UsuarioAdministrativo", b =>

@@ -13,6 +13,9 @@ public class QuentinhasDaTininhaDbContext : DbContext
     public DbSet<ConfiguracaoRestaurante> ConfiguracoesRestaurante { get; set; } = null!;
     public DbSet<Categoria> Categorias { get; set; } = null!;
     public DbSet<Prato> Pratos { get; set; } = null!;
+    public DbSet<PrecoPrato> PrecosPratos { get; set; } = null!;
+    public DbSet<GrupoAcompanhamento> GruposAcompanhamento { get; set; } = null!;
+    public DbSet<GrupoAcompanhamentoItem> GruposAcompanhamentoItens { get; set; } = null!;
     public DbSet<Acompanhamento> Acompanhamentos { get; set; } = null!;
     public DbSet<PratoAcompanhamento> PratosAcompanhamentos { get; set; } = null!;
     public DbSet<CardapioDia> CardapiosDia { get; set; } = null!;

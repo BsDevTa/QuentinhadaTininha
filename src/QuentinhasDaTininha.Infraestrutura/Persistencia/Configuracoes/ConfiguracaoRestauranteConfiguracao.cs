@@ -31,6 +31,9 @@ public class ConfiguracaoRestauranteConfiguracao : IEntityTypeConfiguration<Conf
         builder.Property(configuracaoRestaurante => configuracaoRestaurante.Whatsapp)
             .HasMaxLength(20);
 
+        builder.Property(configuracaoRestaurante => configuracaoRestaurante.Instagram)
+            .HasMaxLength(80);
+
         builder.Property(configuracaoRestaurante => configuracaoRestaurante.Endereco)
             .HasMaxLength(250);
 
@@ -42,6 +45,9 @@ public class ConfiguracaoRestauranteConfiguracao : IEntityTypeConfiguration<Conf
 
         builder.Property(configuracaoRestaurante => configuracaoRestaurante.Cep)
             .HasMaxLength(10);
+
+        builder.Property(configuracaoRestaurante => configuracaoRestaurante.HorarioFuncionamento)
+            .HasMaxLength(160);
 
         builder.Property(configuracaoRestaurante => configuracaoRestaurante.ModoFuncionamento)
             .IsRequired()

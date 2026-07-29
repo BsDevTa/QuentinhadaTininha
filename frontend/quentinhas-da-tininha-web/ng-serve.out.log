@@ -1,0 +1,9 @@
+
+> quentinhas-da-tininha-web@0.0.0 start
+> ng serve --host 127.0.0.1 --port 4200
+
+> Building...
+√ Building...
+Application bundle generation failed. [2.263 seconds] - 2026-07-28T22:29:22.910Z
+
+Watch mode enabled. Watching for file changes...

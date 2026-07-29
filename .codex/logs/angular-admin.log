@@ -1,0 +1,127 @@
+
+> quentinhas-da-tininha-web@0.0.0 start
+> ng serve --host 127.0.0.1 --port 4200
+
+> Building...
+√ Building...
+Initial chunk files | Names                           |  Raw size
+styles.css          | styles                          |  32.00 kB | 
+main.js             | main                            |   5.73 kB | 
+chunk-TH6LAYBT.js   | -                               |   3.52 kB | 
+chunk-XKLNV7GJ.js   | -                               |   1.13 kB | 
+
+                    | Initial total                   |  42.38 kB
+
+Lazy chunk files    | Names                           |  Raw size
+chunk-5K4TNNGN.js   | inicio-page                     | 115.06 kB | 
+chunk-VL67E7MV.js   | pratos-page                     |  37.31 kB | 
+chunk-E7BCNDDZ.js   | acompanhamentos-page            |  36.57 kB | 
+chunk-2V5ERARO.js   | funcionamento-page              |  17.04 kB | 
+chunk-NSGTK4TD.js   | configuracoes-page              |  16.09 kB | 
+chunk-GA2UH7GX.js   | painel-page                     |  14.70 kB | 
+chunk-5JM7PN7B.js   | layout-administrativo-component |  13.61 kB | 
+chunk-U47SHBWT.js   | login-page                      |  10.75 kB | 
+chunk-IRO3BYJH.js   | -                               |   2.50 kB | 
+chunk-TCV4KY2R.js   | -                               |   2.18 kB | 
+
+Application bundle generation complete. [4.139 seconds] - 2026-07-29T01:23:27.750Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4200[22m/[39m
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                           |  Raw size
+styles.css          | styles                          |  32.00 kB | 
+main.js             | main                            |   5.73 kB | 
+
+Lazy chunk files    | Names                           |  Raw size
+chunk-ZUWAXZCT.js   | inicio-page                     | 115.06 kB | 
+chunk-7FF7LDKO.js   | layout-administrativo-component |  13.61 kB | 
+chunk-CJWFHVPN.js   | login-page                      |  10.75 kB | 
+chunk-GXQO6VEF.js   | -                               |   2.51 kB | 
+
+Application bundle generation complete. [1.524 seconds] - 2026-07-29T01:30:46.046Z
+
+Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names  | Raw size
+styles.css          | styles | 32.19 kB | 
+
+Application bundle generation complete. [0.135 seconds] - 2026-07-29T01:31:04.217Z
+
+Stylesheet update sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names                           |  Raw size
+styles.css          | styles                          |  32.19 kB | 
+main.js             | main                            |   5.73 kB | 
+chunk-TH6LAYBT.js   | -                               |   3.52 kB | 
+chunk-XKLNV7GJ.js   | -                               |   1.13 kB | 
+
+                    | Initial total                   |  42.57 kB
+
+Lazy chunk files    | Names                           |  Raw size
+chunk-ZUWAXZCT.js   | inicio-page                     | 115.06 kB | 
+chunk-VL67E7MV.js   | pratos-page                     |  37.31 kB | 
+chunk-E7BCNDDZ.js   | acompanhamentos-page            |  36.57 kB | 
+chunk-2V5ERARO.js   | funcionamento-page              |  17.04 kB | 
+chunk-NSGTK4TD.js   | configuracoes-page              |  16.09 kB | 
+chunk-GA2UH7GX.js   | painel-page                     |  14.70 kB | 
+chunk-7FF7LDKO.js   | layout-administrativo-component |  13.61 kB | 
+chunk-CJWFHVPN.js   | login-page                      |  10.75 kB | 
+chunk-GXQO6VEF.js   | -                               |   2.51 kB | 
+chunk-TCV4KY2R.js   | -                               |   2.18 kB | 
+
+Application bundle generation complete. [0.012 seconds] - 2026-07-29T01:31:44.088Z
+
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names       |  Raw size
+main.js             | main        |   5.73 kB | 
+
+Lazy chunk files    | Names       |  Raw size
+chunk-OCZE3DHY.js   | inicio-page | 115.09 kB | 
+
+Application bundle generation complete. [0.335 seconds] - 2026-07-29T01:34:49.793Z
+
+Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names  | Raw size
+styles.css          | styles | 32.27 kB | 
+
+Application bundle generation complete. [0.110 seconds] - 2026-07-29T01:34:58.951Z
+
+Stylesheet update sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names       |  Raw size
+main.js             | main        |   5.73 kB | 
+
+Lazy chunk files    | Names       |  Raw size
+chunk-7EN4GWL3.js   | inicio-page | 115.15 kB | 
+
+Application bundle generation complete. [0.343 seconds] - 2026-07-29T01:35:12.494Z
+
+Component update sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names       |  Raw size
+main.js             | main        |   5.73 kB | 
+
+Lazy chunk files    | Names       |  Raw size
+chunk-BY66B4LN.js   | inicio-page | 115.16 kB | 
+
+Application bundle generation complete. [0.573 seconds] - 2026-07-29T01:49:26.023Z
+
+Page reload sent to client(s).
+> Changes detected. Rebuilding...
+√ Changes detected. Rebuilding...
+Initial chunk files | Names  | Raw size
+styles.css          | styles | 32.30 kB | 
+
+Application bundle generation complete. [0.105 seconds] - 2026-07-29T01:49:42.096Z
+
+Stylesheet update sent to client(s).

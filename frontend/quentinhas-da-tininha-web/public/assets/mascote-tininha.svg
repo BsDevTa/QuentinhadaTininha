@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" role="img" aria-label="Mascote da Tininha">
+  <defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#ff6b00"/><stop offset="1" stop-color="#f59a00"/></linearGradient></defs>
+  <rect width="260" height="260" rx="32" fill="#fff5e8"/>
+  <path d="M35 207c36-38 139-43 190 0v30H35z" fill="#fff"/>
+  <circle cx="130" cy="112" r="62" fill="#a75a2b"/>
+  <path d="M66 78c12-37 57-48 83-27 20-20 65-7 70 23 21 8 20 41-4 48H48c-16-20-5-42 18-44z" fill="#fff"/>
+  <path d="M79 78c26-7 47-1 64 15 19-16 43-12 61 1" fill="none" stroke="#d8c6b4" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="106" cy="116" r="6" fill="#2b140d"/>
+  <circle cx="153" cy="116" r="6" fill="#2b140d"/>
+  <path d="M108 143c16 14 40 14 57 0" fill="none" stroke="#2b140d" stroke-width="6" stroke-linecap="round"/>
+  <path d="M58 202c-4-33 17-65 48-75 14 22 34 23 50 0 31 10 52 42 48 75z" fill="#fff" stroke="#e95600" stroke-width="4"/>
+  <circle cx="178" cy="174" r="34" fill="url(#g)"/>
+  <path d="M151 172c17 9 40 9 55 0" fill="none" stroke="#fff5e8" stroke-width="8" stroke-linecap="round"/>
+  <path d="M72 32l12 16M206 39l-11 17M224 116l18-7" stroke="#ff7900" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -49,9 +49,15 @@ public class ServicoToken : IServicoToken
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Nome),
+            new Claim(ClaimTypes.Name, usuario.Nome),
             new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+            new Claim(ClaimTypes.Email, usuario.Email),
+            new Claim("nome", usuario.Nome),
+            new Claim("usuarioId", usuario.Id.ToString()),
             new Claim(ClaimTypes.Role, usuario.Perfil.ToString()),
+            new Claim("role", usuario.Perfil.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

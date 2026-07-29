@@ -1,0 +1,16 @@
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\bin\Release\net10.0\QuentinhasDaTininha.Aplicacao.deps.json
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\bin\Release\net10.0\QuentinhasDaTininha.Aplicacao.dll
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\bin\Release\net10.0\QuentinhasDaTininha.Aplicacao.pdb
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\bin\Release\net10.0\QuentinhasDaTininha.Dominio.dll
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\bin\Release\net10.0\QuentinhasDaTininha.Dominio.pdb
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.csproj.AssemblyReference.cache
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.AssemblyInfoInputs.cache
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.AssemblyInfo.cs
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.csproj.CoreCompileInputs.cache
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.sourcelink.json
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\Quentinh.86B5ABAD.Up2Date
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.dll
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\refint\QuentinhasDaTininha.Aplicacao.dll
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\QuentinhasDaTininha.Aplicacao.pdb
+C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Release\net10.0\ref\QuentinhasDaTininha.Aplicacao.dll

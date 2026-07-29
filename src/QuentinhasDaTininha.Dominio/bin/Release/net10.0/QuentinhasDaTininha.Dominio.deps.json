@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "QuentinhasDaTininha.Dominio/1.0.0": {
+        "runtime": {
+          "QuentinhasDaTininha.Dominio.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "QuentinhasDaTininha.Dominio/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
