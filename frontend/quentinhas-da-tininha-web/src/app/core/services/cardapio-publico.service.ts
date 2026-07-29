@@ -9,7 +9,7 @@ import { CardapioPublicoResposta } from '../models/cardapio-publico.model';
   providedIn: 'root'
 })
 export class CardapioPublicoService {
-  private readonly endpoint = `${environment.apiUrl}/api/publico/cardapio`;
+  private readonly endpoint = `${environment.apiUrl}/publico/cardapio`;
 
   constructor(private readonly httpClient: HttpClient) {}
 

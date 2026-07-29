@@ -155,10 +155,12 @@ builder.Services
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("DesenvolvimentoFrontend", policy =>
+    options.AddPolicy("Frontend", policy =>
     {
         policy
             .WithOrigins(
+                "https://quentinhas-da-tininha.web.app",
+                "https://quentinhas-da-tininha.firebaseapp.com",
                 "http://localhost:4200",
                 "http://127.0.0.1:4200")
             .AllowAnyHeader()
@@ -237,7 +239,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("DesenvolvimentoFrontend");
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 

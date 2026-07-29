@@ -156,11 +156,13 @@ export class CardapioService {
   }
 
   private mapearRestaurante(restaurante: RestauranteApi): Restaurante {
+    const whatsappConfigurado = environment.whatsappRestaurante.trim();
+
     return {
       nome: restaurante.nome,
-      whatsapp: restaurante.whatsapp ?? '',
+      whatsapp: whatsappConfigurado || restaurante.whatsapp || '',
       instagram: restaurante.instagram ?? '@quentinhasdatininha',
-      endereco: restaurante.endereco ?? 'Salvador - BA',
+      endereco: restaurante.endereco ?? 'Rua Apolinario de Santana, 129 - Engenho Velho da Federacao',
       horarioFuncionamento: restaurante.horarioFuncionamento ?? 'Segunda a sabado, das 10h as 14h',
       estaAberto: restaurante.estaAberto,
       mensagemStatus: restaurante.mensagemStatus,

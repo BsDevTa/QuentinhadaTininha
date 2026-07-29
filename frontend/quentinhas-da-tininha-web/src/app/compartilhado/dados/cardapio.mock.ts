@@ -9,9 +9,9 @@ import {
 
 export const restauranteMock: Restaurante = {
   nome: 'Quentinhas da Tininha',
-  whatsapp: '5571999999999',
+  whatsapp: '5571982189319',
   instagram: '@quentinhasdatininha',
-  endereco: 'Salvador - BA',
+  endereco: 'Rua Apolinario de Santana, 129 - Engenho Velho da Federacao',
   horarioFuncionamento: 'Segunda a sábado, das 10h às 14h',
   estaAberto: true,
   mensagemStatus: 'Atendimento aberto para pedidos de hoje. Chama no WhatsApp e combina sua quentinha.',

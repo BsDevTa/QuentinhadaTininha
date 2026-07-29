@@ -73,9 +73,10 @@ public class InicializadorCardapioPublico
 
         configuracao.Nome = "Quentinhas da Tininha";
         configuracao.Descricao = "Comida 100% caseira com sabor de família.";
-        configuracao.Whatsapp = "5571999999999";
-        configuracao.Instagram ??= "@quentinhasdatininha";
-        configuracao.Endereco = "Salvador";
+        configuracao.Telefone = "5571982189319";
+        configuracao.Whatsapp = "5571982189319";
+        configuracao.Instagram = "@quentinhasdatininha";
+        configuracao.Endereco = "Rua Apolinario de Santana, 129 - Engenho Velho da Federacao";
         configuracao.Cidade = "Salvador";
         configuracao.Estado = "BA";
         configuracao.HorarioFuncionamento ??= "Segunda a sabado, das 10h as 14h";

@@ -166,9 +166,9 @@ export class InicioPage implements OnInit {
   private restauranteIndisponivel(): Restaurante {
     return {
       nome: 'Quentinhas da Tininha',
-      whatsapp: '',
+      whatsapp: environment.whatsappRestaurante,
       instagram: '@quentinhasdatininha',
-      endereco: 'Salvador - BA',
+      endereco: 'Rua Apolinario de Santana, 129 - Engenho Velho da Federacao',
       horarioFuncionamento: 'Segunda a sabado, das 10h as 14h',
       estaAberto: false,
       mensagemStatus: 'Nao conseguimos carregar o status do restaurante agora.',
