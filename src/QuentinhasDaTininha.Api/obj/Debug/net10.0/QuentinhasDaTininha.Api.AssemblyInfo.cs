@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuentinhasDaTininha.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd5882b81d11f215bca393779ae979b162ee11fe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+da255cf36caf928c243d713743e44942cee5f083")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuentinhasDaTininha.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuentinhasDaTininha.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

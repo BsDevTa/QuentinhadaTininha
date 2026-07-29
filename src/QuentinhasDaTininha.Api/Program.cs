@@ -161,6 +161,8 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "https://quentinhas-da-tininha.web.app",
                 "https://quentinhas-da-tininha.firebaseapp.com",
+                "https://quentinha-da-tininha.web.app",
+                "https://quentinha-da-tininha.firebaseapp.com",
                 "https://quentinhadatininha.web.app",
                 "https://quentinhadatininha.firebaseapp.com",
                 "http://localhost:4200",
