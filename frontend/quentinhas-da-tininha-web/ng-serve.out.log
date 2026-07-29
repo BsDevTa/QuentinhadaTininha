@@ -4,6 +4,28 @@
 
 > Building...
 √ Building...
-Application bundle generation failed. [2.263 seconds] - 2026-07-28T22:29:22.910Z
+Initial chunk files | Names                           |  Raw size
+styles.css          | styles                          |  46.06 kB | 
+main.js             | main                            |   5.73 kB | 
+chunk-BOWNGZJJ.js   | -                               |   3.52 kB | 
+chunk-WZJ6PJNF.js   | -                               |   1.16 kB | 
+
+                    | Initial total                   |  56.47 kB
+
+Lazy chunk files    | Names                           |  Raw size
+chunk-T6KTSODZ.js   | inicio-page                     | 163.57 kB | 
+chunk-3MYQ7RO2.js   | funcionamento-page              |  37.35 kB | 
+chunk-JOMAXHFS.js   | pratos-page                     |  37.31 kB | 
+chunk-H5CA4Z4P.js   | acompanhamentos-page            |  36.57 kB | 
+chunk-ZHXMPMP7.js   | configuracoes-page              |  16.09 kB | 
+chunk-EBM4XEW3.js   | painel-page                     |  14.70 kB | 
+chunk-WNKACMCO.js   | layout-administrativo-component |  13.61 kB | 
+chunk-A53WIIB4.js   | login-page                      |  10.75 kB | 
+chunk-EZNKUMZ4.js   | -                               |   2.51 kB | 
+chunk-RKTH4FVZ.js   | -                               |   2.18 kB | 
+
+Application bundle generation complete. [2.853 seconds] - 2026-07-29T16:07:41.291Z
 
 Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4200[22m/[39m

@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { catchError, finalize, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Subscription, catchError, finalize, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CardapioDia, DiaSemana, Prato, Restaurante } from '../../../compartilhado/modelos/cardapio.model';
 import { CardapioService } from '../../../compartilhado/servicos/cardapio.service';
+import { OverlayHandle, OverlayService } from '../../../compartilhado/servicos/overlay.service';
 import { PedidoService } from '../../../compartilhado/servicos/pedido.service';
 import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.service';
 import { CabecalhoComponent } from '../../componentes/cabecalho/cabecalho.component';
@@ -10,8 +12,11 @@ import { CardapioDiaComponent } from '../../componentes/cardapio-dia/cardapio-di
 import { BeneficiosComponent } from '../../componentes/beneficios/beneficios.component';
 import { ComoFuncionaComponent } from '../../componentes/como-funciona/como-funciona.component';
 import { ContatoComponent } from '../../componentes/contato/contato.component';
+import { DiaBloqueadoModalComponent } from '../../componentes/dia-bloqueado-modal/dia-bloqueado-modal.component';
 import { HeroComponent } from '../../componentes/hero/hero.component';
+import { PersonalizacaoPedidoModalComponent } from '../../componentes/personalizacao-pedido-modal/personalizacao-pedido-modal.component';
 import { RodapeComponent } from '../../componentes/rodape/rodape.component';
+import { DiaBloqueadoSelecionado, EstadoDiaSeletor } from '../../componentes/seletor-dia/seletor-dia.component';
 import { SobreComponent } from '../../componentes/sobre/sobre.component';
 import { StatusRestauranteComponent } from '../../componentes/status-restaurante/status-restaurante.component';
 
@@ -49,9 +54,12 @@ import { StatusRestauranteComponent } from '../../componentes/status-restaurante
           [diaSelecionado]="diaSelecionado()"
           [diaAtual]="diaAtual"
           [selecionarDia]="selecionarDia"
+          [statusDias]="statusDias()"
           [whatsappRestaurante]="restaurante()?.whatsapp ?? ''"
           [restauranteAberto]="restaurante()?.permitirPedidos ?? false"
           [mensagemStatus]="restaurante()?.mensagemStatus ?? ''"
+          (personalizarPrato)="abrirPersonalizacao($event)"
+          (diaBloqueado)="abrirModalDiaBloqueado($event)"
         />
       }
 
@@ -66,10 +74,17 @@ import { StatusRestauranteComponent } from '../../componentes/status-restaurante
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InicioPage implements OnInit {
+export class InicioPage implements OnInit, OnDestroy {
+  private readonly httpClient = inject(HttpClient);
   private readonly cardapioService = inject(CardapioService);
+  private readonly overlayService = inject(OverlayService);
   private readonly pedidoService = inject(PedidoService);
   private readonly whatsappService = inject(WhatsappService);
+
+  private personalizacaoOverlay?: OverlayHandle<PersonalizacaoPedidoModalComponent>;
+  private modalDiaOverlay?: OverlayHandle<DiaBloqueadoModalComponent>;
+  private fecharPersonalizacaoSubscription?: Subscription;
+  private fecharModalDiaSubscription?: Subscription;
 
   protected readonly diaAtual = this.cardapioService.obterDiaAtual();
   protected readonly restaurante = signal<Restaurante | null>(null);
@@ -77,12 +92,22 @@ export class InicioPage implements OnInit {
   protected readonly diaSelecionado = signal<DiaSemana>(this.diaAtual);
   protected readonly carregando = signal(false);
   protected readonly mensagemErro = signal('');
+  protected readonly statusDias = signal<Partial<Record<DiaSemana, EstadoDiaSeletor>>>({});
 
   ngOnInit(): void {
+    this.carregarDisponibilidadeDias();
     this.carregarCardapioHoje();
   }
 
+  ngOnDestroy(): void {
+    this.fecharPersonalizacao();
+    this.fecharModalDiaBloqueado();
+  }
+
   protected readonly selecionarDia = (dia: DiaSemana): void => {
+    this.fecharPersonalizacao();
+    this.fecharModalDiaBloqueado();
+
     if (this.diaSelecionado() === dia && this.cardapio()) {
       return;
     }
@@ -92,6 +117,48 @@ export class InicioPage implements OnInit {
 
   protected tentarNovamente(): void {
     this.carregarCardapioPorDia(this.diaSelecionado());
+  }
+
+  protected abrirPersonalizacao(prato: Prato): void {
+    this.fecharModalDiaBloqueado();
+    this.fecharPersonalizacao();
+
+    this.personalizacaoOverlay = this.overlayService.open(PersonalizacaoPedidoModalComponent, {
+      prato,
+      whatsappRestaurante: this.restaurante()?.whatsapp ?? '',
+      restauranteAberto: this.restaurante()?.permitirPedidos ?? false
+    });
+
+    this.fecharPersonalizacaoSubscription = this.personalizacaoOverlay.componentRef.instance.fechar
+      .subscribe(() => this.fecharPersonalizacao());
+  }
+
+  protected fecharPersonalizacao(): void {
+    this.fecharPersonalizacaoSubscription?.unsubscribe();
+    this.fecharPersonalizacaoSubscription = undefined;
+    this.personalizacaoOverlay?.close();
+    this.personalizacaoOverlay = undefined;
+  }
+
+  protected abrirModalDiaBloqueado(dia: DiaBloqueadoSelecionado): void {
+    this.fecharPersonalizacao();
+    this.fecharModalDiaBloqueado();
+
+    this.modalDiaOverlay = this.overlayService.open(DiaBloqueadoModalComponent, {
+      nome: dia.nome,
+      motivo: dia.motivo,
+      data: dia.data
+    });
+
+    this.fecharModalDiaSubscription = this.modalDiaOverlay.componentRef.instance.fechar
+      .subscribe(() => this.fecharModalDiaBloqueado());
+  }
+
+  protected fecharModalDiaBloqueado(): void {
+    this.fecharModalDiaSubscription?.unsubscribe();
+    this.fecharModalDiaSubscription = undefined;
+    this.modalDiaOverlay?.close();
+    this.modalDiaOverlay = undefined;
   }
 
   protected readonly criarLinkPedido = (prato: Prato): string => {
@@ -133,6 +200,29 @@ export class InicioPage implements OnInit {
       .subscribe((cardapio) => this.aplicarCardapio(cardapio));
   }
 
+  private carregarDisponibilidadeDias(): void {
+    const dataInicial = this.criarDataLocalHoje();
+    const dataFinal = new Date(dataInicial);
+    dataFinal.setDate(dataInicial.getDate() + 6);
+    const apiUrl = environment.apiUrl.replace(/\/$/, '');
+    const url = `${apiUrl}/publico/disponibilidade?dataInicial=${this.formatarDataIso(dataInicial)}&dataFinal=${this.formatarDataIso(dataFinal)}`;
+
+    this.httpClient
+      .get<DisponibilidadePublicaResposta>(url)
+      .pipe(
+        catchError((erro: unknown) => {
+          if (!environment.production) {
+            console.error('Erro ao carregar disponibilidade publica', erro);
+          }
+
+          return of({ datas: [] } as DisponibilidadePublicaResposta);
+        })
+      )
+      .subscribe((disponibilidade) =>
+        this.statusDias.set(this.mapearDisponibilidadeDias(disponibilidade.datas ?? []))
+      );
+  }
+
   private aplicarCardapio(cardapio: CardapioDia): void {
     this.cardapio.set(cardapio);
     this.diaSelecionado.set(cardapio.diaSemana);
@@ -163,6 +253,42 @@ export class InicioPage implements OnInit {
     return of(this.cardapio()!);
   }
 
+  private mapearDisponibilidadeDias(
+    datas: DisponibilidadeDataPublicaResposta[]
+  ): Partial<Record<DiaSemana, EstadoDiaSeletor>> {
+    const statusDias: Partial<Record<DiaSemana, EstadoDiaSeletor>> = {};
+
+    for (const data of datas) {
+      const diaSemana = this.obterDiaSemanaData(data.data);
+      statusDias[diaSemana] = {
+        data: data.data,
+        permitirPedidos: data.permitirPedidos ?? data.disponivel,
+        motivo: data.motivo,
+        motivoBloqueio: data.motivoBloqueio
+      };
+    }
+
+    return statusDias;
+  }
+
+  private criarDataLocalHoje(): Date {
+    const hoje = new Date();
+    return new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  }
+
+  private obterDiaSemanaData(dataIso: string): DiaSemana {
+    const [ano, mes, dia] = dataIso.split('-').map(Number);
+    return new Date(ano, mes - 1, dia).getDay() as DiaSemana;
+  }
+
+  private formatarDataIso(data: Date): string {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}`;
+  }
+
   private restauranteIndisponivel(): Restaurante {
     return {
       nome: 'Quentinhas da Tininha',
@@ -178,4 +304,16 @@ export class InicioPage implements OnInit {
       formasPagamento: ['Dinheiro', 'PIX', 'Cartão']
     };
   }
+}
+
+interface DisponibilidadePublicaResposta {
+  datas: DisponibilidadeDataPublicaResposta[];
+}
+
+interface DisponibilidadeDataPublicaResposta {
+  data: string;
+  disponivel: boolean;
+  permitirPedidos: boolean;
+  motivo?: string | null;
+  motivoBloqueio?: string | null;
 }
