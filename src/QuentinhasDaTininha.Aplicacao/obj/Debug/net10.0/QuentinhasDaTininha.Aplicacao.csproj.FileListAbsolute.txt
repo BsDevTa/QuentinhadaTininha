@@ -29,3 +29,4 @@ C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Debug\net10.0\refint\QuentinhasDaTininha.Aplicacao.dll
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Debug\net10.0\QuentinhasDaTininha.Aplicacao.pdb
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Debug\net10.0\ref\QuentinhasDaTininha.Aplicacao.dll
+C:\Users\FOLHA_USER\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Aplicacao\obj\Debug\net10.0\QuentinhasDaTininha.Aplicacao.sourcelink.json

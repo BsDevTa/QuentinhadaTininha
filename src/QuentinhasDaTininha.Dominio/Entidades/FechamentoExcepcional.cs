@@ -10,6 +10,7 @@ public class FechamentoExcepcional
     public TimeOnly? HoraInicio { get; set; }
     public TimeOnly? HoraFim { get; set; }
     public bool EstaAtivo { get; set; }
+    public bool PermitirPedidos { get; set; }
     public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset AtualizadoEm { get; set; } = DateTimeOffset.UtcNow;
 }

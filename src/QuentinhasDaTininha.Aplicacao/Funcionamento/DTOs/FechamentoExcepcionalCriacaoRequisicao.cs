@@ -9,4 +9,5 @@ public class FechamentoExcepcionalCriacaoRequisicao
     public TimeOnly? HoraInicio { get; set; }
     public TimeOnly? HoraFim { get; set; }
     public bool Ativo { get; set; } = true;
+    public bool PermitirPedidos { get; set; }
 }

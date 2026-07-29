@@ -72,6 +72,7 @@ public class ServicoFechamentoExcepcional : IServicoFechamentoExcepcional
             HoraInicio = requisicao.HoraInicio,
             HoraFim = requisicao.HoraFim,
             EstaAtivo = requisicao.Ativo,
+            PermitirPedidos = requisicao.PermitirPedidos,
             CriadoEm = agora,
             AtualizadoEm = agora
         };
@@ -111,6 +112,7 @@ public class ServicoFechamentoExcepcional : IServicoFechamentoExcepcional
         fechamento.HoraInicio = requisicao.HoraInicio;
         fechamento.HoraFim = requisicao.HoraFim;
         fechamento.EstaAtivo = requisicao.Ativo;
+        fechamento.PermitirPedidos = requisicao.PermitirPedidos;
         fechamento.AtualizadoEm = DateTimeOffset.UtcNow;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -188,7 +190,8 @@ public class ServicoFechamentoExcepcional : IServicoFechamentoExcepcional
             DiaInteiro = fechamento.DiaInteiro,
             HoraInicio = fechamento.HoraInicio,
             HoraFim = fechamento.HoraFim,
-            Ativo = fechamento.EstaAtivo
+            Ativo = fechamento.EstaAtivo,
+            PermitirPedidos = fechamento.PermitirPedidos
         };
     }
 }

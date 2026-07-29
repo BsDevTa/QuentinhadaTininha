@@ -8,8 +8,13 @@ public class CardapioPublicoResposta
     public DateOnly Data { get; set; }
     public DiaSemana DiaSemana { get; set; }
     public bool Aberto { get; set; }
+    public bool PermitirPedidos { get; set; }
     public string? MotivoFechamento { get; set; }
+    public string? MotivoBloqueio { get; set; }
     public string? Mensagem { get; set; }
+    public IReadOnlyList<DateOnly> DatasDisponiveis { get; set; } = new List<DateOnly>();
+    public IReadOnlyList<DisponibilidadeDataPublicaResposta> DatasBloqueadas { get; set; } =
+        new List<DisponibilidadeDataPublicaResposta>();
     public IReadOnlyList<HorarioFuncionamentoPublicoResposta> Horarios { get; set; } =
         new List<HorarioFuncionamentoPublicoResposta>();
     public IReadOnlyList<CategoriaCardapioPublicoResposta> Categorias { get; set; } =

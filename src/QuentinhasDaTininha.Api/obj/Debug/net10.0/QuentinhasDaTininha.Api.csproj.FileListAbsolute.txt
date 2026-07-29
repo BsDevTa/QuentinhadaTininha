@@ -243,3 +243,4 @@ C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Api\obj\Debug
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Api\obj\Debug\net10.0\QuentinhasDaTininha.Api.pdb
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Api\obj\Debug\net10.0\QuentinhasDaTininha.Api.genruntimeconfig.cache
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Api\obj\Debug\net10.0\ref\QuentinhasDaTininha.Api.dll
+C:\Users\FOLHA_USER\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Api\obj\Debug\net10.0\QuentinhasDaTininha.Api.sourcelink.json

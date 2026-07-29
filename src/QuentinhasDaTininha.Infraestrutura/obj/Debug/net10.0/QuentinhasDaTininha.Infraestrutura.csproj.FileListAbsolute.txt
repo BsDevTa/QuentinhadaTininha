@@ -37,3 +37,4 @@ C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Infraestrutur
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Infraestrutura\obj\Debug\net10.0\QuentinhasDaTininha.Infraestrutura.pdb
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Infraestrutura\obj\Debug\net10.0\QuentinhasDaTininha.Infraestrutura.genruntimeconfig.cache
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Infraestrutura\obj\Debug\net10.0\ref\QuentinhasDaTininha.Infraestrutura.dll
+C:\Users\FOLHA_USER\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Infraestrutura\obj\Debug\net10.0\QuentinhasDaTininha.Infraestrutura.sourcelink.json

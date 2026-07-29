@@ -12,6 +12,8 @@ public class RestauranteStatusPublicoResposta
 {
     public string Nome { get; set; } = string.Empty;
     public bool EstaAberto { get; set; }
+    public bool PermitirPedidos { get; set; }
+    public string? MotivoBloqueio { get; set; }
     public string? MensagemStatus { get; set; }
     public string? Whatsapp { get; set; }
     public string? Instagram { get; set; }

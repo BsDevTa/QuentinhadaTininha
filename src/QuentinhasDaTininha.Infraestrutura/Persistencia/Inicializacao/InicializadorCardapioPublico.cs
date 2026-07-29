@@ -247,10 +247,10 @@ public class InicializadorCardapioPublico
             prato.EhDestaque = false;
             prato.AtualizadoEm = agora;
 
-            ConfigurarPreco(prato, TamanhoRefeicao.P, FormaPagamento.DinheiroPix, item.PequenaDinheiroPix);
-            ConfigurarPreco(prato, TamanhoRefeicao.P, FormaPagamento.Cartao, item.PequenaCartao);
-            ConfigurarPreco(prato, TamanhoRefeicao.G, FormaPagamento.DinheiroPix, item.GrandeDinheiroPix);
-            ConfigurarPreco(prato, TamanhoRefeicao.G, FormaPagamento.Cartao, item.GrandeCartao);
+            ConfigurarPreco(prato, TamanhoRefeicao.P, TipoPrecoPagamento.DinheiroPix, item.PequenaDinheiroPix);
+            ConfigurarPreco(prato, TamanhoRefeicao.P, TipoPrecoPagamento.Cartao, item.PequenaCartao);
+            ConfigurarPreco(prato, TamanhoRefeicao.G, TipoPrecoPagamento.DinheiroPix, item.GrandeDinheiroPix);
+            ConfigurarPreco(prato, TamanhoRefeicao.G, TipoPrecoPagamento.Cartao, item.GrandeCartao);
 
             resultado[item.Nome] = prato;
         }
@@ -261,7 +261,7 @@ public class InicializadorCardapioPublico
     private static void ConfigurarPreco(
         Prato prato,
         TamanhoRefeicao tamanho,
-        FormaPagamento formaPagamento,
+        TipoPrecoPagamento formaPagamento,
         decimal valor)
     {
         var preco = prato.Precos.FirstOrDefault(preco =>

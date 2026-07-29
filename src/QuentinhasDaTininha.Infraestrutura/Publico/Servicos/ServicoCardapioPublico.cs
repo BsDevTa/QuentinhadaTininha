@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QuentinhasDaTininha.Aplicacao.Funcionamento.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Publico.DTOs;
 using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 using QuentinhasDaTininha.Dominio.Entidades;
@@ -10,18 +11,24 @@ namespace QuentinhasDaTininha.Infraestrutura.Publico.Servicos;
 public class ServicoCardapioPublico : IServicoCardapioPublico
 {
     private readonly QuentinhasDaTininhaDbContext _dbContext;
+    private readonly IServicoDataLocal _servicoDataLocal;
+    private readonly IServicoDisponibilidadePedido _servicoDisponibilidadePedido;
 
-    public ServicoCardapioPublico(QuentinhasDaTininhaDbContext dbContext)
+    public ServicoCardapioPublico(
+        QuentinhasDaTininhaDbContext dbContext,
+        IServicoDataLocal servicoDataLocal,
+        IServicoDisponibilidadePedido servicoDisponibilidadePedido)
     {
         _dbContext = dbContext;
+        _servicoDataLocal = servicoDataLocal;
+        _servicoDisponibilidadePedido = servicoDisponibilidadePedido;
     }
 
     public async Task<CardapioPublicoResposta> ObterAsync(
         DateOnly? data,
         CancellationToken cancellationToken = default)
     {
-        var agora = DateTimeOffset.Now;
-        var dataConsulta = data ?? DateOnly.FromDateTime(agora.DateTime);
+        var dataConsulta = data ?? _servicoDataLocal.ObterDataAtual();
         var diaSemana = ConverterDiaSemana(dataConsulta);
 
         var configuracao = await _dbContext.ConfiguracoesRestaurante
@@ -40,14 +47,6 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
             })
             .ToListAsync(cancellationToken);
 
-        var fechamento = await _dbContext.FechamentosExcepcionais
-            .AsNoTracking()
-            .Where(fechamento =>
-                fechamento.DataFechamento == dataConsulta &&
-                fechamento.EstaAtivo)
-            .OrderBy(fechamento => fechamento.CriadoEm)
-            .FirstOrDefaultAsync(cancellationToken);
-
         var resposta = new CardapioPublicoResposta
         {
             Restaurante = MapearRestaurante(configuracao),
@@ -56,21 +55,43 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
             Horarios = horarios
         };
 
-        if (fechamento is not null)
+        var disponibilidadeData = await _servicoDisponibilidadePedido.ObterPorDataAsync(
+            dataConsulta,
+            cancellationToken);
+        var disponibilidade = await _servicoDisponibilidadePedido.ValidarPedidoAsync(
+            dataConsulta,
+            cancellationToken);
+
+        resposta.PermitirPedidos = disponibilidade.PermitirPedidos;
+        resposta.MotivoBloqueio = disponibilidade.MotivoBloqueio;
+        resposta.DatasDisponiveis = disponibilidade.PermitirPedidos
+            ? new List<DateOnly> { dataConsulta }
+            : new List<DateOnly>();
+        resposta.DatasBloqueadas = disponibilidade.PermitirPedidos
+            ? new List<DisponibilidadeDataPublicaResposta>()
+            : new List<DisponibilidadeDataPublicaResposta>
+            {
+                new()
+                {
+                    Data = dataConsulta,
+                    Disponivel = false,
+                    PermitirPedidos = false,
+                    Motivo = disponibilidade.MotivoBloqueio,
+                    MotivoBloqueio = disponibilidade.MotivoBloqueio
+                }
+            };
+
+        resposta.Aberto = disponibilidade.PermitirPedidos;
+        resposta.Mensagem = disponibilidade.PermitirPedidos
+            ? configuracao?.MensagemAberto
+            : disponibilidade.MotivoBloqueio ?? configuracao?.MensagemFechado;
+
+        if (!disponibilidadeData.PermitirPedidos)
         {
-            resposta.Aberto = false;
-            resposta.MotivoFechamento = fechamento.MensagemCliente ?? fechamento.Motivo;
-            resposta.Mensagem = fechamento.MensagemCliente ??
-                configuracao?.MensagemFechado ??
-                fechamento.Motivo;
+            resposta.MotivoFechamento = disponibilidade.MotivoBloqueio;
 
             return resposta;
         }
-
-        resposta.Aberto = EstaAberto(configuracao, horarios, dataConsulta, agora);
-        resposta.Mensagem = resposta.Aberto
-            ? configuracao?.MensagemAberto
-            : configuracao?.MensagemFechado;
 
         resposta.Categorias = await ObterCategoriasAsync(diaSemana, cancellationToken);
 
@@ -140,48 +161,6 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
                     .ToList()
             })
             .ToList();
-    }
-
-    private static bool EstaAberto(
-        ConfiguracaoRestaurante? configuracao,
-        IReadOnlyCollection<HorarioFuncionamentoPublicoResposta> horarios,
-        DateOnly dataConsulta,
-        DateTimeOffset agora)
-    {
-        if (configuracao is { EstaAtivo: false } ||
-            configuracao is { AceitaPedidos: false })
-        {
-            return false;
-        }
-
-        return configuracao?.ModoFuncionamento switch
-        {
-            ModoFuncionamento.AbertoManualmente => true,
-            ModoFuncionamento.FechadoManualmente => false,
-            _ => EstaAbertoPorHorario(horarios, dataConsulta, agora)
-        };
-    }
-
-    private static bool EstaAbertoPorHorario(
-        IReadOnlyCollection<HorarioFuncionamentoPublicoResposta> horarios,
-        DateOnly dataConsulta,
-        DateTimeOffset agora)
-    {
-        if (horarios.Count == 0)
-        {
-            return false;
-        }
-
-        var dataAtual = DateOnly.FromDateTime(agora.DateTime);
-        if (dataConsulta != dataAtual)
-        {
-            return true;
-        }
-
-        var horaAtual = TimeOnly.FromDateTime(agora.DateTime);
-        return horarios.Any(horario =>
-            horaAtual >= horario.HoraAbertura &&
-            horaAtual <= horario.HoraFechamento);
     }
 
     private static DiaSemana ConverterDiaSemana(DateOnly data)

@@ -276,15 +276,15 @@ public class AdminPratosController : ControllerBase
             .Select(prato => prato)
             .FirstOrDefaultAsync(cancellationToken) is { } prato
             ? new PratoAdminDetalheResposta
-                {
-                    Id = prato.Id,
-                    Nome = prato.Nome,
-                    Descricao = prato.Descricao,
-                    UrlImagem = prato.UrlImagem,
-                    EstaAtivo = prato.EstaAtivo,
-                    EstaDisponivel = prato.EstaDisponivel,
-                    GrupoAcompanhamentoId = prato.GrupoAcompanhamentoId,
-                    DiasSemana = prato.CardapiosDiaPratos
+            {
+                Id = prato.Id,
+                Nome = prato.Nome,
+                Descricao = prato.Descricao,
+                UrlImagem = prato.UrlImagem,
+                EstaAtivo = prato.EstaAtivo,
+                EstaDisponivel = prato.EstaDisponivel,
+                GrupoAcompanhamentoId = prato.GrupoAcompanhamentoId,
+                DiasSemana = prato.CardapiosDiaPratos
                         .OrderBy(item => item.CardapioDia.DiaSemana)
                         .Select(item => new DiaPratoAdminResposta
                         {
@@ -293,8 +293,8 @@ public class AdminPratosController : ControllerBase
                             EstaAtivo = true
                         })
                         .ToList(),
-                    Precos = MapearPrecos(prato.Precos)
-                }
+                Precos = MapearPrecos(prato.Precos)
+            }
             : null;
     }
 
@@ -446,16 +446,16 @@ public class AdminPratosController : ControllerBase
 
     private static void ConfigurarPrecos(Prato prato, PrecosPratoAdminDto precos)
     {
-        ConfigurarPreco(prato, TamanhoRefeicao.P, FormaPagamento.DinheiroPix, precos.PequenaDinheiroPix);
-        ConfigurarPreco(prato, TamanhoRefeicao.P, FormaPagamento.Cartao, precos.PequenaCartao);
-        ConfigurarPreco(prato, TamanhoRefeicao.G, FormaPagamento.DinheiroPix, precos.GrandeDinheiroPix);
-        ConfigurarPreco(prato, TamanhoRefeicao.G, FormaPagamento.Cartao, precos.GrandeCartao);
+        ConfigurarPreco(prato, TamanhoRefeicao.P, TipoPrecoPagamento.DinheiroPix, precos.PequenaDinheiroPix);
+        ConfigurarPreco(prato, TamanhoRefeicao.P, TipoPrecoPagamento.Cartao, precos.PequenaCartao);
+        ConfigurarPreco(prato, TamanhoRefeicao.G, TipoPrecoPagamento.DinheiroPix, precos.GrandeDinheiroPix);
+        ConfigurarPreco(prato, TamanhoRefeicao.G, TipoPrecoPagamento.Cartao, precos.GrandeCartao);
     }
 
     private static void ConfigurarPreco(
         Prato prato,
         TamanhoRefeicao tamanho,
-        FormaPagamento formaPagamento,
+        TipoPrecoPagamento formaPagamento,
         decimal valor)
     {
         var preco = prato.Precos.FirstOrDefault(item =>
@@ -479,17 +479,17 @@ public class AdminPratosController : ControllerBase
     {
         return new PrecosPratoAdminDto
         {
-            PequenaDinheiroPix = ObterPreco(precos, TamanhoRefeicao.P, FormaPagamento.DinheiroPix),
-            PequenaCartao = ObterPreco(precos, TamanhoRefeicao.P, FormaPagamento.Cartao),
-            GrandeDinheiroPix = ObterPreco(precos, TamanhoRefeicao.G, FormaPagamento.DinheiroPix),
-            GrandeCartao = ObterPreco(precos, TamanhoRefeicao.G, FormaPagamento.Cartao)
+            PequenaDinheiroPix = ObterPreco(precos, TamanhoRefeicao.P, TipoPrecoPagamento.DinheiroPix),
+            PequenaCartao = ObterPreco(precos, TamanhoRefeicao.P, TipoPrecoPagamento.Cartao),
+            GrandeDinheiroPix = ObterPreco(precos, TamanhoRefeicao.G, TipoPrecoPagamento.DinheiroPix),
+            GrandeCartao = ObterPreco(precos, TamanhoRefeicao.G, TipoPrecoPagamento.Cartao)
         };
     }
 
     private static decimal ObterPreco(
         IEnumerable<PrecoPrato> precos,
         TamanhoRefeicao tamanho,
-        FormaPagamento formaPagamento)
+        TipoPrecoPagamento formaPagamento)
     {
         return precos
             .Where(preco => preco.Tamanho == tamanho && preco.FormaPagamento == formaPagamento)

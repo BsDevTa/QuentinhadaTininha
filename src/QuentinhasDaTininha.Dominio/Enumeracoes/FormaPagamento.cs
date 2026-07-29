@@ -2,6 +2,7 @@ namespace QuentinhasDaTininha.Dominio.Enumeracoes;
 
 public enum FormaPagamento
 {
-    DinheiroPix = 1,
-    Cartao = 2
+    Dinheiro = 1,
+    Pix = 2,
+    Cartao = 3
 }

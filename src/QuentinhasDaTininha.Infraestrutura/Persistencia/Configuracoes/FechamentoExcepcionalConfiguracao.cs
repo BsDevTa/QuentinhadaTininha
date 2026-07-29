@@ -27,6 +27,9 @@ public class FechamentoExcepcionalConfiguracao : IEntityTypeConfiguration<Fecham
         builder.Property(fechamentoExcepcional => fechamentoExcepcional.EstaAtivo)
             .IsRequired();
 
+        builder.Property(fechamentoExcepcional => fechamentoExcepcional.PermitirPedidos)
+            .IsRequired();
+
         builder.Property(fechamentoExcepcional => fechamentoExcepcional.CriadoEm)
             .IsRequired();
 
@@ -34,5 +37,11 @@ public class FechamentoExcepcionalConfiguracao : IEntityTypeConfiguration<Fecham
             .IsRequired();
 
         builder.HasIndex(fechamentoExcepcional => fechamentoExcepcional.DataFechamento);
+
+        builder.HasIndex(fechamentoExcepcional => new
+        {
+            fechamentoExcepcional.DataFechamento,
+            fechamentoExcepcional.EstaAtivo
+        });
     }
 }

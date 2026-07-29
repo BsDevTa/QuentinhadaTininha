@@ -288,9 +288,14 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<bool>("PermitirPedidos")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DataFechamento");
+
+                    b.HasIndex("DataFechamento", "EstaAtivo");
 
                     b.ToTable("fechamento_excepcional", (string)null);
                 });
@@ -423,6 +428,78 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                         .IsUnique();
 
                     b.ToTable("horario_funcionamento", (string)null);
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.Pedido", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Bairro")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("DataPedido")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EnderecoEntrega")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("FormaPagamento")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("NomeCliente")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("PrecisaTroco")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Referencia")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("TelefoneCliente")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("TipoEntrega")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("ValorTroco")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataPedido");
+
+                    b.HasIndex("FormaPagamento");
+
+                    b.HasIndex("TipoEntrega");
+
+                    b.ToTable("pedido", (string)null);
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.Prato", b =>

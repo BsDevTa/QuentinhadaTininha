@@ -1,37 +1,43 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj": {}
+    "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj": {
+    "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj",
+        "projectUniqueName": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj",
         "projectName": "QuentinhasDaTininha.Api",
-        "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj",
-        "packagesPath": "C:\\Users\\Kong\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\obj\\",
+        "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\QuentinhasDaTininha.Api.csproj",
+        "packagesPath": "C:\\Users\\FOLHA_USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Api\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Kong\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\FOLHA_USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj": {
-                "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj"
+              "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj": {
+                "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj"
               },
-              "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj": {
-                "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj"
+              "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj": {
+                "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj"
               }
             }
           }
@@ -46,11 +52,10 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
@@ -87,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
@@ -505,31 +510,37 @@
         }
       }
     },
-    "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj": {
+    "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj",
+        "projectUniqueName": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj",
         "projectName": "QuentinhasDaTininha.Aplicacao",
-        "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj",
-        "packagesPath": "C:\\Users\\Kong\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\obj\\",
+        "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj",
+        "packagesPath": "C:\\Users\\FOLHA_USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Kong\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\FOLHA_USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj": {
-                "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj"
+              "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj": {
+                "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj"
               }
             }
           }
@@ -544,11 +555,10 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "imports": [
             "net461",
@@ -566,7 +576,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -844,27 +854,33 @@
         }
       }
     },
-    "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj": {
+    "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj",
+        "projectUniqueName": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj",
         "projectName": "QuentinhasDaTininha.Dominio",
-        "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj",
-        "packagesPath": "C:\\Users\\Kong\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\obj\\",
+        "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj",
+        "packagesPath": "C:\\Users\\FOLHA_USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Kong\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\FOLHA_USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -879,11 +895,10 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "imports": [
             "net461",
@@ -901,7 +916,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -1179,34 +1194,40 @@
         }
       }
     },
-    "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj": {
+    "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj",
+        "projectUniqueName": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj",
         "projectName": "QuentinhasDaTininha.Infraestrutura",
-        "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj",
-        "packagesPath": "C:\\Users\\Kong\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\obj\\",
+        "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\QuentinhasDaTininha.Infraestrutura.csproj",
+        "packagesPath": "C:\\Users\\FOLHA_USER\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Infraestrutura\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Kong\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\FOLHA_USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj": {
-                "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj"
+              "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj": {
+                "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Aplicacao\\QuentinhasDaTininha.Aplicacao.csproj"
               },
-              "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj": {
-                "projectPath": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj"
+              "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj": {
+                "projectPath": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\src\\QuentinhasDaTininha.Dominio\\QuentinhasDaTininha.Dominio.csproj"
               }
             }
           }
@@ -1221,11 +1242,10 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "BCrypt.Net-Next": {
@@ -1267,7 +1287,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

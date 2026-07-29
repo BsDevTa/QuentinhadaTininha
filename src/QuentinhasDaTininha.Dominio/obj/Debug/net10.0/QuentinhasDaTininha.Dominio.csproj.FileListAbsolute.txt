@@ -21,3 +21,4 @@ C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Dominio\obj\D
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Dominio\obj\Debug\net10.0\refint\QuentinhasDaTininha.Dominio.dll
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Dominio\obj\Debug\net10.0\QuentinhasDaTininha.Dominio.pdb
 C:\Users\Kong\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Dominio\obj\Debug\net10.0\ref\QuentinhasDaTininha.Dominio.dll
+C:\Users\FOLHA_USER\Documents\QuentinhadaTininha\src\QuentinhasDaTininha.Dominio\obj\Debug\net10.0\QuentinhasDaTininha.Dominio.sourcelink.json

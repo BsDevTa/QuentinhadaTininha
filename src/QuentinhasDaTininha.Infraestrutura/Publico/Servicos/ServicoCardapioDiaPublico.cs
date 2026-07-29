@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QuentinhasDaTininha.Aplicacao.Funcionamento.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Publico.DTOs;
 using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 using QuentinhasDaTininha.Dominio.Entidades;
@@ -11,13 +12,16 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
 {
     private readonly QuentinhasDaTininhaDbContext _dbContext;
     private readonly IServicoDataLocal _servicoDataLocal;
+    private readonly IServicoDisponibilidadePedido _servicoDisponibilidadePedido;
 
     public ServicoCardapioDiaPublico(
         QuentinhasDaTininhaDbContext dbContext,
-        IServicoDataLocal servicoDataLocal)
+        IServicoDataLocal servicoDataLocal,
+        IServicoDisponibilidadePedido servicoDisponibilidadePedido)
     {
         _dbContext = dbContext;
         _servicoDataLocal = servicoDataLocal;
+        _servicoDisponibilidadePedido = servicoDisponibilidadePedido;
     }
 
     public Task<CardapioDiaPublicoResposta> ObterHojeAsync(
@@ -38,9 +42,24 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
         }
 
         var restaurante = await ObterStatusRestauranteAsync(cancellationToken);
+        var dataAtual = _servicoDataLocal.ObterDataAtual();
+        var diaAtual = ConverterParaDiaPublico(dataAtual.DayOfWeek);
+
+        if (diaSemana != diaAtual)
+        {
+            restaurante.EstaAberto = false;
+            restaurante.PermitirPedidos = false;
+            restaurante.MotivoBloqueio =
+                "Somente o dia atual está disponível para pedidos.";
+            restaurante.MensagemStatus = restaurante.MotivoBloqueio;
+        }
+
         if (diaSemana == 7)
         {
             restaurante.EstaAberto = false;
+            restaurante.PermitirPedidos = false;
+            restaurante.MotivoBloqueio =
+                "Hoje não temos atendimento. Consulte o cardápio dos outros dias.";
             restaurante.MensagemStatus = "Hoje não temos atendimento. Consulte o cardápio dos outros dias.";
         }
 
@@ -65,22 +84,22 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
                 {
                     PequenaDinheiroPix = cardapioPrato.Prato.Precos
                         .Where(preco => preco.Tamanho == TamanhoRefeicao.P &&
-                            preco.FormaPagamento == FormaPagamento.DinheiroPix)
+                            preco.FormaPagamento == TipoPrecoPagamento.DinheiroPix)
                         .Select(preco => preco.Valor)
                         .FirstOrDefault(),
                     PequenaCartao = cardapioPrato.Prato.Precos
                         .Where(preco => preco.Tamanho == TamanhoRefeicao.P &&
-                            preco.FormaPagamento == FormaPagamento.Cartao)
+                            preco.FormaPagamento == TipoPrecoPagamento.Cartao)
                         .Select(preco => preco.Valor)
                         .FirstOrDefault(),
                     GrandeDinheiroPix = cardapioPrato.Prato.Precos
                         .Where(preco => preco.Tamanho == TamanhoRefeicao.G &&
-                            preco.FormaPagamento == FormaPagamento.DinheiroPix)
+                            preco.FormaPagamento == TipoPrecoPagamento.DinheiroPix)
                         .Select(preco => preco.Valor)
                         .FirstOrDefault(),
                     GrandeCartao = cardapioPrato.Prato.Precos
                         .Where(preco => preco.Tamanho == TamanhoRefeicao.G &&
-                            preco.FormaPagamento == FormaPagamento.Cartao)
+                            preco.FormaPagamento == TipoPrecoPagamento.Cartao)
                         .Select(preco => preco.Valor)
                         .FirstOrDefault()
                 },
@@ -133,21 +152,26 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
             {
                 Nome = "Quentinhas da Tininha",
                 EstaAberto = false,
+                PermitirPedidos = false,
+                MotivoBloqueio = "Não conseguimos carregar o status do restaurante.",
                 MensagemStatus = "Não conseguimos carregar o status do restaurante."
             };
         }
 
-        var estaAberto = configuracao.EstaAtivo &&
-            configuracao.AceitaPedidos &&
-            configuracao.ModoFuncionamento != ModoFuncionamento.FechadoManualmente;
+        var dataAtual = _servicoDataLocal.ObterDataAtual();
+        var disponibilidade = await _servicoDisponibilidadePedido.ValidarPedidoAsync(
+            dataAtual,
+            cancellationToken);
 
         return new RestauranteStatusPublicoResposta
         {
             Nome = configuracao.Nome,
-            EstaAberto = estaAberto,
-            MensagemStatus = estaAberto
+            EstaAberto = disponibilidade.PermitirPedidos,
+            PermitirPedidos = disponibilidade.PermitirPedidos,
+            MotivoBloqueio = disponibilidade.MotivoBloqueio,
+            MensagemStatus = disponibilidade.PermitirPedidos
                 ? configuracao.MensagemAberto
-                : configuracao.MensagemFechado,
+                : disponibilidade.MotivoBloqueio ?? configuracao.MensagemFechado,
             Whatsapp = configuracao.Whatsapp,
             Instagram = configuracao.Instagram,
             Endereco = string.Join(", ", new[]

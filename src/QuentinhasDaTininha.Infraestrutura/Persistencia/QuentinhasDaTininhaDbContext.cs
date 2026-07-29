@@ -22,6 +22,7 @@ public class QuentinhasDaTininhaDbContext : DbContext
     public DbSet<CardapioDiaPrato> CardapiosDiaPratos { get; set; } = null!;
     public DbSet<HorarioFuncionamento> HorariosFuncionamento { get; set; } = null!;
     public DbSet<FechamentoExcepcional> FechamentosExcepcionais { get; set; } = null!;
+    public DbSet<Pedido> Pedidos { get; set; } = null!;
     public DbSet<UsuarioAdministrativo> UsuariosAdministrativos { get; set; } = null!;
     public DbSet<HistoricoAlteracao> HistoricosAlteracoes { get; set; } = null!;
 
