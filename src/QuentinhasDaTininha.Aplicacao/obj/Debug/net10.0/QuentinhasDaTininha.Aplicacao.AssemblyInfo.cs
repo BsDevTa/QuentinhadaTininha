@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuentinhasDaTininha.Aplicacao")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3b9cafdc047b85799c96239924b041f98b3330e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c5cc647bd5b1887d4ee82ff4cb9dc24552edc326")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuentinhasDaTininha.Aplicacao")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuentinhasDaTininha.Aplicacao")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
