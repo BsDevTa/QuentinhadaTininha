@@ -65,6 +65,20 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
                 <span>1</span>
+                <h4>Cliente</h4>
+              </header>
+              <label class="campo-pedido campo-pedido--largo">
+                Nome
+                <input type="text" placeholder="Seu nome" [ngModel]="nomeCliente()" (ngModelChange)="nomeCliente.set($event)" />
+              </label>
+              @if (nomeClienteInvalido()) {
+                <small class="aviso-pedido">Informe seu nome para finalizar o pedido.</small>
+              }
+            </section>
+
+            <section class="etapa-pedido">
+              <header class="etapa-pedido__cabecalho">
+                <span>2</span>
                 <h4>Tamanho</h4>
               </header>
               <div class="radio-cards">
@@ -80,7 +94,7 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
 
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
-                <span>2</span>
+                <span>3</span>
                 <h4>Pagamento</h4>
               </header>
               <div class="radio-cards">
@@ -130,7 +144,7 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
 
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
-                <span>3</span>
+                <span>4</span>
                 <h4>Acompanhamentos</h4>
               </header>
 
@@ -178,7 +192,7 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
 
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
-                <span>4</span>
+                <span>5</span>
                 <h4>Entrega</h4>
               </header>
               <div class="radio-cards">
@@ -264,6 +278,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
 
   protected readonly imagemFalhou = signal(false);
   protected readonly tamanho = signal<TamanhoRefeicao>('P');
+  protected readonly nomeCliente = signal('');
   protected readonly formaPagamento = signal<FormaPagamento>('pix');
   protected readonly precisaTroco = signal(false);
   protected readonly valorTrocoTexto = signal('');
@@ -313,6 +328,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
 
     return null;
   });
+  protected readonly nomeClienteInvalido = computed(() => !this.normalizarTexto(this.nomeCliente()));
   protected readonly entregaInvalida = computed(() =>
     this.tipoEntrega() === 'entrega' &&
     (!this.normalizarTexto(this.enderecoEntrega()) ||
@@ -320,6 +336,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
       !this.normalizarTexto(this.referencia()))
   );
   protected readonly pedidoValido = computed(() =>
+    !this.nomeClienteInvalido() &&
     !this.erroTroco() &&
     !this.entregaInvalida()
   );
@@ -355,6 +372,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
       this.total(),
       this.whatsappRestaurante,
       {
+        nomeCliente: this.normalizarTexto(this.nomeCliente()),
         precisaTroco: this.personalizacao().precisaTroco,
         valorTroco: this.personalizacao().valorTroco,
         tipoEntrega: this.personalizacao().tipoEntrega,
