@@ -229,3 +229,212 @@
 ├────────────┼─────────────────────┼──────────────────────────────────────┼─────────────┤
 │ live       │ 2026-07-29 23:06:26 │ https://quentinha-da-tininha.web.app │ never       │
 └────────────┴─────────────────────┴──────────────────────────────────────┴─────────────┘
+[debug] [2026-08-03T18:42:16.899Z] ----------------------------------------------------------------------
+[debug] [2026-08-03T18:42:16.901Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\FOLHA_USER\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-08-03T18:42:16.902Z] CLI Version:   15.24.0
+[debug] [2026-08-03T18:42:16.902Z] Platform:      win32
+[debug] [2026-08-03T18:42:16.902Z] Node Version:  v24.18.0
+[debug] [2026-08-03T18:42:16.902Z] Detected Agent: codex_cli
+[debug] [2026-08-03T18:42:16.902Z] Time:          Mon Aug 03 2026 15:42:16 GMT-0300 (Horário Padrão de Brasília)
+[debug] [2026-08-03T18:42:16.903Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-03T18:42:16.936Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-08-03T18:42:23.378Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-03T18:42:23.379Z] > authorizing via signed-in user (taua28@gmail.com)
+[debug] [2026-08-03T18:42:23.379Z] [iam] checking project quentinha-da-tininha for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-08-03T18:42:23.381Z] Checked if tokens are valid: false, expires at: 1785358667719
+[debug] [2026-08-03T18:42:23.381Z] Checked if tokens are valid: false, expires at: 1785358667719
+[debug] [2026-08-03T18:42:23.381Z] > refreshing access token with scopes: []
+[debug] [2026-08-03T18:42:23.386Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-08-03T18:42:23.386Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-03T18:42:23.798Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-08-03T18:42:23.799Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-03T18:42:23.806Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/quentinha-da-tininha:testIamPermissions [none]
+[debug] [2026-08-03T18:42:23.807Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/quentinha-da-tininha:testIamPermissions  x-goog-user-project=quentinha-da-tininha
+[debug] [2026-08-03T18:42:23.807Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/quentinha-da-tininha:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-03T18:42:23.833Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-08-03T18:42:23.833Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-08-03T18:42:24.794Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/quentinha-da-tininha:testIamPermissions 200
+[debug] [2026-08-03T18:42:24.794Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/quentinha-da-tininha:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-03T18:42:24.796Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:24.796Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:24.796Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/quentinha-da-tininha [none]
+[debug] [2026-08-03T18:42:25.419Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/quentinha-da-tininha 200
+[debug] [2026-08-03T18:42:25.419Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/quentinha-da-tininha {"projectId":"quentinha-da-tininha","projectNumber":"933588867371","displayName":"Quentinha da Tininha","name":"projects/quentinha-da-tininha","resources":{"hostingSite":"quentinha-da-tininha"},"state":"ACTIVE","labels":{"firebase":"enabled"},"etag":"1_864a9f7e-5ad0-4ca8-aa97-b2037294ba13"}
+[info] 
+[info] === Deploying to 'quentinha-da-tininha'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-08-03T18:42:25.421Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:25.422Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:25.422Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/quentinha-da-tininha/sites/quentinha-da-tininha [none]
+[debug] [2026-08-03T18:42:26.872Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/quentinha-da-tininha/sites/quentinha-da-tininha 200
+[debug] [2026-08-03T18:42:26.872Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/quentinha-da-tininha/sites/quentinha-da-tininha {"name":"projects/quentinha-da-tininha/sites/quentinha-da-tininha","defaultUrl":"https://quentinha-da-tininha.web.app","type":"DEFAULT_SITE"}
+[debug] [2026-08-03T18:42:26.876Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:26.876Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:26.877Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions [none]
+[debug] [2026-08-03T18:42:26.878Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-08-03T18:42:28.055Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions 200
+[debug] [2026-08-03T18:42:28.055Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions {"name":"projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[quentinha-da-tininha]: beginning deploy... 
+[info] i  hosting[quentinha-da-tininha]: found 38 files in dist/quentinhas-da-tininha-web/browser 
+[debug] [2026-08-03T18:42:28.069Z] [hosting] uploading with 200 concurrency
+[debug] [2026-08-03T18:42:28.234Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:28.235Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:28.236Z] [hosting] hash cache [ZGlzdFxxdWVudGluaGFzLWRhLXRpbmluaGEtd2ViXGJyb3dzZXI] stored for 38 files
+[debug] [2026-08-03T18:42:28.237Z] [hosting][hash queue][FINAL] {"max":156,"min":16,"avg":47.81578947368421,"active":0,"complete":38,"success":38,"errored":0,"retried":0,"total":38,"elapsed":164}
+[debug] [2026-08-03T18:42:28.237Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8:populateFiles [none]
+[debug] [2026-08-03T18:42:28.237Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8:populateFiles {"files":{"/index.html":"0211e1e9eae8f5d5634638968562c7dc6bc53478185c86965f226bfbbd123ac9","/chunk-lOl6NZdl.js":"e424b8c26cfcdd31db89cf653a1c6a86ba006e1d9af2c29099a8be0685bdebee","/chunk-U0ok2SJf.js":"02ffcac79459d8abaac2053912c360aa0bfa4467828f679e2c34d3bed6faf752","/styles-N5J5PCJU.css":"e76d0f2a9d1f38dbee98a466d7a3730b043097b0b989b150908ac21aa89c6b75","/chunk-QcAQPqyC.js":"37fbf9cde768d263bee9177e8d1f878b3696df4c4c809c5f97c6b2958c532bbe","/chunk-DmrUoZ-g.js":"132771675c2a8981427530b88ae2057895122c1a9657843c650eb27bb822a727","/chunk-CRVix6kO.js":"8e0f9c97b65d93fd77087f22a4396e6643d9ec820ec45cdd6417c05ce7259a85","/favicon.ico":"a905b13e228420df3dbe746dfb656d37a49736494c0737d00e007c8dc7319912","/chunk-CDPEB42f.js":"e2bdc50ed769b23438d2583144bca87d871694050bf274e08446fdc551e1dff8","/chunk-BS-D-P7Z.js":"e2e7db99b2373e83e318f7e18f97b905f733b52ba9dc8a4b1328c2e8fa319087","/chunk-BZnrUB9U.js":"684ce70780bc3897f50f4234e325677a791375095f5b82c0adba5247d4a05161","/assets/prato-hero.svg":"408e8ac3358db6d6b846ec4ec74985b6d1e7ab3a8c020ceb1a7755224cad5940","/chunk-BXzByL-r.js":"328b39850a410b5b182189a4ab6d75ae2d63abde036e594ae48c3109affcdfd5","/chunk-BXeKeLpt.js":"fde12f7581910d3e3f92311dbf86d9a454a9f24df30722cd11dd35f9de74e419","/assets/mascote-tininha.svg":"5cfaae63094c0517e844f3f01d7f0f8e70da57d8bfad8b638a4c19540d829f55","/assets/pratos/peixe-frito.svg":"acc15217d7cdb5ea7636a52d2925e49a354656900634252da87e33d553f062ef","/assets/pratos/omelete-frango.svg":"aac54272e65ad2f4cb7842c280f6a9a1a78552676387cfaf343b7714b9a7548f","/assets/pratos/feijoada.svg":"69dfbafe4c32a6d0b142aea10e9bf200a681e699e03c7f2ad9b82fd3f612ec01","/chunk-D-tbduaJ.js":"2c3e0f87ef531740fd32af4e7adf08cabe57768de6cfc976a30e3c7951c18649","/assets/logo-tininha.svg":"32e493cc6f7336e70f0bf7188de58fbefd38813cadb08b41629ac76daed1dd40","/assets/pratos/frango-assado.svg":"f8fa169a11f724d7d5b17f3d229e0fff12b71c5487e4953309b56ad4210477f0","/assets/pratos/carne-sol.svg":"ce4cea1501c9ab3250dd3d331f22d4d681c03467edc51db5eb2286e57159282a","/assets/pratos/bisteca.svg":"c05a8d22e1b6bdea369f1357b4f65947a12a31f3100aa3a59e4843a7a9cfbcae","/assets/pagamentos/visa.svg":"4fee6c1a5671893b59e8e55cb21e9deb71fc244c814c387c758d1c99206c50b5","/assets/pagamentos/pix.svg":"53bd4501823ab04a089fe7de9c937c27bc15612cb4054b99a4bbfc240d5b4e9b","/assets/pagamentos/mastercard.svg":"2be7f16a537583d12b5adaecea396cd8e53ffb7fbb95195eee3b9668b523acd9","/assets/pagamentos/hipercard.svg":"ba0384796871472b3f51d382383951cf6a244772404a4cb26f25ec701909f252","/chunk-Dd8WL_ac.js":"e46a93193c0130461178e420b1be5525dc06513c876507c724ef1dfc3c3fba9e","/main-N75QUK6P.js":"5edf74ad37bedc40188484191a4b3d1264e5e5cf1442bce8bb2b7103187abbcd","/assets/logo-tininha-nova.png":"240d3eda6a51e06623a182160618dac903d6efd3b7c6f8f6b490ba20fe470975","/assets/prato-hero-real.png":"fe7fd8838d6577fa5b6e3fdc7559662f72f55744103bd19589d326b48cce9a5d","/assets/pratos/estrogonofe-de-frango.png":"5c51cd2d6e022c01c958ed1f356762fbb1be0fc86ee92ba6744ada93d36e2c10","/assets/prato-hero-transparente.png":"69bcda24d913cd0d745e5c6d1c53a87ef9d8c8b5816409e461e9db6f3d265216","/assets/pratos/bife-ao-molho.png":"4f7e111ce4bd9b950fe9148214d34658abed6ca2aa10a8d80b32e4bd91898447","/assets/pratos/frango-grelhado.png":"1e0339794bba6b09e973d10beba5827933d07c00c3fdcffbdd0b52195ba725ff","/assets/pratos/frango-a-milanesa.png":"70acb4bbf31dd1dd9a55236ec8fc8af116d07f87afe2f0e7db8d1085b197b5f5","/assets/pratos/quiabada.png":"8b001f224888b6a170bbd918b1fc4ac1e0f2a159a38a47c50049ac6612a310d9","/assets/pratos/bisteca-real.png":"2ee24b6f989eac8b9f56d1a0004c871c0766a84379089cc5cb91ebdf6fc9f804"}}
+[debug] [2026-08-03T18:42:29.016Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8:populateFiles 200
+[debug] [2026-08-03T18:42:29.016Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8:populateFiles {"uploadRequiredHashes":["02ffcac79459d8abaac2053912c360aa0bfa4467828f679e2c34d3bed6faf752","684ce70780bc3897f50f4234e325677a791375095f5b82c0adba5247d4a05161","0211e1e9eae8f5d5634638968562c7dc6bc53478185c86965f226bfbbd123ac9","132771675c2a8981427530b88ae2057895122c1a9657843c650eb27bb822a727","e424b8c26cfcdd31db89cf653a1c6a86ba006e1d9af2c29099a8be0685bdebee","5edf74ad37bedc40188484191a4b3d1264e5e5cf1442bce8bb2b7103187abbcd","328b39850a410b5b182189a4ab6d75ae2d63abde036e594ae48c3109affcdfd5","e2bdc50ed769b23438d2583144bca87d871694050bf274e08446fdc551e1dff8","fde12f7581910d3e3f92311dbf86d9a454a9f24df30722cd11dd35f9de74e419","8e0f9c97b65d93fd77087f22a4396e6643d9ec820ec45cdd6417c05ce7259a85","e46a93193c0130461178e420b1be5525dc06513c876507c724ef1dfc3c3fba9e","37fbf9cde768d263bee9177e8d1f878b3696df4c4c809c5f97c6b2958c532bbe","2c3e0f87ef531740fd32af4e7adf08cabe57768de6cfc976a30e3c7951c18649","e2e7db99b2373e83e318f7e18f97b905f733b52ba9dc8a4b1328c2e8fa319087","e76d0f2a9d1f38dbee98a466d7a3730b043097b0b989b150908ac21aa89c6b75"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files"}
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.017Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.018Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.019Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.020Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.021Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.021Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:29.021Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/02ffcac79459d8abaac2053912c360aa0bfa4467828f679e2c34d3bed6faf752 [none]
+[debug] [2026-08-03T18:42:29.021Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/02ffcac79459d8abaac2053912c360aa0bfa4467828f679e2c34d3bed6faf752 [stream]
+[debug] [2026-08-03T18:42:29.022Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/684ce70780bc3897f50f4234e325677a791375095f5b82c0adba5247d4a05161 [none]
+[debug] [2026-08-03T18:42:29.022Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/684ce70780bc3897f50f4234e325677a791375095f5b82c0adba5247d4a05161 [stream]
+[debug] [2026-08-03T18:42:29.023Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/0211e1e9eae8f5d5634638968562c7dc6bc53478185c86965f226bfbbd123ac9 [none]
+[debug] [2026-08-03T18:42:29.023Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/0211e1e9eae8f5d5634638968562c7dc6bc53478185c86965f226bfbbd123ac9 [stream]
+[debug] [2026-08-03T18:42:29.024Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/132771675c2a8981427530b88ae2057895122c1a9657843c650eb27bb822a727 [none]
+[debug] [2026-08-03T18:42:29.024Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/132771675c2a8981427530b88ae2057895122c1a9657843c650eb27bb822a727 [stream]
+[debug] [2026-08-03T18:42:29.024Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e424b8c26cfcdd31db89cf653a1c6a86ba006e1d9af2c29099a8be0685bdebee [none]
+[debug] [2026-08-03T18:42:29.024Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e424b8c26cfcdd31db89cf653a1c6a86ba006e1d9af2c29099a8be0685bdebee [stream]
+[debug] [2026-08-03T18:42:29.024Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/5edf74ad37bedc40188484191a4b3d1264e5e5cf1442bce8bb2b7103187abbcd [none]
+[debug] [2026-08-03T18:42:29.025Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/5edf74ad37bedc40188484191a4b3d1264e5e5cf1442bce8bb2b7103187abbcd [stream]
+[debug] [2026-08-03T18:42:29.025Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/328b39850a410b5b182189a4ab6d75ae2d63abde036e594ae48c3109affcdfd5 [none]
+[debug] [2026-08-03T18:42:29.025Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/328b39850a410b5b182189a4ab6d75ae2d63abde036e594ae48c3109affcdfd5 [stream]
+[debug] [2026-08-03T18:42:29.025Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2bdc50ed769b23438d2583144bca87d871694050bf274e08446fdc551e1dff8 [none]
+[debug] [2026-08-03T18:42:29.026Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2bdc50ed769b23438d2583144bca87d871694050bf274e08446fdc551e1dff8 [stream]
+[debug] [2026-08-03T18:42:29.026Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/fde12f7581910d3e3f92311dbf86d9a454a9f24df30722cd11dd35f9de74e419 [none]
+[debug] [2026-08-03T18:42:29.026Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/fde12f7581910d3e3f92311dbf86d9a454a9f24df30722cd11dd35f9de74e419 [stream]
+[debug] [2026-08-03T18:42:29.027Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/8e0f9c97b65d93fd77087f22a4396e6643d9ec820ec45cdd6417c05ce7259a85 [none]
+[debug] [2026-08-03T18:42:29.027Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/8e0f9c97b65d93fd77087f22a4396e6643d9ec820ec45cdd6417c05ce7259a85 [stream]
+[debug] [2026-08-03T18:42:29.027Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e46a93193c0130461178e420b1be5525dc06513c876507c724ef1dfc3c3fba9e [none]
+[debug] [2026-08-03T18:42:29.027Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e46a93193c0130461178e420b1be5525dc06513c876507c724ef1dfc3c3fba9e [stream]
+[debug] [2026-08-03T18:42:29.028Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/37fbf9cde768d263bee9177e8d1f878b3696df4c4c809c5f97c6b2958c532bbe [none]
+[debug] [2026-08-03T18:42:29.028Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/37fbf9cde768d263bee9177e8d1f878b3696df4c4c809c5f97c6b2958c532bbe [stream]
+[debug] [2026-08-03T18:42:29.028Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/2c3e0f87ef531740fd32af4e7adf08cabe57768de6cfc976a30e3c7951c18649 [none]
+[debug] [2026-08-03T18:42:29.028Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/2c3e0f87ef531740fd32af4e7adf08cabe57768de6cfc976a30e3c7951c18649 [stream]
+[debug] [2026-08-03T18:42:29.029Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2e7db99b2373e83e318f7e18f97b905f733b52ba9dc8a4b1328c2e8fa319087 [none]
+[debug] [2026-08-03T18:42:29.029Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2e7db99b2373e83e318f7e18f97b905f733b52ba9dc8a4b1328c2e8fa319087 [stream]
+[debug] [2026-08-03T18:42:29.029Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e76d0f2a9d1f38dbee98a466d7a3730b043097b0b989b150908ac21aa89c6b75 [none]
+[debug] [2026-08-03T18:42:29.030Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e76d0f2a9d1f38dbee98a466d7a3730b043097b0b989b150908ac21aa89c6b75 [stream]
+[debug] [2026-08-03T18:42:29.036Z] [hosting][populate queue][FINAL] {"max":787,"min":787,"avg":787,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":802}
+[debug] [2026-08-03T18:42:29.036Z] [hosting] uploads queued: 15
+[info] i  hosting: uploading new files [0/15] (0%) 
+[debug] [2026-08-03T18:42:30.367Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/02ffcac79459d8abaac2053912c360aa0bfa4467828f679e2c34d3bed6faf752 200
+[debug] [2026-08-03T18:42:30.367Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/02ffcac79459d8abaac2053912c360aa0bfa4467828f679e2c34d3bed6faf752 [stream]
+[debug] [2026-08-03T18:42:30.374Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/37fbf9cde768d263bee9177e8d1f878b3696df4c4c809c5f97c6b2958c532bbe 200
+[debug] [2026-08-03T18:42:30.375Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/37fbf9cde768d263bee9177e8d1f878b3696df4c4c809c5f97c6b2958c532bbe [stream]
+[debug] [2026-08-03T18:42:30.411Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e424b8c26cfcdd31db89cf653a1c6a86ba006e1d9af2c29099a8be0685bdebee 200
+[debug] [2026-08-03T18:42:30.411Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e424b8c26cfcdd31db89cf653a1c6a86ba006e1d9af2c29099a8be0685bdebee [stream]
+[debug] [2026-08-03T18:42:30.420Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/328b39850a410b5b182189a4ab6d75ae2d63abde036e594ae48c3109affcdfd5 200
+[debug] [2026-08-03T18:42:30.420Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/328b39850a410b5b182189a4ab6d75ae2d63abde036e594ae48c3109affcdfd5 [stream]
+[debug] [2026-08-03T18:42:30.472Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/2c3e0f87ef531740fd32af4e7adf08cabe57768de6cfc976a30e3c7951c18649 200
+[debug] [2026-08-03T18:42:30.472Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/2c3e0f87ef531740fd32af4e7adf08cabe57768de6cfc976a30e3c7951c18649 [stream]
+[debug] [2026-08-03T18:42:30.484Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2bdc50ed769b23438d2583144bca87d871694050bf274e08446fdc551e1dff8 200
+[debug] [2026-08-03T18:42:30.484Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2bdc50ed769b23438d2583144bca87d871694050bf274e08446fdc551e1dff8 [stream]
+[debug] [2026-08-03T18:42:30.514Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/0211e1e9eae8f5d5634638968562c7dc6bc53478185c86965f226bfbbd123ac9 200
+[debug] [2026-08-03T18:42:30.514Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/0211e1e9eae8f5d5634638968562c7dc6bc53478185c86965f226bfbbd123ac9 [stream]
+[debug] [2026-08-03T18:42:30.536Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/5edf74ad37bedc40188484191a4b3d1264e5e5cf1442bce8bb2b7103187abbcd 200
+[debug] [2026-08-03T18:42:30.536Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/5edf74ad37bedc40188484191a4b3d1264e5e5cf1442bce8bb2b7103187abbcd [stream]
+[debug] [2026-08-03T18:42:30.541Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/8e0f9c97b65d93fd77087f22a4396e6643d9ec820ec45cdd6417c05ce7259a85 200
+[debug] [2026-08-03T18:42:30.541Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/8e0f9c97b65d93fd77087f22a4396e6643d9ec820ec45cdd6417c05ce7259a85 [stream]
+[debug] [2026-08-03T18:42:30.587Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e76d0f2a9d1f38dbee98a466d7a3730b043097b0b989b150908ac21aa89c6b75 200
+[debug] [2026-08-03T18:42:30.587Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e76d0f2a9d1f38dbee98a466d7a3730b043097b0b989b150908ac21aa89c6b75 [stream]
+[debug] [2026-08-03T18:42:30.640Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/fde12f7581910d3e3f92311dbf86d9a454a9f24df30722cd11dd35f9de74e419 200
+[debug] [2026-08-03T18:42:30.640Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/fde12f7581910d3e3f92311dbf86d9a454a9f24df30722cd11dd35f9de74e419 [stream]
+[debug] [2026-08-03T18:42:30.675Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/684ce70780bc3897f50f4234e325677a791375095f5b82c0adba5247d4a05161 200
+[debug] [2026-08-03T18:42:30.675Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/684ce70780bc3897f50f4234e325677a791375095f5b82c0adba5247d4a05161 [stream]
+[debug] [2026-08-03T18:42:30.679Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/132771675c2a8981427530b88ae2057895122c1a9657843c650eb27bb822a727 200
+[debug] [2026-08-03T18:42:30.679Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/132771675c2a8981427530b88ae2057895122c1a9657843c650eb27bb822a727 [stream]
+[debug] [2026-08-03T18:42:30.701Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2e7db99b2373e83e318f7e18f97b905f733b52ba9dc8a4b1328c2e8fa319087 200
+[debug] [2026-08-03T18:42:30.701Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e2e7db99b2373e83e318f7e18f97b905f733b52ba9dc8a4b1328c2e8fa319087 [stream]
+[debug] [2026-08-03T18:42:30.794Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e46a93193c0130461178e420b1be5525dc06513c876507c724ef1dfc3c3fba9e 200
+[debug] [2026-08-03T18:42:30.794Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8/files/e46a93193c0130461178e420b1be5525dc06513c876507c724ef1dfc3c3fba9e [stream]
+[debug] [2026-08-03T18:42:30.794Z] [hosting][upload queue][FINAL] {"max":1775,"min":1351,"avg":1528.0666666666666,"active":0,"complete":15,"success":15,"errored":0,"retried":0,"total":15,"elapsed":1778}
+[info] i  hosting: upload complete 
+[info] +  hosting[quentinha-da-tininha]: file upload complete 
+[debug] [2026-08-03T18:42:30.795Z] [hosting] deploy completed after 2738ms
+[debug] [2026-08-03T18:42:30.795Z] [
+  {
+    "config": {
+      "public": "dist/quentinhas-da-tininha-web/browser",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "quentinha-da-tininha"
+    },
+    "version": "projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8"
+  }
+]
+[info] i  hosting[quentinha-da-tininha]: finalizing version... 
+[debug] [2026-08-03T18:42:30.796Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:30.797Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:30.797Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8 updateMask=status%2Cconfig
+[debug] [2026-08-03T18:42:30.797Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8 {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}],"headers":[{"glob":"**","headers":{"Cache-Control":"no-cache, no-store, must-revalidate"}}]}}
+[debug] [2026-08-03T18:42:31.829Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8 200
+[debug] [2026-08-03T18:42:31.829Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8 {"name":"projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8","status":"FINALIZED","config":{"headers":[{"headers":{"Cache-Control":"no-cache, no-store, must-revalidate"},"glob":"**"}],"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-08-03T18:42:26.965219Z","createUser":{"email":"taua28@gmail.com"},"finalizeTime":"2026-08-03T18:42:31.483443Z","finalizeUser":{"email":"taua28@gmail.com"}}
+[debug] [2026-08-03T18:42:31.829Z] [hosting] finalized version for quentinha-da-tininha:[object Object]
+[info] +  hosting[quentinha-da-tininha]: version finalized 
+[info] i  hosting[quentinha-da-tininha]: releasing new version... 
+[debug] [2026-08-03T18:42:31.830Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:31.830Z] Checked if tokens are valid: true, expires at: 1785786142799
+[debug] [2026-08-03T18:42:31.830Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/channels/live/releases versionName=projects%2F933588867371%2Fsites%2Fquentinha-da-tininha%2Fversions%2F5985fb5d27a06bf8
+[debug] [2026-08-03T18:42:31.830Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/channels/live/releases {}
+[debug] [2026-08-03T18:42:32.522Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/channels/live/releases 200
+[debug] [2026-08-03T18:42:32.523Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/quentinha-da-tininha/channels/live/releases {"name":"projects/933588867371/sites/quentinha-da-tininha/channels/live/releases/1785782551526000","version":{"name":"projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8","status":"FINALIZED","config":{"headers":[{"headers":{"Cache-Control":"no-cache, no-store, must-revalidate"},"glob":"**"}],"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-08-03T18:42:26.965219Z","createUser":{"email":"taua28@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLcAVrTfL58zYhsisYqRypnqmzhr8bGMlvo4vwfvytIwM3PQbc"},"finalizeTime":"2026-08-03T18:42:31.483443Z","finalizeUser":{"email":"taua28@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLcAVrTfL58zYhsisYqRypnqmzhr8bGMlvo4vwfvytIwM3PQbc"}},"type":"DEPLOY","releaseTime":"2026-08-03T18:42:31.526Z","releaseUser":{"email":"taua28@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLcAVrTfL58zYhsisYqRypnqmzhr8bGMlvo4vwfvytIwM3PQbc"}}
+[debug] [2026-08-03T18:42:32.523Z] [hosting] release: {"name":"projects/933588867371/sites/quentinha-da-tininha/channels/live/releases/1785782551526000","version":{"name":"projects/933588867371/sites/quentinha-da-tininha/versions/5985fb5d27a06bf8","status":"FINALIZED","config":{"headers":[{"headers":{"Cache-Control":"no-cache, no-store, must-revalidate"},"glob":"**"}],"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-08-03T18:42:26.965219Z","createUser":{"email":"taua28@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLcAVrTfL58zYhsisYqRypnqmzhr8bGMlvo4vwfvytIwM3PQbc"},"finalizeTime":"2026-08-03T18:42:31.483443Z","finalizeUser":{"email":"taua28@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLcAVrTfL58zYhsisYqRypnqmzhr8bGMlvo4vwfvytIwM3PQbc"}},"type":"DEPLOY","releaseTime":"2026-08-03T18:42:31.526Z","releaseUser":{"email":"taua28@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocLcAVrTfL58zYhsisYqRypnqmzhr8bGMlvo4vwfvytIwM3PQbc"}}
+[info] +  hosting[quentinha-da-tininha]: release complete 
+[info] 
+[info] +  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/quentinha-da-tininha/overview
+[info] Hosting URL: https://quentinha-da-tininha.web.app
