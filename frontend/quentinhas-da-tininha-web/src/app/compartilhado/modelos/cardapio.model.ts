@@ -60,12 +60,20 @@ export interface PersonalizacaoPedido {
   formaPagamento: FormaPagamento;
   acompanhamentoIds: string[];
   tipoFeijaoId: string | null;
+  observacao: string | null;
   precisaTroco: boolean;
   valorTroco: number | null;
   tipoEntrega: TipoEntrega;
+  cep: string | null;
+  logradouro: string | null;
+  numero: string | null;
+  complemento: string | null;
   enderecoEntrega: string | null;
   bairro: string | null;
+  cidade: string | null;
+  estado: string | null;
   referencia: string | null;
+  valorFrete: number | null;
 }
 
 export interface CardapioDia {

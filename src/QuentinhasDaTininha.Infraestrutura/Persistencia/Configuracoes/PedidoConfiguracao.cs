@@ -22,6 +22,13 @@ public class PedidoConfiguracao : IEntityTypeConfiguration<Pedido>
         builder.Property(pedido => pedido.TelefoneCliente)
             .HasMaxLength(30);
 
+        builder.Property(pedido => pedido.ValorSubtotal)
+            .HasPrecision(10, 2)
+            .IsRequired();
+
+        builder.Property(pedido => pedido.ValorFrete)
+            .HasPrecision(10, 2);
+
         builder.Property(pedido => pedido.ValorTotal)
             .HasPrecision(10, 2)
             .IsRequired();
@@ -42,11 +49,29 @@ public class PedidoConfiguracao : IEntityTypeConfiguration<Pedido>
             .HasMaxLength(20)
             .IsRequired();
 
+        builder.Property(pedido => pedido.Cep)
+            .HasMaxLength(8);
+
+        builder.Property(pedido => pedido.Logradouro)
+            .HasMaxLength(180);
+
+        builder.Property(pedido => pedido.Numero)
+            .HasMaxLength(20);
+
+        builder.Property(pedido => pedido.Complemento)
+            .HasMaxLength(120);
+
         builder.Property(pedido => pedido.EnderecoEntrega)
             .HasMaxLength(250);
 
         builder.Property(pedido => pedido.Bairro)
             .HasMaxLength(120);
+
+        builder.Property(pedido => pedido.Cidade)
+            .HasMaxLength(100);
+
+        builder.Property(pedido => pedido.Estado)
+            .HasMaxLength(2);
 
         builder.Property(pedido => pedido.Referencia)
             .HasMaxLength(250);
@@ -65,5 +90,10 @@ public class PedidoConfiguracao : IEntityTypeConfiguration<Pedido>
         builder.HasIndex(pedido => pedido.FormaPagamento);
 
         builder.HasIndex(pedido => pedido.TipoEntrega);
+
+        builder.HasMany(pedido => pedido.Itens)
+            .WithOne(item => item.Pedido)
+            .HasForeignKey(item => item.PedidoId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

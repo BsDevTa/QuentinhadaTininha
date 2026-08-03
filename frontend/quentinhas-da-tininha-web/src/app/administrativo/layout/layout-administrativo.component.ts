@@ -88,6 +88,7 @@ export class LayoutAdministrativoComponent {
     { rotulo: 'Pratos', icone: '◉', rota: '/admin/pratos' },
     { rotulo: 'Acompanhamentos', icone: '☑', rota: '/admin/acompanhamentos' },
     { rotulo: 'Funcionamento', icone: '◷', rota: '/admin/funcionamento' },
+    { rotulo: 'Fretes por bairro', icone: '⌂', rota: '/admin/fretes-bairros' },
     { rotulo: 'Configuracoes', icone: '⚙', rota: '/admin/configuracoes' }
   ];
 
@@ -137,6 +138,10 @@ export class LayoutAdministrativoComponent {
       '/admin/funcionamento': {
         titulo: 'Funcionamento',
         subtitulo: 'Acompanhe horarios, abertura e mensagens de atendimento.'
+      },
+      '/admin/fretes-bairros': {
+        titulo: 'Fretes por bairro',
+        subtitulo: 'Defina bairros atendidos e valores de entrega.'
       },
       '/admin/configuracoes': {
         titulo: 'Configuracoes',

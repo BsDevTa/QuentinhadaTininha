@@ -8,7 +8,9 @@ using QuentinhasDaTininha.Aplicacao.Armazenamento.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Autenticacao.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Cardapios.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Categorias.Interfaces;
+using QuentinhasDaTininha.Aplicacao.Ceps.Interfaces;
 using QuentinhasDaTininha.Aplicacao.ConfiguracoesRestaurante.Interfaces;
+using QuentinhasDaTininha.Aplicacao.FretesBairros.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Funcionamento.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Pedidos.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Pratos.Interfaces;
@@ -19,7 +21,9 @@ using QuentinhasDaTininha.Infraestrutura.Armazenamento.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Autenticacao.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Cardapios.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Categorias.Servicos;
+using QuentinhasDaTininha.Infraestrutura.Ceps.Servicos;
 using QuentinhasDaTininha.Infraestrutura.ConfiguracoesRestaurante.Servicos;
+using QuentinhasDaTininha.Infraestrutura.FretesBairros.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Funcionamento.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Pedidos.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Persistencia;
@@ -110,12 +114,18 @@ builder.Services.AddScoped<IServicoHorarioFuncionamento, ServicoHorarioFuncionam
 builder.Services.AddScoped<IServicoFechamentoExcepcional, ServicoFechamentoExcepcional>();
 builder.Services.AddScoped<IServicoDisponibilidadePedido, ServicoDisponibilidadePedido>();
 builder.Services.AddScoped<IServicoConfiguracaoRestaurante, ServicoConfiguracaoRestaurante>();
+builder.Services.AddScoped<IServicoFreteBairro, ServicoFreteBairro>();
 builder.Services.AddScoped<IServicoPedido, ServicoPedido>();
 builder.Services.AddScoped<IServicoCardapioPublico, ServicoCardapioPublico>();
 builder.Services.AddScoped<IServicoDataLocal, ServicoDataLocal>();
 builder.Services.AddScoped<IServicoCardapioDiaPublico, ServicoCardapioDiaPublico>();
 builder.Services.AddScoped<InicializadorAdministrador>();
 builder.Services.AddScoped<InicializadorCardapioPublico>();
+builder.Services.AddHttpClient<IServicoCep, ServicoViaCep>(httpClient =>
+{
+    httpClient.BaseAddress = new Uri("https://viacep.com.br/ws/");
+    httpClient.Timeout = TimeSpan.FromSeconds(6);
+});
 builder.Services.AddHttpClient("SupabaseStorage", httpClient =>
 {
     httpClient.Timeout = TimeSpan.FromSeconds(30);

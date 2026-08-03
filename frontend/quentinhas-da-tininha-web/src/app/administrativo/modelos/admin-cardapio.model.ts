@@ -145,3 +145,24 @@ export interface StatusAdmin {
   estaDisponivel: boolean;
   estaAtivo: boolean;
 }
+
+export interface FreteBairroAdmin {
+  id: string;
+  bairro: string;
+  bairroNormalizado: string;
+  valor: number;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+export interface FreteBairroAdminSalvar {
+  bairro: string;
+  valor: number;
+  ativo: boolean;
+}
+
+export interface FiltrosFretesBairrosAdmin {
+  bairro?: string;
+  ativo?: boolean | '';
+}

@@ -62,6 +62,13 @@ export const routes: Routes = [
           )
       },
       {
+        path: 'fretes-bairros',
+        loadComponent: () =>
+          import('./administrativo/paginas/fretes-bairros/fretes-bairros.page').then(
+            (m) => m.FretesBairrosPage
+          )
+      },
+      {
         path: 'configuracoes',
         loadComponent: () =>
           import('./administrativo/paginas/configuracoes/configuracoes.page').then(

@@ -7,6 +7,7 @@ import {
   EventEmitter,
   HostListener,
   Input,
+  OnDestroy,
   Output,
   ViewChild,
   computed,
@@ -21,8 +22,10 @@ import {
   TamanhoRefeicao,
   TipoEntrega
 } from '../../../compartilhado/modelos/cardapio.model';
+import { CepService } from '../../../compartilhado/servicos/cep.service';
 import { PedidoService } from '../../../compartilhado/servicos/pedido.service';
 import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.service';
+import { Subscription, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-personalizacao-pedido-modal',
@@ -193,6 +196,25 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
                 <span>5</span>
+                <h4>Observação</h4>
+              </header>
+
+              <label class="campo-pedido campo-pedido--largo">
+                Observação do pedido
+                <textarea
+                  rows="3"
+                  maxlength="250"
+                  placeholder="Ex.: sem cebola, pouco sal, separar a salada..."
+                  [ngModel]="observacao()"
+                  (ngModelChange)="atualizarObservacao($event)"
+                ></textarea>
+                <small class="contador-caracteres">{{ observacao().length }}/250</small>
+              </label>
+            </section>
+
+            <section class="etapa-pedido">
+              <header class="etapa-pedido__cabecalho">
+                <span>6</span>
                 <h4>Entrega</h4>
               </header>
               <div class="radio-cards">
@@ -205,27 +227,85 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
               </div>
 
               @if (tipoEntrega() === 'entrega') {
-                <div class="pedido-campos">
+                <div class="pedido-campos pedido-campos--entrega">
                   <label class="campo-pedido">
-                    Endereço
-                    <input type="text" placeholder="Rua, número e complemento" [ngModel]="enderecoEntrega()" (ngModelChange)="enderecoEntrega.set($event)" />
+                    CEP
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      placeholder="00000-000"
+                      [ngModel]="cep()"
+                      (ngModelChange)="atualizarCep($event)"
+                      (blur)="validarCepIncompleto()"
+                    />
+                  </label>
+                  <label class="campo-pedido">
+                    Rua/logradouro
+                    <input type="text" placeholder="Rua ou avenida" [ngModel]="logradouro()" (ngModelChange)="logradouro.set($event)" />
+                  </label>
+                  <label class="campo-pedido">
+                    Número
+                    <input type="text" placeholder="Número" [ngModel]="numero()" (ngModelChange)="numero.set($event)" />
+                  </label>
+                  <label class="campo-pedido">
+                    Complemento
+                    <input type="text" placeholder="Apto, casa, bloco" [ngModel]="complemento()" (ngModelChange)="complemento.set($event)" />
                   </label>
                   <label class="campo-pedido">
                     Bairro
-                    <input type="text" placeholder="Informe o bairro" [ngModel]="bairro()" (ngModelChange)="bairro.set($event)" />
+                    <input type="text" placeholder="Bairro pelo CEP" [ngModel]="bairro()" readonly />
+                  </label>
+                  <label class="campo-pedido">
+                    Cidade
+                    <input type="text" placeholder="Cidade" [ngModel]="cidade()" readonly />
+                  </label>
+                  <label class="campo-pedido">
+                    Estado
+                    <input type="text" placeholder="UF" [ngModel]="estado()" readonly />
                   </label>
                   <label class="campo-pedido campo-pedido--largo">
-                    Referência
+                    Ponto de referência
                     <input type="text" placeholder="Ponto de referência" [ngModel]="referencia()" (ngModelChange)="referencia.set($event)" />
                   </label>
                 </div>
+                @if (consultandoCep()) {
+                  <small class="info-pedido">Consultando CEP...</small>
+                }
+                @if (cepMensagem(); as mensagemCep) {
+                  <small
+                    class="aviso-pedido"
+                    [class.aviso-pedido--sucesso]="cepMensagemTipo() === 'sucesso'"
+                  >
+                    {{ mensagemCep }}
+                  </small>
+                }
+                @if (freteAtendido() && valorFrete() !== null) {
+                  <small class="info-pedido info-pedido--sucesso">
+                    Frete: {{ valorFrete() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                  </small>
+                }
+                @if (bairro() && !freteAtendido() && !consultandoCep() && cepNumerico().length === 8) {
+                  <button class="botao secundario botao-retirada" type="button" (click)="selecionarTipoEntrega('retirada')">
+                    Mudar para retirada
+                  </button>
+                }
                 @if (entregaInvalida()) {
-                  <small class="aviso-pedido">Informe endereço, bairro e referência para entrega.</small>
+                  <small class="aviso-pedido">Valide o CEP e informe rua e número para entrega.</small>
                 }
               }
             </section>
 
             <section class="resumo-pedido" aria-label="Resumo do pedido">
+              <div class="resumo-pedido__linha">
+                <span>Subtotal</span>
+                <strong>{{ subtotal() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+              </div>
+              @if (tipoEntrega() === 'entrega') {
+                <div class="resumo-pedido__linha">
+                  <span>Frete</span>
+                  <strong>{{ freteResumo }}</strong>
+                </div>
+              }
               <div class="resumo-pedido__linha resumo-pedido__linha--total">
                 <span>Total</span>
                 <strong>{{ total() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
@@ -265,11 +345,13 @@ import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.servic
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
+export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDestroy {
   private readonly pedidoService = inject(PedidoService);
   private readonly whatsappService = inject(WhatsappService);
+  private readonly cepService = inject(CepService);
 
   @ViewChild('painel') private painel?: ElementRef<HTMLElement>;
+  private consultaCepSubscription?: Subscription;
 
   @Input({ required: true }) prato!: Prato;
   @Input({ required: true }) whatsappRestaurante = '';
@@ -283,9 +365,21 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
   protected readonly precisaTroco = signal(false);
   protected readonly valorTrocoTexto = signal('');
   protected readonly tipoEntrega = signal<TipoEntrega>('retirada');
-  protected readonly enderecoEntrega = signal('');
+  protected readonly cep = signal('');
+  protected readonly logradouro = signal('');
+  protected readonly numero = signal('');
+  protected readonly complemento = signal('');
   protected readonly bairro = signal('');
+  protected readonly cidade = signal('');
+  protected readonly estado = signal('');
   protected readonly referencia = signal('');
+  protected readonly observacao = signal('');
+  protected readonly valorFrete = signal<number | null>(null);
+  protected readonly freteAtendido = signal(false);
+  protected readonly consultandoCep = signal(false);
+  protected readonly cepMensagem = signal('');
+  protected readonly cepMensagemTipo = signal<'erro' | 'sucesso' | ''>('');
+  private readonly ultimoCepConsultado = signal('');
   protected readonly acompanhamentoIds = signal<string[]>([]);
   protected readonly tipoFeijaoId = signal<string | null>(null);
 
@@ -308,6 +402,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
   }
 
   protected readonly grupo = computed(() => this.pedidoService.obterGrupo(this.prato));
+  protected readonly cepNumerico = computed(() => this.cep().replace(/\D/g, ''));
   protected readonly valorTroco = computed(() => {
     const valor = Number(this.valorTrocoTexto().replace(',', '.'));
     return Number.isFinite(valor) && valor > 0 ? valor : null;
@@ -331,14 +426,20 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
   protected readonly nomeClienteInvalido = computed(() => !this.normalizarTexto(this.nomeCliente()));
   protected readonly entregaInvalida = computed(() =>
     this.tipoEntrega() === 'entrega' &&
-    (!this.normalizarTexto(this.enderecoEntrega()) ||
+    (this.cepNumerico().length !== 8 ||
+      this.consultandoCep() ||
+      !this.freteAtendido() ||
+      !this.normalizarTexto(this.logradouro()) ||
+      !this.normalizarTexto(this.numero()) ||
       !this.normalizarTexto(this.bairro()) ||
-      !this.normalizarTexto(this.referencia()))
+      !this.normalizarTexto(this.cidade()) ||
+      !this.normalizarTexto(this.estado()))
   );
   protected readonly pedidoValido = computed(() =>
     !this.nomeClienteInvalido() &&
     !this.erroTroco() &&
-    !this.entregaInvalida()
+    !this.entregaInvalida() &&
+    this.observacao().length <= 250
   );
   protected readonly personalizacao = computed<PersonalizacaoPedido>(() => ({
     pratoId: this.prato.id,
@@ -346,19 +447,33 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
     formaPagamento: this.formaPagamento(),
     acompanhamentoIds: this.acompanhamentoIds(),
     tipoFeijaoId: this.tipoFeijaoId(),
+    observacao: this.normalizarTexto(this.observacao()),
     precisaTroco: this.formaPagamento() === 'dinheiro' && this.precisaTroco(),
     valorTroco: this.formaPagamento() === 'dinheiro' && this.precisaTroco() ? this.valorTroco() : null,
     tipoEntrega: this.tipoEntrega(),
-    enderecoEntrega: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.enderecoEntrega()) : null,
+    cep: this.tipoEntrega() === 'entrega' ? this.cepNumerico() : null,
+    logradouro: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.logradouro()) : null,
+    numero: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.numero()) : null,
+    complemento: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.complemento()) : null,
+    enderecoEntrega: this.tipoEntrega() === 'entrega' ? this.montarEnderecoEntrega() : null,
     bairro: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.bairro()) : null,
-    referencia: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.referencia()) : null
+    cidade: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.cidade()) : null,
+    estado: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.estado()) : null,
+    referencia: this.tipoEntrega() === 'entrega' ? this.normalizarTexto(this.referencia()) : null,
+    valorFrete: this.tipoEntrega() === 'entrega' && this.freteAtendido() ? this.valorFrete() : null
   }));
   protected readonly acompanhamentosSelecionados = computed(() =>
     this.pedidoService.listarAcompanhamentosSelecionados(this.personalizacao(), this.grupo())
   );
-  protected readonly total = computed(() =>
+  protected readonly subtotal = computed(() =>
     this.pedidoService.calcularPreco(this.prato, this.tamanho(), this.formaPagamento())
   );
+  protected readonly freteAplicado = computed(() =>
+    this.tipoEntrega() === 'entrega' && this.freteAtendido()
+      ? this.valorFrete() ?? 0
+      : 0
+  );
+  protected readonly total = computed(() => this.subtotal() + this.freteAplicado());
   protected readonly linkWhatsapp = computed(() => {
     if (!this.restauranteAberto || !this.whatsappRestaurante.trim() || !this.pedidoValido()) {
       return null;
@@ -376,8 +491,16 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
         precisaTroco: this.personalizacao().precisaTroco,
         valorTroco: this.personalizacao().valorTroco,
         tipoEntrega: this.personalizacao().tipoEntrega,
+        observacaoItem: this.personalizacao().observacao,
+        subtotal: this.subtotal(),
+        valorFrete: this.personalizacao().valorFrete,
+        logradouro: this.personalizacao().logradouro,
+        numero: this.personalizacao().numero,
+        complemento: this.personalizacao().complemento,
         enderecoEntrega: this.personalizacao().enderecoEntrega,
         bairro: this.personalizacao().bairro,
+        cidade: this.personalizacao().cidade,
+        estado: this.personalizacao().estado,
         referencia: this.personalizacao().referencia
       }
     );
@@ -385,6 +508,10 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => this.painel?.nativeElement.focus());
+  }
+
+  ngOnDestroy(): void {
+    this.consultaCepSubscription?.unsubscribe();
   }
 
   @HostListener('document:keydown.escape')
@@ -412,14 +539,31 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
       : `para ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTroco)}`;
   }
 
+  protected get freteResumo(): string {
+    if (this.consultandoCep()) {
+      return 'consultando';
+    }
+
+    if (this.freteAtendido() && this.valorFrete() !== null) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+        .format(this.valorFrete() ?? 0);
+    }
+
+    return 'aguardando CEP';
+  }
+
   protected get resumoEntrega(): string {
     if (this.tipoEntrega() === 'retirada') {
       return 'Retirada no local';
     }
 
-    const endereco = this.normalizarTexto(this.enderecoEntrega());
+    if (this.consultandoCep()) {
+      return 'consultando CEP';
+    }
+
+    const endereco = this.montarEnderecoEntrega();
     const bairro = this.normalizarTexto(this.bairro());
-    return endereco && bairro ? `${endereco} - ${bairro}` : 'aguardando endereço';
+    return endereco && bairro ? `${endereco} - ${bairro}` : 'aguardando CEP';
   }
 
   protected deveMostrarImagem(): boolean {
@@ -439,14 +583,67 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
     this.tipoEntrega.set(tipoEntrega);
 
     if (tipoEntrega === 'retirada') {
-      this.enderecoEntrega.set('');
-      this.bairro.set('');
-      this.referencia.set('');
+      this.consultaCepSubscription?.unsubscribe();
+      this.consultandoCep.set(false);
+      this.freteAtendido.set(false);
+      this.valorFrete.set(null);
+      this.cepMensagem.set('');
+      this.cepMensagemTipo.set('');
+      return;
+    }
+
+    if (this.cepNumerico().length === 8) {
+      this.consultarCep(true);
+    } else {
+      this.validarCepIncompleto();
     }
   }
 
   protected atualizarValorTroco(valor: string | number | null): void {
     this.valorTrocoTexto.set(valor === null ? '' : String(valor));
+  }
+
+  protected atualizarObservacao(valor: string | number | null): void {
+    this.observacao.set(String(valor ?? '').slice(0, 250));
+  }
+
+  protected atualizarCep(valor: string | number | null): void {
+    const cepFormatado = this.formatarCep(String(valor ?? ''));
+    const cepAnterior = this.cepNumerico();
+    this.cep.set(cepFormatado);
+    const cepAtual = this.cepNumerico();
+
+    if (cepAtual !== cepAnterior) {
+      this.limparResultadoCep();
+    }
+
+    if (this.tipoEntrega() !== 'entrega') {
+      return;
+    }
+
+    if (cepAtual.length === 8) {
+      this.consultarCep();
+      return;
+    }
+
+    this.validarCepIncompleto();
+  }
+
+  protected validarCepIncompleto(): void {
+    if (this.tipoEntrega() !== 'entrega') {
+      return;
+    }
+
+    const quantidade = this.cepNumerico().length;
+    if (quantidade > 0 && quantidade < 8) {
+      this.definirMensagemCep('Informe um CEP com 8 números.', 'erro');
+      return;
+    }
+
+    if (quantidade === 0) {
+      this.cepMensagem.set('');
+      this.cepMensagemTipo.set('');
+    }
   }
 
   protected acompanhamentoSelecionado(id: string): boolean {
@@ -471,8 +668,120 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit {
     );
   }
 
-  private normalizarTexto(texto: string): string | null {
-    const valor = texto.trim();
+  private consultarCep(forcar = false): void {
+    if (this.tipoEntrega() !== 'entrega') {
+      return;
+    }
+
+    const cep = this.cepNumerico();
+    if (cep.length !== 8) {
+      this.definirMensagemCep('Informe um CEP com 8 números.', 'erro');
+      return;
+    }
+
+    if (!forcar && cep === this.ultimoCepConsultado() && (this.freteAtendido() || this.cepMensagem())) {
+      return;
+    }
+
+    this.consultaCepSubscription?.unsubscribe();
+    this.consultandoCep.set(true);
+    this.ultimoCepConsultado.set(cep);
+    this.cepMensagem.set('');
+    this.cepMensagemTipo.set('');
+
+    this.consultaCepSubscription = this.cepService.consultarFretePorCep(cep)
+      .pipe(finalize(() => this.consultandoCep.set(false)))
+      .subscribe({
+        next: (resposta) => this.aplicarConsultaCep(resposta),
+        error: (erro: { status?: number; error?: { mensagem?: string } }) => {
+          this.freteAtendido.set(false);
+          this.valorFrete.set(null);
+
+          if (erro.status === 404) {
+            this.definirMensagemCep('CEP não encontrado. Verifique os números informados.', 'erro');
+            return;
+          }
+
+          this.definirMensagemCep(
+            erro.error?.mensagem ?? 'Não foi possível consultar o CEP agora. Tente novamente em alguns instantes.',
+            'erro'
+          );
+        }
+      });
+  }
+
+  private aplicarConsultaCep(resposta: {
+    logradouro: string | null;
+    bairro: string;
+    cidade: string;
+    estado: string;
+    atendido: boolean;
+    valorFrete: number | null;
+    mensagem: string | null;
+  }): void {
+    this.logradouro.set(resposta.logradouro ?? '');
+    this.bairro.set(resposta.bairro ?? '');
+    this.cidade.set(resposta.cidade ?? '');
+    this.estado.set(resposta.estado ?? '');
+
+    if (resposta.atendido && resposta.valorFrete !== null) {
+      this.freteAtendido.set(true);
+      this.valorFrete.set(resposta.valorFrete);
+      this.definirMensagemCep('Entrega disponível para este bairro.', 'sucesso');
+      return;
+    }
+
+    this.freteAtendido.set(false);
+    this.valorFrete.set(null);
+    this.definirMensagemCep(
+      resposta.mensagem ??
+      `No momento, ainda não realizamos entregas para o bairro ${resposta.bairro}. Você pode selecionar a opção de retirada no local.`,
+      'erro'
+    );
+  }
+
+  private limparResultadoCep(): void {
+    this.consultaCepSubscription?.unsubscribe();
+    this.consultandoCep.set(false);
+    this.ultimoCepConsultado.set('');
+    this.freteAtendido.set(false);
+    this.valorFrete.set(null);
+    this.logradouro.set('');
+    this.bairro.set('');
+    this.cidade.set('');
+    this.estado.set('');
+    this.cepMensagem.set('');
+    this.cepMensagemTipo.set('');
+  }
+
+  private definirMensagemCep(mensagem: string, tipo: 'erro' | 'sucesso'): void {
+    this.cepMensagem.set(mensagem);
+    this.cepMensagemTipo.set(tipo);
+  }
+
+  private montarEnderecoEntrega(): string | null {
+    const logradouro = this.normalizarTexto(this.logradouro());
+    const numero = this.normalizarTexto(this.numero());
+    const complemento = this.normalizarTexto(this.complemento());
+
+    if (!logradouro || !numero) {
+      return null;
+    }
+
+    return complemento ? `${logradouro}, ${numero} - ${complemento}` : `${logradouro}, ${numero}`;
+  }
+
+  private formatarCep(valor: string): string {
+    const numeros = valor.replace(/\D/g, '').slice(0, 8);
+    if (numeros.length <= 5) {
+      return numeros;
+    }
+
+    return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+  }
+
+  private normalizarTexto(texto?: string | null): string | null {
+    const valor = texto?.trim() ?? '';
     return valor ? valor : null;
   }
 }

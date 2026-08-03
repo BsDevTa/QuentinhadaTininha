@@ -7,8 +7,16 @@ export interface DetalhesPedidoWhatsapp {
   precisaTroco?: boolean;
   valorTroco?: number | null;
   tipoEntrega?: TipoEntrega;
+  observacaoItem?: string | null;
+  subtotal?: number | null;
+  valorFrete?: number | null;
+  logradouro?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
   enderecoEntrega?: string | null;
   bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
   referencia?: string | null;
 }
 
@@ -29,22 +37,27 @@ export class WhatsappService {
     detalhes?: DetalhesPedidoWhatsapp
   ): string {
     const numeroRestaurante = numero ?? environment.whatsappRestaurante;
-    const nomeCliente = this.normalizarTexto(detalhes?.nomeCliente) ?? 'cliente';
+    const nomeCliente = this.normalizarTexto(detalhes?.nomeCliente) ?? 'Cliente';
     const pagamentoTexto = this.rotuloPagamento(formaPagamento);
+    const subtotal = detalhes?.subtotal ?? valor;
     const blocos = [
-      '🍽️ *Quentinhas da Tininha*',
-      `*Olá, ${nomeCliente}!*`,
-      'Seu pedido foi registrado com sucesso.',
+      '*🍽️ Pedido — Quentinhas da Tininha*',
+      `*Cliente:*\n${nomeCliente}`,
       '━━━━━━━━━━━━━━━━━━',
-      `*🍛 Prato:*\n*${prato.nome}*`,
-      `*📏 Tamanho:*\n*${this.rotuloTamanho(tamanho)}*`,
+      `*🍛 Prato:*\n${prato.nome}`,
+      `*📏 Tamanho:*\n${this.rotuloTamanho(tamanho)}`,
       `*🥗 Acompanhamentos:*\n${this.criarTextoAcompanhamentos(acompanhamentos)}`,
-      `*💳 Forma de pagamento:*\n*${pagamentoTexto}*`,
-      this.criarTextoTroco(formaPagamento, detalhes),
-      this.criarTextoEntrega(detalhes),
-      `*💰 Total:*\n*${this.formatadorMoeda.format(valor)}*`,
+      this.criarTextoObservacao(detalhes?.observacaoItem),
       '━━━━━━━━━━━━━━━━━━',
-      'Obrigado pela preferência ❤️',
+      `*🚚 Tipo do pedido:*\n${detalhes?.tipoEntrega === 'entrega' ? 'Entrega' : 'Retirada no local'}`,
+      this.criarTextoEntrega(detalhes),
+      `*💳 Forma de pagamento:*\n${pagamentoTexto}`,
+      this.criarTextoTroco(formaPagamento, detalhes),
+      `*💵 Subtotal:*\n${this.formatadorMoeda.format(subtotal)}`,
+      this.criarTextoFrete(detalhes),
+      `*💰 Total:*\n${this.formatadorMoeda.format(valor)}`,
+      '━━━━━━━━━━━━━━━━━━',
+      'Obrigado pela preferência.',
       'Em breve seu pedido será preparado.'
     ].filter((bloco): bloco is string => Boolean(bloco));
 
@@ -55,10 +68,10 @@ export class WhatsappService {
 
   private criarTextoAcompanhamentos(acompanhamentos: Acompanhamento[]): string {
     if (acompanhamentos.length === 0) {
-      return '*Sem acompanhamentos selecionados*';
+      return 'Sem acompanhamentos selecionados';
     }
 
-    return acompanhamentos.map((acompanhamento) => `- *${acompanhamento.nome}*`).join('\n');
+    return acompanhamentos.map((acompanhamento) => `- ${acompanhamento.nome}`).join('\n');
   }
 
   private rotuloTamanho(tamanho: TamanhoRefeicao): string {
@@ -85,27 +98,60 @@ export class WhatsappService {
     }
 
     if (!detalhes?.precisaTroco) {
-      return '*💵 Troco:*\n*Não precisa*';
+      return '*💵 Troco:*\nNão precisa';
     }
 
-    return `*💵 Troco:*\n*Para ${this.formatadorMoeda.format(detalhes.valorTroco ?? 0)}*`;
+    return `*💵 Troco:*\nPara ${this.formatadorMoeda.format(detalhes.valorTroco ?? 0)}`;
   }
 
   private criarTextoEntrega(detalhes?: DetalhesPedidoWhatsapp): string {
     if (detalhes?.tipoEntrega !== 'entrega') {
-      return '*🚚 Entrega:*\n*Retirada no local*';
+      return '';
     }
 
-    const endereco = [
-      detalhes.enderecoEntrega,
-      detalhes.bairro,
-      detalhes.referencia ? `Referência: ${detalhes.referencia}` : null
-    ]
-      .map((texto) => this.normalizarTexto(texto))
-      .filter((texto): texto is string => Boolean(texto))
-      .join('\n');
+    const endereco =
+      this.normalizarTexto(detalhes.enderecoEntrega) ??
+      this.montarEndereco(detalhes);
 
-    return `*🚚 Entrega:*\n*Entrega*\n\n*📍 Endereço:*\n*${endereco}*`;
+    const blocos = [
+      endereco ? `*📍 Endereço:*\n${endereco}` : null,
+      this.normalizarTexto(detalhes.bairro)
+        ? `*🏘️ Bairro:*\n${this.normalizarTexto(detalhes.bairro)}`
+        : null,
+      this.normalizarTexto(detalhes.cidade) && this.normalizarTexto(detalhes.estado)
+        ? `*🏙️ Cidade/UF:*\n${this.normalizarTexto(detalhes.cidade)} - ${this.normalizarTexto(detalhes.estado)}`
+        : null,
+      this.normalizarTexto(detalhes.referencia)
+        ? `*📌 Referência:*\n${this.normalizarTexto(detalhes.referencia)}`
+        : null
+    ].filter((bloco): bloco is string => Boolean(bloco));
+
+    return blocos.join('\n\n');
+  }
+
+  private criarTextoObservacao(observacao?: string | null): string {
+    const texto = this.normalizarTexto(observacao);
+    return texto ? `*📝 Observação:*\n${texto}` : '';
+  }
+
+  private criarTextoFrete(detalhes?: DetalhesPedidoWhatsapp): string {
+    if (detalhes?.tipoEntrega !== 'entrega' || detalhes.valorFrete === null || detalhes.valorFrete === undefined) {
+      return '';
+    }
+
+    return `*🛵 Frete:*\n${this.formatadorMoeda.format(detalhes.valorFrete)}`;
+  }
+
+  private montarEndereco(detalhes?: DetalhesPedidoWhatsapp): string | null {
+    const logradouro = this.normalizarTexto(detalhes?.logradouro);
+    const numero = this.normalizarTexto(detalhes?.numero);
+    const complemento = this.normalizarTexto(detalhes?.complemento);
+
+    if (!logradouro || !numero) {
+      return null;
+    }
+
+    return complemento ? `${logradouro}, ${numero} - ${complemento}` : `${logradouro}, ${numero}`;
   }
 
   private normalizarTexto(texto?: string | null): string | null {
