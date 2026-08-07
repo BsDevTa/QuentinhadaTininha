@@ -292,6 +292,32 @@ app.Use(async (context, next) =>
     {
         await next();
     }
+    catch (Exception excecao) when (!context.RequestAborted.IsCancellationRequested)
+    {
+        var logger = context.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("RequestTiming");
+
+        logger.LogError(
+            excecao,
+            "Erro nao tratado em {Metodo} {Caminho}",
+            context.Request.Method,
+            context.Request.Path.Value);
+
+        if (!context.Response.HasStarted)
+        {
+            context.Response.Clear();
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/problem+json";
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                type = "https://httpstatuses.com/500",
+                title = "Erro interno no servidor.",
+                status = StatusCodes.Status500InternalServerError
+            });
+        }
+    }
     finally
     {
         stopwatch.Stop();

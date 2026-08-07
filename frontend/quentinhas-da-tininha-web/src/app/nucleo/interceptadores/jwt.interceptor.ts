@@ -5,6 +5,8 @@ import { catchError, throwError, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AutenticacaoService } from '../autenticacao/autenticacao.service';
 
+let redirecionamento401EmAndamento = false;
+
 export const jwtInterceptor: HttpInterceptorFn = (requisicao, next) => {
   const autenticacaoService = inject(AutenticacaoService);
   const router = inject(Router);
@@ -30,11 +32,19 @@ export const jwtInterceptor: HttpInterceptorFn = (requisicao, next) => {
 
   return requisicaoComTimeout.pipe(
     catchError((erro: unknown) => {
-      if (erro instanceof HttpErrorResponse && erro.status === 401 && deveAnexarToken) {
+      if (
+        erro instanceof HttpErrorResponse &&
+        erro.status === 401 &&
+        deveAnexarToken
+      ) {
         autenticacaoService.limparSessao();
-        if (!router.url.startsWith('/admin/login')) {
+
+        if (!redirecionamento401EmAndamento && !router.url.startsWith('/admin/login')) {
+          redirecionamento401EmAndamento = true;
           void router.navigate(['/admin/login'], {
             queryParams: { returnUrl: router.url }
+          }).finally(() => {
+            redirecionamento401EmAndamento = false;
           });
         }
       }

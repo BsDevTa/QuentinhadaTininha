@@ -70,7 +70,13 @@ export class AutenticacaoService {
   }
 
   obterToken(): string | null {
-    return localStorage.getItem(this.chaveToken);
+    const token = localStorage.getItem(this.chaveToken)?.trim();
+
+    if (!token || token === 'null' || token === 'undefined') {
+      return null;
+    }
+
+    return token;
   }
 
   obterUsuarioAtual(): UsuarioAutenticado | null {
@@ -93,10 +99,17 @@ export class AutenticacaoService {
       return false;
     }
 
-    return new Date(expiracao).getTime() > Date.now();
+    const expiracaoEmMs = new Date(expiracao).getTime();
+
+    return Number.isFinite(expiracaoEmMs) && expiracaoEmMs > Date.now();
   }
 
   private salvarSessao(resposta: RespostaAutenticacao): void {
+    if (!resposta.token?.trim() || !resposta.expiraEm) {
+      this.limparSessao();
+      return;
+    }
+
     localStorage.setItem(this.chaveToken, resposta.token);
     localStorage.setItem(this.chaveUsuario, JSON.stringify(resposta.usuario));
     localStorage.setItem(this.chaveExpiracao, resposta.expiraEm);
