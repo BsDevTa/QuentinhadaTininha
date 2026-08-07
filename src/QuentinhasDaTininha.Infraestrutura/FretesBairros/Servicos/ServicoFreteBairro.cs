@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using QuentinhasDaTininha.Aplicacao.Ceps.DTOs;
 using QuentinhasDaTininha.Aplicacao.Ceps.Interfaces;
 using QuentinhasDaTininha.Aplicacao.FretesBairros.DTOs;
 using QuentinhasDaTininha.Aplicacao.FretesBairros.Interfaces;
@@ -77,6 +78,16 @@ public class ServicoFreteBairro : IServicoFreteBairro
             AtualizadoEm = agora
         };
 
+        await GarantirAliasNormalizadoLivreAsync(
+            dados.BairroNormalizado,
+            idIgnorado: null,
+            cancellationToken);
+
+        frete.Aliases.Add(CriarAliasAutomatico(
+            frete.Id,
+            dados.BairroNormalizado,
+            agora));
+
         await _dbContext.FretesBairros.AddAsync(frete, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -99,11 +110,19 @@ public class ServicoFreteBairro : IServicoFreteBairro
         }
 
         var dados = await ValidarDadosAsync(requisicao, id, cancellationToken);
+        var agora = DateTimeOffset.UtcNow;
+
+        await SincronizarAliasAutomaticoAsync(
+            frete.Id,
+            dados.BairroNormalizado,
+            agora,
+            cancellationToken);
+
         frete.Bairro = dados.Bairro;
         frete.BairroNormalizado = dados.BairroNormalizado;
         frete.Valor = requisicao.Valor;
         frete.Ativo = requisicao.Ativo;
-        frete.AtualizadoEm = DateTimeOffset.UtcNow;
+        frete.AtualizadoEm = agora;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -159,26 +178,32 @@ public class ServicoFreteBairro : IServicoFreteBairro
 
         var bairroLimpo = NormalizadorBairro.LimparNome(bairro);
         var bairroNormalizado = NormalizadorBairro.NormalizarParaComparacao(bairroLimpo);
-        var frete = await _dbContext.FretesBairros
+        var frete = await _dbContext.FretesBairrosAliases
             .AsNoTracking()
+            .Where(alias =>
+                alias.AliasNormalizado == bairroNormalizado &&
+                alias.Ativo &&
+                alias.FreteBairro.Ativo)
+            .Select(alias => new DadosFreteEncontrado(
+                alias.FreteBairro.Bairro,
+                alias.FreteBairro.Valor))
             .FirstOrDefaultAsync(
-                item => item.BairroNormalizado == bairroNormalizado,
                 cancellationToken);
 
-        if (frete?.Ativo == true)
+        if (frete is not null)
         {
             return new ConsultaFreteBairroResposta
             {
                 Atendido = true,
                 Bairro = frete.Bairro,
-                ValorFrete = frete.Valor
+                ValorFrete = frete.ValorFrete
             };
         }
 
         return new ConsultaFreteBairroResposta
         {
             Atendido = false,
-            Bairro = frete?.Bairro ?? bairroLimpo,
+            Bairro = bairroLimpo,
             ValorFrete = null,
             Mensagem = "Bairro não atendido."
         };
@@ -188,34 +213,209 @@ public class ServicoFreteBairro : IServicoFreteBairro
         string cep,
         CancellationToken cancellationToken = default)
     {
-        var endereco = await _servicoCep.ConsultarAsync(cep, cancellationToken);
-        if (endereco is null)
+        var cepNumerico = NormalizadorCep.SomenteNumeros(cep);
+        if (cepNumerico.Length != 8)
+        {
+            throw new ArgumentException("Informe um CEP com 8 números.");
+        }
+
+        var fretePorCep = await BuscarFretePorCepAsync(cepNumerico, cancellationToken);
+        var enderecoLocal = await BuscarEnderecoLocalAsync(cepNumerico, cancellationToken);
+
+        if (enderecoLocal is not null)
+        {
+            if (!EhSalvadorBahia(enderecoLocal) && fretePorCep is null)
+            {
+                return MapearConsultaCepNaoAtendido(enderecoLocal);
+            }
+
+            return await ConsultarFreteComEnderecoAsync(
+                enderecoLocal,
+                fretePorCep,
+                cancellationToken);
+        }
+
+        var enderecoViaCep = await _servicoCep.ConsultarAsync(
+            cepNumerico,
+            cancellationToken);
+        if (enderecoViaCep is null)
         {
             throw new KeyNotFoundException("CEP não encontrado. Verifique os números informados.");
         }
 
-        var consultaFrete = string.IsNullOrWhiteSpace(endereco.Bairro)
-            ? new ConsultaFreteBairroResposta
-            {
-                Atendido = false,
-                Bairro = endereco.Bairro,
-                ValorFrete = null,
-                Mensagem = "Bairro não atendido."
-            }
-            : await ConsultarPorBairroAsync(endereco.Bairro, cancellationToken);
+        var endereco = MapearEnderecoViaCep(enderecoViaCep, cepNumerico);
+        if (fretePorCep is not null)
+        {
+            return MapearConsultaCep(endereco, fretePorCep);
+        }
 
+        if (!EhSalvadorBahia(endereco))
+        {
+            return MapearConsultaCepNaoAtendido(endereco);
+        }
+
+        return await ConsultarFreteComEnderecoAsync(
+            endereco,
+            fretePorCep: null,
+            cancellationToken);
+    }
+
+    private async Task<DadosFreteEncontrado?> BuscarFretePorCepAsync(
+        string cep,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.FretesCep
+            .AsNoTracking()
+            .Where(freteCep =>
+                freteCep.Cep == cep &&
+                freteCep.Ativo &&
+                freteCep.FreteBairro.Ativo)
+            .Select(freteCep => new DadosFreteEncontrado(
+                freteCep.FreteBairro.Bairro,
+                freteCep.FreteBairro.Valor))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<DadosEnderecoCep?> BuscarEnderecoLocalAsync(
+        string cep,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.CepsSalvador
+            .AsNoTracking()
+            .Where(cepSalvador =>
+                cepSalvador.Cep == cep &&
+                cepSalvador.Ativo)
+            .Select(cepSalvador => new DadosEnderecoCep(
+                cepSalvador.Cep,
+                cepSalvador.Logradouro,
+                cepSalvador.Bairro,
+                cepSalvador.Cidade,
+                cepSalvador.Uf,
+                cepSalvador.BairroNormalizado))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<DadosFreteEncontrado?> BuscarFretePorBairroNormalizadoAsync(
+        string bairroNormalizado,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.FretesBairros
+            .AsNoTracking()
+            .Where(frete =>
+                frete.BairroNormalizado == bairroNormalizado &&
+                frete.Ativo)
+            .Select(frete => new DadosFreteEncontrado(
+                frete.Bairro,
+                frete.Valor))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<DadosFreteEncontrado?> BuscarFretePorAliasAsync(
+        string aliasNormalizado,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.FretesBairrosAliases
+            .AsNoTracking()
+            .Where(alias =>
+                alias.AliasNormalizado == aliasNormalizado &&
+                alias.Ativo &&
+                alias.FreteBairro.Ativo)
+            .Select(alias => new DadosFreteEncontrado(
+                alias.FreteBairro.Bairro,
+                alias.FreteBairro.Valor))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<ConsultaFreteCepResposta> ConsultarFreteComEnderecoAsync(
+        DadosEnderecoCep endereco,
+        DadosFreteEncontrado? fretePorCep,
+        CancellationToken cancellationToken)
+    {
+        if (fretePorCep is not null)
+        {
+            return MapearConsultaCep(endereco, fretePorCep);
+        }
+
+        var fretePorBairro = string.IsNullOrWhiteSpace(endereco.BairroNormalizado)
+            ? null
+            : await BuscarFretePorBairroNormalizadoAsync(
+                endereco.BairroNormalizado,
+                cancellationToken);
+
+        if (fretePorBairro is not null)
+        {
+            return MapearConsultaCep(endereco, fretePorBairro);
+        }
+
+        var fretePorAlias = string.IsNullOrWhiteSpace(endereco.BairroNormalizado)
+            ? null
+            : await BuscarFretePorAliasAsync(
+                endereco.BairroNormalizado,
+                cancellationToken);
+
+        return fretePorAlias is null
+            ? MapearConsultaCepNaoAtendido(endereco)
+            : MapearConsultaCep(endereco, fretePorAlias);
+    }
+
+    private static DadosEnderecoCep MapearEnderecoViaCep(
+        EnderecoCepResposta endereco,
+        string cepNumerico)
+    {
+        var bairroNormalizado = string.IsNullOrWhiteSpace(endereco.Bairro)
+            ? string.Empty
+            : NormalizadorBairro.NormalizarParaComparacao(endereco.Bairro);
+
+        return new DadosEnderecoCep(
+            cepNumerico,
+            endereco.Logradouro,
+            endereco.Bairro,
+            endereco.Cidade,
+            endereco.Estado,
+            bairroNormalizado);
+    }
+
+    private static bool EhSalvadorBahia(DadosEnderecoCep endereco)
+    {
+        var cidadeNormalizada = string.IsNullOrWhiteSpace(endereco.Cidade)
+            ? string.Empty
+            : NormalizadorBairro.NormalizarParaComparacao(endereco.Cidade);
+
+        return cidadeNormalizada == "salvador" &&
+            string.Equals(endereco.Estado, "BA", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static ConsultaFreteCepResposta MapearConsultaCep(
+        DadosEnderecoCep endereco,
+        DadosFreteEncontrado frete)
+    {
         return new ConsultaFreteCepResposta
         {
-            Cep = endereco.Cep,
+            Cep = NormalizadorCep.Formatar(endereco.Cep),
             Logradouro = endereco.Logradouro,
             Bairro = endereco.Bairro,
             Cidade = endereco.Cidade,
             Estado = endereco.Estado,
-            Atendido = consultaFrete.Atendido,
-            ValorFrete = consultaFrete.ValorFrete,
-            Mensagem = consultaFrete.Atendido
-                ? null
-                : $"No momento, ainda não realizamos entregas para o bairro {endereco.Bairro}. Você pode selecionar a opção de retirada no local."
+            BairroFrete = frete.Bairro,
+            Atendido = true,
+            ValorFrete = frete.ValorFrete
+        };
+    }
+
+    private static ConsultaFreteCepResposta MapearConsultaCepNaoAtendido(
+        DadosEnderecoCep endereco)
+    {
+        return new ConsultaFreteCepResposta
+        {
+            Cep = NormalizadorCep.Formatar(endereco.Cep),
+            Logradouro = endereco.Logradouro,
+            Bairro = endereco.Bairro,
+            Cidade = endereco.Cidade,
+            Estado = endereco.Estado,
+            BairroFrete = null,
+            Atendido = false,
+            ValorFrete = null,
+            Mensagem = "No momento não realizamos entregas para esta localidade."
         };
     }
 
@@ -262,13 +462,79 @@ public class ServicoFreteBairro : IServicoFreteBairro
         return new DadosFreteValidados(bairro, bairroNormalizado);
     }
 
+    private async Task SincronizarAliasAutomaticoAsync(
+        Guid freteBairroId,
+        string aliasNormalizado,
+        DateTimeOffset agora,
+        CancellationToken cancellationToken)
+    {
+        var aliasAutomatico = await _dbContext.FretesBairrosAliases
+            .Where(alias =>
+                alias.FreteBairroId == freteBairroId &&
+                alias.GeradoAutomaticamente)
+            .OrderBy(alias => alias.CriadoEm)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        await GarantirAliasNormalizadoLivreAsync(
+            aliasNormalizado,
+            aliasAutomatico?.Id,
+            cancellationToken);
+
+        if (aliasAutomatico is null)
+        {
+            await _dbContext.FretesBairrosAliases.AddAsync(
+                CriarAliasAutomatico(freteBairroId, aliasNormalizado, agora),
+                cancellationToken);
+
+            return;
+        }
+
+        aliasAutomatico.AliasNormalizado = aliasNormalizado;
+        aliasAutomatico.Ativo = true;
+        aliasAutomatico.AtualizadoEm = agora;
+    }
+
+    private async Task GarantirAliasNormalizadoLivreAsync(
+        string aliasNormalizado,
+        Guid? idIgnorado,
+        CancellationToken cancellationToken)
+    {
+        var aliasJaExiste = await _dbContext.FretesBairrosAliases
+            .AsNoTracking()
+            .AnyAsync(
+                alias =>
+                    alias.AliasNormalizado == aliasNormalizado &&
+                    (!idIgnorado.HasValue || alias.Id != idIgnorado.Value),
+                cancellationToken);
+
+        if (aliasJaExiste)
+        {
+            throw new InvalidOperationException("Já existe alias cadastrado para esse bairro.");
+        }
+    }
+
+    private static FreteBairroAlias CriarAliasAutomatico(
+        Guid freteBairroId,
+        string aliasNormalizado,
+        DateTimeOffset agora)
+    {
+        return new FreteBairroAlias
+        {
+            FreteBairroId = freteBairroId,
+            AliasNormalizado = aliasNormalizado,
+            Ativo = true,
+            GeradoAutomaticamente = true,
+            CriadoEm = agora,
+            AtualizadoEm = agora
+        };
+    }
+
     private static FreteBairroResposta MapearResposta(FreteBairro frete)
     {
         return new FreteBairroResposta
         {
             Id = frete.Id,
             Bairro = frete.Bairro,
-            BairroNormalizado = frete.BairroNormalizado,
             Valor = frete.Valor,
             Ativo = frete.Ativo,
             CriadoEm = frete.CriadoEm,
@@ -278,5 +544,17 @@ public class ServicoFreteBairro : IServicoFreteBairro
 
     private sealed record DadosFreteValidados(
         string Bairro,
+        string BairroNormalizado);
+
+    private sealed record DadosFreteEncontrado(
+        string Bairro,
+        decimal ValorFrete);
+
+    private sealed record DadosEnderecoCep(
+        string Cep,
+        string? Logradouro,
+        string Bairro,
+        string Cidade,
+        string Estado,
         string BairroNormalizado);
 }

@@ -44,12 +44,19 @@ public class AdminPainelController : ControllerBase
                 cardapioPrato.CardapioDia.EstaAtivo &&
                 cardapioPrato.Prato.EstaAtivo);
 
-        var quantidadePratosHoje = await cardapioHoje.CountAsync(cancellationToken);
-        var quantidadePratosDisponiveis = await cardapioHoje
-            .CountAsync(cardapioPrato =>
-                cardapioPrato.EstaDisponivel &&
-                cardapioPrato.Prato.EstaDisponivel,
-                cancellationToken);
+        var contagemPratosHoje = await cardapioHoje
+            .GroupBy(_ => 1)
+            .Select(grupo => new
+            {
+                Total = grupo.Count(),
+                Disponiveis = grupo.Count(cardapioPrato =>
+                    cardapioPrato.EstaDisponivel &&
+                    cardapioPrato.Prato.EstaDisponivel)
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var quantidadePratosHoje = contagemPratosHoje?.Total ?? 0;
+        var quantidadePratosDisponiveis = contagemPratosHoje?.Disponiveis ?? 0;
         var quantidadePratosIndisponiveis =
             quantidadePratosHoje - quantidadePratosDisponiveis;
 

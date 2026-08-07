@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuentinhasDaTininha.Aplicacao.Cardapios.DTOs;
 using QuentinhasDaTininha.Aplicacao.Cardapios.Interfaces;
+using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 using QuentinhasDaTininha.Dominio.Enumeracoes;
 
 namespace QuentinhasDaTininha.Api.Controllers;
@@ -12,10 +13,14 @@ namespace QuentinhasDaTininha.Api.Controllers;
 public class CardapiosController : ControllerBase
 {
     private readonly IServicoCardapio _servicoCardapio;
+    private readonly IControleCacheCardapioPublico _controleCacheCardapioPublico;
 
-    public CardapiosController(IServicoCardapio servicoCardapio)
+    public CardapiosController(
+        IServicoCardapio servicoCardapio,
+        IControleCacheCardapioPublico controleCacheCardapioPublico)
     {
         _servicoCardapio = servicoCardapio;
+        _controleCacheCardapioPublico = controleCacheCardapioPublico;
     }
 
     [HttpGet]
@@ -61,6 +66,7 @@ public class CardapiosController : ControllerBase
                 diaSemana,
                 requisicao,
                 cancellationToken);
+            _controleCacheCardapioPublico.Invalidar();
 
             return Ok(cardapio);
         }
@@ -99,6 +105,7 @@ public class CardapiosController : ControllerBase
                 return NotFound();
             }
 
+            _controleCacheCardapioPublico.Invalidar();
             return Ok();
         }
         catch (ArgumentException excecao)

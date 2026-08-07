@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TimeoutError, finalize } from 'rxjs';
 import { LogoMarcaComponent } from '../../../compartilhado/componentes/logo-marca/logo-marca.component';
 import { AutenticacaoService } from '../../../nucleo/autenticacao/autenticacao.service';
 
@@ -74,18 +75,15 @@ export class LoginPage {
     this.carregando.set(true);
     this.mensagemErro.set('');
 
-    this.autenticacaoService.entrar(this.formulario.getRawValue()).subscribe({
+    this.autenticacaoService.entrar(this.formulario.getRawValue())
+      .pipe(finalize(() => this.carregando.set(false)))
+      .subscribe({
       next: () => {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/admin/painel';
         void this.router.navigateByUrl(returnUrl);
       },
       error: (erro: unknown) => {
-        this.mensagemErro.set(
-          erro instanceof HttpErrorResponse && erro.status === 401
-            ? 'E-mail ou senha invalidos.'
-            : 'Nao foi possivel entrar agora. Tente novamente.'
-        );
-        this.carregando.set(false);
+        this.mensagemErro.set(this.criarMensagemErroLogin(erro));
       }
     });
   }
@@ -93,5 +91,27 @@ export class LoginPage {
   protected campoInvalido(campo: 'email' | 'senha'): boolean {
     const controle = this.formulario.controls[campo];
     return controle.invalid && (controle.dirty || controle.touched);
+  }
+
+  private criarMensagemErroLogin(erro: unknown): string {
+    if (erro instanceof TimeoutError) {
+      return 'A entrada demorou mais que o esperado. Tente novamente.';
+    }
+
+    if (erro instanceof HttpErrorResponse) {
+      if (erro.status === 401) {
+        return 'E-mail ou senha invalidos.';
+      }
+
+      if (erro.status === 0) {
+        return 'Nao foi possivel conectar com a API agora.';
+      }
+
+      if (erro.status >= 500) {
+        return 'A API encontrou um erro. Tente novamente em instantes.';
+      }
+    }
+
+    return 'Nao foi possivel entrar agora. Tente novamente.';
   }
 }

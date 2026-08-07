@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 using QuentinhasDaTininha.Dominio.Entidades;
 using QuentinhasDaTininha.Dominio.Enumeracoes;
 using QuentinhasDaTininha.Infraestrutura.Persistencia;
@@ -13,10 +14,14 @@ namespace QuentinhasDaTininha.Api.Controllers;
 public class AdminPratosController : ControllerBase
 {
     private readonly QuentinhasDaTininhaDbContext _dbContext;
+    private readonly IControleCacheCardapioPublico _controleCacheCardapioPublico;
 
-    public AdminPratosController(QuentinhasDaTininhaDbContext dbContext)
+    public AdminPratosController(
+        QuentinhasDaTininhaDbContext dbContext,
+        IControleCacheCardapioPublico controleCacheCardapioPublico)
     {
         _dbContext = dbContext;
+        _controleCacheCardapioPublico = controleCacheCardapioPublico;
     }
 
     [HttpGet]
@@ -164,6 +169,7 @@ public class AdminPratosController : ControllerBase
         await ConfigurarDiasAsync(prato, requisicao.DiasSemana, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         await transacao.CommitAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         var resposta = await ObterDetalheAsync(prato.Id, cancellationToken) ??
             throw new InvalidOperationException("Nao foi possivel carregar o prato criado.");
@@ -211,6 +217,7 @@ public class AdminPratosController : ControllerBase
         await ConfigurarDiasAsync(prato, requisicao.DiasSemana, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         await transacao.CommitAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         return Ok(await ObterDetalheAsync(id, cancellationToken));
     }
@@ -230,6 +237,7 @@ public class AdminPratosController : ControllerBase
         prato.EstaDisponivel = requisicao.EstaDisponivel;
         prato.AtualizadoEm = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         return Ok(new StatusPratoAdminResposta
         {
@@ -254,6 +262,7 @@ public class AdminPratosController : ControllerBase
         prato.EstaAtivo = requisicao.EstaAtivo;
         prato.AtualizadoEm = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         return Ok(new StatusPratoAdminResposta
         {

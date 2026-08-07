@@ -120,20 +120,54 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             dataInicial,
             dataFinal,
             _servicoDataLocal.ObterDataAtual());
-        var datas = new List<DisponibilidadeDataPublicaResposta>();
+        var dataAtual = _servicoDataLocal.ObterDataAtual();
+        var periodo = CriarPeriodo(inicio, fim).ToList();
+        var registros = await ObterRegistrosAtivosAsync(inicio, fim, cancellationToken);
+        var configuracao = await _dbContext.ConfiguracoesRestaurante
+            .AsNoTracking()
+            .OrderBy(configuracao => configuracao.CriadoEm)
+            .FirstOrDefaultAsync(cancellationToken);
+        var diasSemana = periodo
+            .Select(ConverterDiaSemana)
+            .Distinct()
+            .ToList();
+        var horarios = await _dbContext.HorariosFuncionamento
+            .AsNoTracking()
+            .Where(horario =>
+                diasSemana.Contains(horario.DiaSemana) &&
+                horario.EstaAtivo)
+            .ToListAsync(cancellationToken);
+        var horariosPorDia = horarios
+            .GroupBy(horario => horario.DiaSemana)
+            .ToDictionary(
+                grupo => grupo.Key,
+                grupo => grupo.ToList());
 
-        foreach (var data in CriarPeriodo(inicio, fim))
-        {
-            var validacao = await ValidarPedidoAsync(data, cancellationToken);
-            datas.Add(new DisponibilidadeDataPublicaResposta
+        var datas = periodo
+            .Select(data =>
             {
-                Data = data,
-                Disponivel = validacao.PermitirPedidos,
-                PermitirPedidos = validacao.PermitirPedidos,
-                Motivo = validacao.MotivoBloqueio,
-                MotivoBloqueio = validacao.MotivoBloqueio
-            });
-        }
+                var avaliacaoData = AvaliarData(
+                    data,
+                    dataAtual,
+                    registros.GetValueOrDefault(data));
+                var validacao = avaliacaoData.PermitirPedidos
+                    ? AvaliarRestaurante(
+                        data,
+                        dataAtual,
+                        configuracao,
+                        horariosPorDia)
+                    : avaliacaoData;
+
+                return new DisponibilidadeDataPublicaResposta
+                {
+                    Data = data,
+                    Disponivel = validacao.PermitirPedidos,
+                    PermitirPedidos = validacao.PermitirPedidos,
+                    Motivo = validacao.MotivoBloqueio,
+                    MotivoBloqueio = validacao.MotivoBloqueio
+                };
+            })
+            .ToList();
 
         return new DisponibilidadePublicaResposta
         {
@@ -279,6 +313,61 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         }
 
         if (data != _servicoDataLocal.ObterDataAtual())
+        {
+            return Liberar(data);
+        }
+
+        var horaAtual = TimeOnly.FromDateTime(DateTimeOffset.Now.DateTime);
+        var abertoNoHorario = horarios.Any(horario =>
+            horaAtual >= horario.HoraAbertura &&
+            horaAtual <= horario.HoraFechamento);
+
+        return abertoNoHorario
+            ? Liberar(data)
+            : Bloquear(
+                data,
+                configuracao.MensagemFechado ?? "Restaurante fechado no momento.");
+    }
+
+    private static ValidacaoDisponibilidadePedidoResposta AvaliarRestaurante(
+        DateOnly data,
+        DateOnly dataAtual,
+        ConfiguracaoRestaurante? configuracao,
+        IReadOnlyDictionary<DiaSemana, List<HorarioFuncionamento>> horariosPorDia)
+    {
+        if (ConverterDiaSemana(data) == DiaSemana.Domingo)
+        {
+            return Bloquear(
+                data,
+                "Hoje não temos atendimento. Consulte o cardápio dos outros dias.");
+        }
+
+        if (configuracao is null)
+        {
+            return Bloquear(data, "Não conseguimos carregar o status do restaurante.");
+        }
+
+        if (!configuracao.EstaAtivo ||
+            !configuracao.AceitaPedidos ||
+            configuracao.ModoFuncionamento == ModoFuncionamento.FechadoManualmente)
+        {
+            return Bloquear(
+                data,
+                configuracao.MensagemFechado ?? "Restaurante fechado no momento.");
+        }
+
+        if (configuracao.ModoFuncionamento == ModoFuncionamento.AbertoManualmente)
+        {
+            return Liberar(data);
+        }
+
+        if (!horariosPorDia.TryGetValue(ConverterDiaSemana(data), out var horarios) ||
+            horarios.Count == 0)
+        {
+            return Bloquear(data, "Restaurante fechado nessa data.");
+        }
+
+        if (data != dataAtual)
         {
             return Liberar(data);
         }

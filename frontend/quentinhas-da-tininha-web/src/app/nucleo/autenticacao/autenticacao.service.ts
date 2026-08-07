@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   CredenciaisLogin,
@@ -16,6 +16,7 @@ export class AutenticacaoService {
   private readonly chaveToken = 'quentinhas_admin_token';
   private readonly chaveUsuario = 'quentinhas_admin_usuario';
   private readonly chaveExpiracao = 'quentinhas_admin_expiracao';
+  private restauracaoSessao$?: Observable<boolean>;
 
   readonly usuarioAtual = signal<UsuarioAutenticado | null>(this.lerUsuarioArmazenado());
   readonly carregandoSessao = signal(false);
@@ -37,17 +38,31 @@ export class AutenticacaoService {
       return of(false);
     }
 
+    if (this.usuarioAtual()) {
+      return of(true);
+    }
+
+    if (this.restauracaoSessao$) {
+      return this.restauracaoSessao$;
+    }
+
     this.carregandoSessao.set(true);
 
-    return this.httpClient.get<SessaoUsuario>(`${this.apiUrl}/autenticacao/sessao`).pipe(
+    this.restauracaoSessao$ = this.httpClient.get<SessaoUsuario>(`${this.apiUrl}/autenticacao/sessao`).pipe(
       tap((sessao) => this.usuarioAtual.set(sessao.usuario)),
       map((sessao) => sessao.autenticado),
       catchError(() => {
         this.limparSessao();
         return of(false);
       }),
-      tap(() => this.carregandoSessao.set(false))
+      finalize(() => {
+        this.carregandoSessao.set(false);
+        this.restauracaoSessao$ = undefined;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    return this.restauracaoSessao$;
   }
 
   estaAutenticado(): boolean {

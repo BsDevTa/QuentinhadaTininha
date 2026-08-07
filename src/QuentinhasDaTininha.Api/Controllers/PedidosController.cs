@@ -40,6 +40,14 @@ public class PedidosController : ControllerBase
         {
             return BadRequest(new { mensagem = excecao.Message });
         }
+        catch (KeyNotFoundException excecao)
+        {
+            return BadRequest(new { mensagem = excecao.Message });
+        }
+        catch (TimeoutException excecao)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { mensagem = excecao.Message });
+        }
         catch (InvalidOperationException excecao)
         {
             return Conflict(new { mensagem = excecao.Message });

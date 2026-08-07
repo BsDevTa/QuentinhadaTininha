@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, map, of, tap } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Acompanhamento,
@@ -20,15 +20,18 @@ export class CardapioService {
   private readonly pratos = signal(pratosMock);
   private readonly restaurante = signal(restauranteMock);
   private readonly cacheRestaurante = signal<Restaurante | null>(null);
+  private readonly cacheCardapio = new Map<string, CacheCardapio>();
+  private readonly cacheCardapioMs = 30000;
 
   obterCardapioHoje(): Observable<CardapioDia> {
     if (environment.usarDadosMockados) {
       return of(this.obterMockPorDia(this.obterDiaAtual()));
     }
 
-    return this.httpClient
-      .get<CardapioDiaApi>(`${this.apiUrl}/cardapio/hoje`)
-      .pipe(map((resposta) => this.mapearCardapio(resposta)));
+    return this.obterCardapioApi(
+      `hoje:${this.criarChaveDataAtual()}`,
+      `${this.apiUrl}/cardapio/hoje`
+    );
   }
 
   obterCardapioPorDia(diaSemana: DiaSemana): Observable<CardapioDia> {
@@ -36,9 +39,10 @@ export class CardapioService {
       return of(this.obterMockPorDia(diaSemana));
     }
 
-    return this.httpClient
-      .get<CardapioDiaApi>(`${this.apiUrl}/cardapio/dia/${this.mapearDiaParaApi(diaSemana)}`)
-      .pipe(map((resposta) => this.mapearCardapio(resposta)));
+    return this.obterCardapioApi(
+      `dia:${diaSemana}`,
+      `${this.apiUrl}/cardapio/dia/${this.mapearDiaParaApi(diaSemana)}`
+    );
   }
 
   obterRestaurante(): Observable<Restaurante> {
@@ -70,6 +74,10 @@ export class CardapioService {
 
   listarAcompanhamentos(): Observable<Acompanhamento[]> {
     return of(acompanhamentosMock);
+  }
+
+  invalidarCacheCardapio(): void {
+    this.cacheCardapio.clear();
   }
 
   atualizarStatus(estaAberto: boolean, mensagemStatus: string): Observable<Restaurante> {
@@ -175,6 +183,41 @@ export class CardapioService {
     };
   }
 
+  private obterCardapioApi(chave: string, url: string): Observable<CardapioDia> {
+    const agora = Date.now();
+    const cacheado = this.cacheCardapio.get(chave);
+    if (cacheado && cacheado.expiraEm > agora) {
+      return cacheado.requisicao$;
+    }
+
+    const requisicao$ = this.httpClient
+      .get<CardapioDiaApi>(url)
+      .pipe(
+        map((resposta) => this.mapearCardapio(resposta)),
+        catchError((erro: unknown) => {
+          this.cacheCardapio.delete(chave);
+          return throwError(() => erro);
+        }),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+
+    this.cacheCardapio.set(chave, {
+      expiraEm: agora + this.cacheCardapioMs,
+      requisicao$
+    });
+
+    return requisicao$;
+  }
+
+  private criarChaveDataAtual(): string {
+    const agora = new Date();
+    return [
+      agora.getFullYear(),
+      String(agora.getMonth() + 1).padStart(2, '0'),
+      String(agora.getDate()).padStart(2, '0')
+    ].join('');
+  }
+
   private mapearDiaParaApi(diaSemana: DiaSemana): number {
     return diaSemana === 0 ? 7 : diaSemana;
   }
@@ -213,4 +256,9 @@ interface PratoApi {
   ordemExibicao: number;
   precos: Prato['precos'];
   grupoAcompanhamento: GrupoAcompanhamentoApi | null;
+}
+
+interface CacheCardapio {
+  expiraEm: number;
+  requisicao$: Observable<CardapioDia>;
 }

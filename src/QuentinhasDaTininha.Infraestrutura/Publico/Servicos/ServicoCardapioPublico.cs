@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QuentinhasDaTininha.Aplicacao.Funcionamento.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Publico.DTOs;
 using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
@@ -10,16 +11,24 @@ namespace QuentinhasDaTininha.Infraestrutura.Publico.Servicos;
 
 public class ServicoCardapioPublico : IServicoCardapioPublico
 {
+    private static readonly TimeSpan DuracaoCache = TimeSpan.FromSeconds(30);
+
     private readonly QuentinhasDaTininhaDbContext _dbContext;
+    private readonly IMemoryCache _memoryCache;
+    private readonly IControleCacheCardapioPublico _controleCache;
     private readonly IServicoDataLocal _servicoDataLocal;
     private readonly IServicoDisponibilidadePedido _servicoDisponibilidadePedido;
 
     public ServicoCardapioPublico(
         QuentinhasDaTininhaDbContext dbContext,
+        IMemoryCache memoryCache,
+        IControleCacheCardapioPublico controleCache,
         IServicoDataLocal servicoDataLocal,
         IServicoDisponibilidadePedido servicoDisponibilidadePedido)
     {
         _dbContext = dbContext;
+        _memoryCache = memoryCache;
+        _controleCache = controleCache;
         _servicoDataLocal = servicoDataLocal;
         _servicoDisponibilidadePedido = servicoDisponibilidadePedido;
     }
@@ -29,6 +38,25 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
         CancellationToken cancellationToken = default)
     {
         var dataConsulta = data ?? _servicoDataLocal.ObterDataAtual();
+        var chaveCache = $"cardapio-publico:{_controleCache.Versao}:{dataConsulta:yyyyMMdd}";
+
+        return await _memoryCache.GetOrCreateAsync(chaveCache, entrada =>
+        {
+            entrada.AbsoluteExpirationRelativeToNow = DuracaoCache;
+            entrada.SetPriority(CacheItemPriority.Normal);
+
+            return ObterSemCacheAsync(dataConsulta, cancellationToken);
+        }) ?? new CardapioPublicoResposta
+        {
+            Data = dataConsulta,
+            DiaSemana = ConverterDiaSemana(dataConsulta)
+        };
+    }
+
+    private async Task<CardapioPublicoResposta> ObterSemCacheAsync(
+        DateOnly dataConsulta,
+        CancellationToken cancellationToken)
+    {
         var diaSemana = ConverterDiaSemana(dataConsulta);
 
         var configuracao = await _dbContext.ConfiguracoesRestaurante
@@ -102,61 +130,87 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
         DiaSemana diaSemana,
         CancellationToken cancellationToken)
     {
-        var cardapio = await _dbContext.CardapiosDia
+        var pratos = await _dbContext.CardapiosDiaPratos
             .AsNoTracking()
-            .Include(cardapio => cardapio.CardapiosDiaPratos)
-                .ThenInclude(cardapioPrato => cardapioPrato.Prato)
-                    .ThenInclude(prato => prato.Categoria)
-            .Include(cardapio => cardapio.CardapiosDiaPratos)
-                .ThenInclude(cardapioPrato => cardapioPrato.Prato)
-                    .ThenInclude(prato => prato.PratoAcompanhamentos)
-                        .ThenInclude(pratoAcompanhamento => pratoAcompanhamento.Acompanhamento)
-            .FirstOrDefaultAsync(
-                cardapio => cardapio.DiaSemana == diaSemana && cardapio.EstaAtivo,
-                cancellationToken);
-
-        if (cardapio is null)
-        {
-            return new List<CategoriaCardapioPublicoResposta>();
-        }
-
-        return cardapio.CardapiosDiaPratos
             .Where(cardapioPrato =>
+                cardapioPrato.CardapioDia.DiaSemana == diaSemana &&
+                cardapioPrato.CardapioDia.EstaAtivo &&
                 cardapioPrato.EstaDisponivel &&
                 cardapioPrato.Prato.EstaAtivo &&
                 cardapioPrato.Prato.EstaDisponivel &&
                 cardapioPrato.Prato.Categoria.EstaAtiva)
-            .GroupBy(cardapioPrato => cardapioPrato.Prato.Categoria)
-            .OrderBy(grupo => grupo.Key.Nome)
+            .OrderBy(cardapioPrato => cardapioPrato.Prato.Categoria.Nome)
+            .ThenBy(cardapioPrato => cardapioPrato.Prato.Nome)
+            .Select(cardapioPrato => new LinhaPratoCardapioPublico(
+                cardapioPrato.Prato.Categoria.Id,
+                cardapioPrato.Prato.Categoria.Nome,
+                cardapioPrato.Prato.Categoria.Descricao,
+                cardapioPrato.Prato.Id,
+                cardapioPrato.Prato.Nome,
+                cardapioPrato.Prato.Descricao,
+                cardapioPrato.Prato.Preco,
+                cardapioPrato.Prato.UrlImagem))
+            .ToListAsync(cancellationToken);
+
+        if (pratos.Count == 0)
+        {
+            return new List<CategoriaCardapioPublicoResposta>();
+        }
+
+        var pratoIds = pratos.Select(prato => prato.PratoId).Distinct().ToList();
+        var acompanhamentos = await _dbContext.PratosAcompanhamentos
+            .AsNoTracking()
+            .Where(pratoAcompanhamento =>
+                pratoIds.Contains(pratoAcompanhamento.PratoId) &&
+                pratoAcompanhamento.Acompanhamento.EstaAtivo)
+            .OrderBy(pratoAcompanhamento => pratoAcompanhamento.Acompanhamento.Nome)
+            .Select(pratoAcompanhamento => new LinhaAcompanhamentoCardapioPublico(
+                pratoAcompanhamento.PratoId,
+                pratoAcompanhamento.Acompanhamento.Id,
+                pratoAcompanhamento.Acompanhamento.Nome,
+                pratoAcompanhamento.Acompanhamento.Descricao,
+                pratoAcompanhamento.Acompanhamento.PrecoAdicional))
+            .ToListAsync(cancellationToken);
+
+        var acompanhamentosPorPrato = acompanhamentos
+            .GroupBy(acompanhamento => acompanhamento.PratoId)
+            .ToDictionary(
+                grupo => grupo.Key,
+                grupo => grupo
+                    .Select(acompanhamento => new AcompanhamentoCardapioPublicoResposta
+                    {
+                        Id = acompanhamento.Id,
+                        Nome = acompanhamento.Nome,
+                        Descricao = acompanhamento.Descricao,
+                        PrecoAdicional = acompanhamento.PrecoAdicional
+                    })
+                    .ToList());
+
+        return pratos
+            .GroupBy(prato => new
+            {
+                prato.CategoriaId,
+                prato.CategoriaNome,
+                prato.CategoriaDescricao
+            })
+            .OrderBy(grupo => grupo.Key.CategoriaNome)
             .Select(grupo => new CategoriaCardapioPublicoResposta
             {
-                Id = grupo.Key.Id,
-                Nome = grupo.Key.Nome,
-                Descricao = grupo.Key.Descricao,
+                Id = grupo.Key.CategoriaId,
+                Nome = grupo.Key.CategoriaNome,
+                Descricao = grupo.Key.CategoriaDescricao,
                 Pratos = grupo
-                    .OrderBy(cardapioPrato => cardapioPrato.Prato.Nome)
-                    .Select(cardapioPrato => new PratoCardapioPublicoResposta
+                    .OrderBy(prato => prato.PratoNome)
+                    .Select(prato => new PratoCardapioPublicoResposta
                     {
-                        Id = cardapioPrato.Prato.Id,
-                        Nome = cardapioPrato.Prato.Nome,
-                        Descricao = cardapioPrato.Prato.Descricao,
-                        Preco = cardapioPrato.Prato.Preco,
-                        ImagemUrl = cardapioPrato.Prato.UrlImagem,
-                        Acompanhamentos = cardapioPrato.Prato.PratoAcompanhamentos
-                            .Where(pratoAcompanhamento =>
-                                pratoAcompanhamento.Acompanhamento.EstaAtivo)
-                            .OrderBy(pratoAcompanhamento =>
-                                pratoAcompanhamento.Acompanhamento.Nome)
-                            .Select(pratoAcompanhamento =>
-                                new AcompanhamentoCardapioPublicoResposta
-                                {
-                                    Id = pratoAcompanhamento.Acompanhamento.Id,
-                                    Nome = pratoAcompanhamento.Acompanhamento.Nome,
-                                    Descricao = pratoAcompanhamento.Acompanhamento.Descricao,
-                                    PrecoAdicional =
-                                        pratoAcompanhamento.Acompanhamento.PrecoAdicional
-                                })
-                            .ToList()
+                        Id = prato.PratoId,
+                        Nome = prato.PratoNome,
+                        Descricao = prato.PratoDescricao,
+                        Preco = prato.Preco,
+                        ImagemUrl = prato.ImagemUrl,
+                        Acompanhamentos = acompanhamentosPorPrato.GetValueOrDefault(
+                            prato.PratoId,
+                            new List<AcompanhamentoCardapioPublicoResposta>())
                     })
                     .ToList()
             })
@@ -190,4 +244,21 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
             Cep = configuracao.Cep
         };
     }
+
+    private sealed record LinhaPratoCardapioPublico(
+        Guid CategoriaId,
+        string CategoriaNome,
+        string? CategoriaDescricao,
+        Guid PratoId,
+        string PratoNome,
+        string? PratoDescricao,
+        decimal Preco,
+        string? ImagemUrl);
+
+    private sealed record LinhaAcompanhamentoCardapioPublico(
+        Guid PratoId,
+        Guid Id,
+        string Nome,
+        string? Descricao,
+        decimal PrecoAdicional);
 }

@@ -9,4 +9,6 @@ public class FreteBairro
     public bool Ativo { get; set; } = true;
     public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset AtualizadoEm { get; set; } = DateTimeOffset.UtcNow;
+    public ICollection<FreteCep> Ceps { get; set; } = new List<FreteCep>();
+    public ICollection<FreteBairroAlias> Aliases { get; set; } = new List<FreteBairroAlias>();
 }

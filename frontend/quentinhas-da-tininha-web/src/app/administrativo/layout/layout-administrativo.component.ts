@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { LogoMarcaComponent } from '../../compartilhado/componentes/logo-marca/logo-marca.component';
@@ -79,6 +80,7 @@ interface ItemMenuAdmin {
 export class LayoutAdministrativoComponent {
   private readonly autenticacaoService = inject(AutenticacaoService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly menuAberto = signal(false);
   protected readonly restauranteAberto = signal(true);
@@ -101,7 +103,10 @@ export class LayoutAdministrativoComponent {
   constructor() {
     this.atualizarTitulo(this.router.url);
     this.router.events
-      .pipe(filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd))
+      .pipe(
+        filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe((evento) => this.atualizarTitulo(evento.urlAfterRedirects));
   }
 

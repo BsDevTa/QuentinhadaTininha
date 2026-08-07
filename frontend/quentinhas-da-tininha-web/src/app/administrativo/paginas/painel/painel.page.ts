@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { ResumoPainel } from '../../../nucleo/autenticacao/autenticacao.model';
 import { PainelAdministrativoService } from '../../servicos/painel-administrativo.service';
 
@@ -94,15 +95,15 @@ export class PainelPage implements OnInit {
     this.carregando.set(true);
     this.mensagemErro.set('');
 
-    this.painelService.obterResumo().subscribe({
+    this.painelService.obterResumo()
+      .pipe(finalize(() => this.carregando.set(false)))
+      .subscribe({
       next: (resumo) => {
         this.resumo.set(resumo);
         this.cardsResumo.set(this.montarCards(resumo));
-        this.carregando.set(false);
       },
       error: () => {
         this.mensagemErro.set('Nao foi possivel carregar os dados do painel.');
-        this.carregando.set(false);
       }
     });
   }

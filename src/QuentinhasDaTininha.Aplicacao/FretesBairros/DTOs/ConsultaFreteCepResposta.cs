@@ -7,6 +7,7 @@ public class ConsultaFreteCepResposta
     public string Bairro { get; set; } = string.Empty;
     public string Cidade { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
+    public string? BairroFrete { get; set; }
     public bool Atendido { get; set; }
     public decimal? ValorFrete { get; set; }
     public string? Mensagem { get; set; }

@@ -170,6 +170,78 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.ToTable("categoria", (string)null);
                 });
 
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.CepSalvador", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Ativo");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("AtualizadoEm");
+
+                    b.Property<string>("Bairro")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("Bairro");
+
+                    b.Property<string>("BairroNormalizado")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("BairroNormalizado");
+
+                    b.Property<string>("Cep")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("Cep");
+
+                    b.Property<string>("Cidade")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("Cidade");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CriadoEm");
+
+                    b.Property<string>("Logradouro")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("Logradouro");
+
+                    b.Property<string>("Uf")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("Uf");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo");
+
+                    b.HasIndex("BairroNormalizado");
+
+                    b.HasIndex("Cep")
+                        .IsUnique();
+
+                    b.HasIndex("BairroNormalizado", "Ativo");
+
+                    b.ToTable("cep_salvador", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_cep_salvador_Cep_Tamanho", "char_length(\"Cep\") = 8");
+                        });
+                });
+
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.ConfiguracaoRestaurante", b =>
                 {
                     b.Property<Guid>("Id")
@@ -337,6 +409,92 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                         .IsUnique();
 
                     b.ToTable("frete_bairro", (string)null);
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.FreteBairroAlias", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("AliasNormalizado")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("AliasNormalizado");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Ativo");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("AtualizadoEm");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CriadoEm");
+
+                    b.Property<Guid>("FreteBairroId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("FreteBairroId");
+
+                    b.Property<bool>("GeradoAutomaticamente")
+                        .HasColumnType("boolean")
+                        .HasColumnName("GeradoAutomaticamente");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AliasNormalizado")
+                        .IsUnique();
+
+                    b.HasIndex("Ativo");
+
+                    b.HasIndex("FreteBairroId");
+
+                    b.ToTable("frete_bairro_alias", (string)null);
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.FreteCep", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Ativo");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("AtualizadoEm");
+
+                    b.Property<string>("Cep")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("Cep");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("CriadoEm");
+
+                    b.Property<Guid>("FreteBairroId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("FreteBairroId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo");
+
+                    b.HasIndex("Cep")
+                        .IsUnique();
+
+                    b.HasIndex("FreteBairroId");
+
+                    b.ToTable("frete_cep", (string)null);
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamento", b =>
@@ -805,6 +963,28 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
                     b.Navigation("Prato");
                 });
 
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.FreteBairroAlias", b =>
+                {
+                    b.HasOne("QuentinhasDaTininha.Dominio.Entidades.FreteBairro", "FreteBairro")
+                        .WithMany("Aliases")
+                        .HasForeignKey("FreteBairroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FreteBairro");
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.FreteCep", b =>
+                {
+                    b.HasOne("QuentinhasDaTininha.Dominio.Entidades.FreteBairro", "FreteBairro")
+                        .WithMany("Ceps")
+                        .HasForeignKey("FreteBairroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FreteBairro");
+                });
+
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamentoItem", b =>
                 {
                     b.HasOne("QuentinhasDaTininha.Dominio.Entidades.Acompanhamento", "Acompanhamento")
@@ -916,6 +1096,13 @@ namespace QuentinhasDaTininha.Infraestrutura.Persistencia.Migrations
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.Categoria", b =>
                 {
                     b.Navigation("Pratos");
+                });
+
+            modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.FreteBairro", b =>
+                {
+                    b.Navigation("Aliases");
+
+                    b.Navigation("Ceps");
                 });
 
             modelBuilder.Entity("QuentinhasDaTininha.Dominio.Entidades.GrupoAcompanhamento", b =>

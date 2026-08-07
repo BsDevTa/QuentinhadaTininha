@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 using QuentinhasDaTininha.Dominio.Entidades;
 using QuentinhasDaTininha.Dominio.Enumeracoes;
 using QuentinhasDaTininha.Infraestrutura.Persistencia;
@@ -13,10 +14,14 @@ namespace QuentinhasDaTininha.Api.Controllers;
 public class AdminAcompanhamentosController : ControllerBase
 {
     private readonly QuentinhasDaTininhaDbContext _dbContext;
+    private readonly IControleCacheCardapioPublico _controleCacheCardapioPublico;
 
-    public AdminAcompanhamentosController(QuentinhasDaTininhaDbContext dbContext)
+    public AdminAcompanhamentosController(
+        QuentinhasDaTininhaDbContext dbContext,
+        IControleCacheCardapioPublico controleCacheCardapioPublico)
     {
         _dbContext = dbContext;
+        _controleCacheCardapioPublico = controleCacheCardapioPublico;
     }
 
     [HttpGet]
@@ -125,6 +130,7 @@ public class AdminAcompanhamentosController : ControllerBase
         await ConfigurarGruposAsync(acompanhamento, requisicao.Grupos, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         await transacao.CommitAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         var resposta = await ObterRespostaAsync(acompanhamento.Id, cancellationToken) ??
             throw new InvalidOperationException("Nao foi possivel carregar o acompanhamento criado.");
@@ -166,6 +172,7 @@ public class AdminAcompanhamentosController : ControllerBase
         await ConfigurarGruposAsync(acompanhamento, requisicao.Grupos, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         await transacao.CommitAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         return Ok(await ObterRespostaAsync(id, cancellationToken));
     }
@@ -187,6 +194,7 @@ public class AdminAcompanhamentosController : ControllerBase
         acompanhamento.EstaDisponivel = requisicao.EstaDisponivel;
         acompanhamento.AtualizadoEm = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         return Ok(new StatusAcompanhamentoAdminResposta
         {
@@ -213,6 +221,7 @@ public class AdminAcompanhamentosController : ControllerBase
         acompanhamento.EstaAtivo = requisicao.EstaAtivo;
         acompanhamento.AtualizadoEm = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
 
         return Ok(new StatusAcompanhamentoAdminResposta
         {

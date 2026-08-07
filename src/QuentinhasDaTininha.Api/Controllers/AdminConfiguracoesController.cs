@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 using QuentinhasDaTininha.Dominio.Entidades;
 using QuentinhasDaTininha.Infraestrutura.Persistencia;
 
@@ -12,10 +13,14 @@ namespace QuentinhasDaTininha.Api.Controllers;
 public class AdminConfiguracoesController : ControllerBase
 {
     private readonly QuentinhasDaTininhaDbContext _dbContext;
+    private readonly IControleCacheCardapioPublico _controleCacheCardapioPublico;
 
-    public AdminConfiguracoesController(QuentinhasDaTininhaDbContext dbContext)
+    public AdminConfiguracoesController(
+        QuentinhasDaTininhaDbContext dbContext,
+        IControleCacheCardapioPublico controleCacheCardapioPublico)
     {
         _dbContext = dbContext;
+        _controleCacheCardapioPublico = controleCacheCardapioPublico;
     }
 
     [HttpGet]
@@ -57,6 +62,7 @@ public class AdminConfiguracoesController : ControllerBase
         configuracao.AtualizadoEm = DateTimeOffset.UtcNow;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _controleCacheCardapioPublico.Invalidar();
         return Ok(Mapear(configuracao));
     }
 

@@ -11,9 +11,9 @@ import { Prato } from '../../../compartilhado/modelos/cardapio.model';
       <div class="item-prato__linha">
         <span class="item-prato__imagem">
           @if (deveMostrarImagem()) {
-            <img [src]="prato.urlImagem" [alt]="prato.nome" loading="lazy" (error)="imagemFalhou.set(true)" />
+            <img [src]="prato.urlImagem" [alt]="prato.nome" width="80" height="80" loading="lazy" decoding="async" (error)="imagemFalhou.set(true)" />
           } @else {
-            <img src="/assets/prato-hero-real.png" [alt]="prato.nome" loading="lazy" />
+            <img src="/assets/prato-hero-real.png" [alt]="prato.nome" width="80" height="80" loading="lazy" decoding="async" />
           }
         </span>
 

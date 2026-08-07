@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuentinhasDaTininha.Aplicacao.Funcionamento.DTOs;
 using QuentinhasDaTininha.Aplicacao.Funcionamento.Interfaces;
+using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
 
 namespace QuentinhasDaTininha.Api.Controllers;
 
@@ -11,11 +12,14 @@ namespace QuentinhasDaTininha.Api.Controllers;
 public class AdminDisponibilidadeController : ControllerBase
 {
     private readonly IServicoDisponibilidadePedido _servicoDisponibilidadePedido;
+    private readonly IControleCacheCardapioPublico _controleCacheCardapioPublico;
 
     public AdminDisponibilidadeController(
-        IServicoDisponibilidadePedido servicoDisponibilidadePedido)
+        IServicoDisponibilidadePedido servicoDisponibilidadePedido,
+        IControleCacheCardapioPublico controleCacheCardapioPublico)
     {
         _servicoDisponibilidadePedido = servicoDisponibilidadePedido;
+        _controleCacheCardapioPublico = controleCacheCardapioPublico;
     }
 
     [HttpGet]
@@ -68,6 +72,7 @@ public class AdminDisponibilidadeController : ControllerBase
                 data,
                 requisicao?.Motivo,
                 cancellationToken);
+            _controleCacheCardapioPublico.Invalidar();
 
             return Ok(disponibilidade);
         }
@@ -93,6 +98,7 @@ public class AdminDisponibilidadeController : ControllerBase
                 data,
                 requisicao?.Motivo,
                 cancellationToken);
+            _controleCacheCardapioPublico.Invalidar();
 
             return Ok(disponibilidade);
         }
@@ -119,6 +125,7 @@ public class AdminDisponibilidadeController : ControllerBase
                 data,
                 requisicao.Motivo,
                 cancellationToken);
+            _controleCacheCardapioPublico.Invalidar();
 
             return Ok(disponibilidade);
         }

@@ -149,7 +149,6 @@ export interface StatusAdmin {
 export interface FreteBairroAdmin {
   id: string;
   bairro: string;
-  bairroNormalizado: string;
   valor: number;
   ativo: boolean;
   criadoEm: string;

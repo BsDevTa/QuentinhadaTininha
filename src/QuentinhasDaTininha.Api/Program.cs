@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,7 @@ using QuentinhasDaTininha.Infraestrutura.Pedidos.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Persistencia;
 using QuentinhasDaTininha.Infraestrutura.Persistencia.Inicializacao;
 using QuentinhasDaTininha.Infraestrutura.Pratos.Servicos;
+using QuentinhasDaTininha.Infraestrutura.Publico.Cache;
 using QuentinhasDaTininha.Infraestrutura.Publico.Servicos;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -114,6 +116,7 @@ builder.Services.AddScoped<IServicoHorarioFuncionamento, ServicoHorarioFuncionam
 builder.Services.AddScoped<IServicoFechamentoExcepcional, ServicoFechamentoExcepcional>();
 builder.Services.AddScoped<IServicoDisponibilidadePedido, ServicoDisponibilidadePedido>();
 builder.Services.AddScoped<IServicoConfiguracaoRestaurante, ServicoConfiguracaoRestaurante>();
+builder.Services.AddScoped<IServicoCepSalvador, ServicoCepSalvador>();
 builder.Services.AddScoped<IServicoFreteBairro, ServicoFreteBairro>();
 builder.Services.AddScoped<IServicoPedido, ServicoPedido>();
 builder.Services.AddScoped<IServicoCardapioPublico, ServicoCardapioPublico>();
@@ -167,6 +170,8 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IControleCacheCardapioPublico, ControleCacheCardapioPublico>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -220,8 +225,13 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHealthChecks();
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+var executarInicializacaoBanco = builder.Configuration.GetValue(
+    "InicializacaoBanco:Executar",
+    true);
+
+if (executarInicializacaoBanco)
 {
+    using var scope = app.Services.CreateScope();
     var dbContext =
         scope.ServiceProvider.GetRequiredService<QuentinhasDaTininhaDbContext>();
 
@@ -255,6 +265,11 @@ using (var scope = app.Services.CreateScope())
 
     await inicializadorCardapioPublico.InicializarAsync();
 }
+else
+{
+    app.Logger.LogWarning(
+        "Inicializacao de banco desativada por configuracao. Migrations e seeds nao serao executados neste startup.");
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -263,6 +278,34 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
+app.Use(async (context, next) =>
+{
+    var ehApi = context.Request.Path.StartsWithSegments("/api");
+    if (!ehApi)
+    {
+        await next();
+        return;
+    }
+
+    var stopwatch = Stopwatch.StartNew();
+    try
+    {
+        await next();
+    }
+    finally
+    {
+        stopwatch.Stop();
+        var logger = context.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("RequestTiming");
+        logger.LogInformation(
+            "{Metodo} {Caminho} {StatusCode} {DuracaoMs}ms",
+            context.Request.Method,
+            context.Request.Path.Value,
+            context.Response.StatusCode,
+            stopwatch.ElapsedMilliseconds);
+    }
+});
 app.UseAuthentication();
 app.UseAuthorization();
 

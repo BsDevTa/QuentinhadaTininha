@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QuentinhasDaTininha.Aplicacao.Funcionamento.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Publico.DTOs;
 using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
@@ -10,16 +11,24 @@ namespace QuentinhasDaTininha.Infraestrutura.Publico.Servicos;
 
 public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
 {
+    private static readonly TimeSpan DuracaoCache = TimeSpan.FromSeconds(30);
+
     private readonly QuentinhasDaTininhaDbContext _dbContext;
+    private readonly IMemoryCache _memoryCache;
+    private readonly IControleCacheCardapioPublico _controleCache;
     private readonly IServicoDataLocal _servicoDataLocal;
     private readonly IServicoDisponibilidadePedido _servicoDisponibilidadePedido;
 
     public ServicoCardapioDiaPublico(
         QuentinhasDaTininhaDbContext dbContext,
+        IMemoryCache memoryCache,
+        IControleCacheCardapioPublico controleCache,
         IServicoDataLocal servicoDataLocal,
         IServicoDisponibilidadePedido servicoDisponibilidadePedido)
     {
         _dbContext = dbContext;
+        _memoryCache = memoryCache;
+        _controleCache = controleCache;
         _servicoDataLocal = servicoDataLocal;
         _servicoDisponibilidadePedido = servicoDisponibilidadePedido;
     }
@@ -41,8 +50,29 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
             throw new ArgumentOutOfRangeException(nameof(diaSemana));
         }
 
-        var restaurante = await ObterStatusRestauranteAsync(cancellationToken);
         var dataAtual = _servicoDataLocal.ObterDataAtual();
+        var chaveCache =
+            $"cardapio-dia-publico:{_controleCache.Versao}:{dataAtual:yyyyMMdd}:{diaSemana}";
+
+        return await _memoryCache.GetOrCreateAsync(chaveCache, entrada =>
+        {
+            entrada.AbsoluteExpirationRelativeToNow = DuracaoCache;
+            entrada.SetPriority(CacheItemPriority.Normal);
+
+            return ObterPorDiaSemCacheAsync(diaSemana, dataAtual, cancellationToken);
+        }) ?? new CardapioDiaPublicoResposta
+        {
+            DiaSemana = diaSemana,
+            NomeDiaSemana = ObterNomeDia(diaSemana)
+        };
+    }
+
+    private async Task<CardapioDiaPublicoResposta> ObterPorDiaSemCacheAsync(
+        int diaSemana,
+        DateOnly dataAtual,
+        CancellationToken cancellationToken)
+    {
+        var restaurante = await ObterStatusRestauranteAsync(cancellationToken);
         var diaAtual = ConverterParaDiaPublico(dataAtual.DayOfWeek);
 
         if (diaSemana != diaAtual)

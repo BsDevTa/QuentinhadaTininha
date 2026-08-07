@@ -1,0 +1,470 @@
+{
+  "Arquivo": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\dados\\ceps_salvador_importacao.csv",
+  "TamanhoLote": 1000,
+  "TotalLido": 11638,
+  "Validos": 11638,
+  "Inseridos": 0,
+  "Atualizados": 11638,
+  "Ignorados": 0,
+  "Invalidos": 0,
+  "Duplicados": 0,
+  "TotalAntes": 11638,
+  "TotalFinal": 11638,
+  "BairrosDistintos": 83,
+  "DuracaoSegundos": 10.72,
+  "Erros": [],
+  "Bairros": [
+    {
+      "BairroNormalizado": "sao cristovao",
+      "Bairro": "S\u00E3o Crist\u00F3v\u00E3o",
+      "Total": 611
+    },
+    {
+      "BairroNormalizado": "itapua",
+      "Bairro": "Itapu\u00E3",
+      "Total": 539
+    },
+    {
+      "BairroNormalizado": "sussuarana",
+      "Bairro": "Sussuarana",
+      "Total": 468
+    },
+    {
+      "BairroNormalizado": "tancredo neves",
+      "Bairro": "Tancredo Neves",
+      "Total": 434
+    },
+    {
+      "BairroNormalizado": "sao marcos",
+      "Bairro": "S\u00E3o Marcos",
+      "Total": 400
+    },
+    {
+      "BairroNormalizado": "castelo branco",
+      "Bairro": "Castelo Branco",
+      "Total": 390
+    },
+    {
+      "BairroNormalizado": "aguas claras",
+      "Bairro": "\u00C1guas Claras",
+      "Total": 364
+    },
+    {
+      "BairroNormalizado": "mata escura",
+      "Bairro": "Mata Escura",
+      "Total": 325
+    },
+    {
+      "BairroNormalizado": "piraja",
+      "Bairro": "Piraj\u00E1",
+      "Total": 300
+    },
+    {
+      "BairroNormalizado": "valeria",
+      "Bairro": "Val\u00E9ria",
+      "Total": 268
+    },
+    {
+      "BairroNormalizado": "arenoso",
+      "Bairro": "Arenoso",
+      "Total": 259
+    },
+    {
+      "BairroNormalizado": "mussurunga i",
+      "Bairro": "Mussurunga I",
+      "Total": 250
+    },
+    {
+      "BairroNormalizado": "campinas de piraja",
+      "Bairro": "Campinas de Piraj\u00E1",
+      "Total": 247
+    },
+    {
+      "BairroNormalizado": "pau da lima",
+      "Bairro": "Pau da Lima",
+      "Total": 242
+    },
+    {
+      "BairroNormalizado": "nova brasilia de valeria",
+      "Bairro": "Nova Bras\u00EDlia de Val\u00E9ria",
+      "Total": 225
+    },
+    {
+      "BairroNormalizado": "cajazeiras viii",
+      "Bairro": "Cajazeiras VIII",
+      "Total": 219
+    },
+    {
+      "BairroNormalizado": "sete de abril",
+      "Bairro": "Sete de Abril",
+      "Total": 215
+    },
+    {
+      "BairroNormalizado": "boca do rio",
+      "Bairro": "Boca do Rio",
+      "Total": 214
+    },
+    {
+      "BairroNormalizado": "nova brasilia",
+      "Bairro": "Nova Bras\u00EDlia",
+      "Total": 200
+    },
+    {
+      "BairroNormalizado": "barreiras",
+      "Bairro": "Barreiras",
+      "Total": 199
+    },
+    {
+      "BairroNormalizado": "nordeste",
+      "Bairro": "Nordeste",
+      "Total": 190
+    },
+    {
+      "BairroNormalizado": "bairro da paz",
+      "Bairro": "Bairro da Paz",
+      "Total": 178
+    },
+    {
+      "BairroNormalizado": "cajazeiras xi",
+      "Bairro": "Cajazeiras XI",
+      "Total": 158
+    },
+    {
+      "BairroNormalizado": "engomadeira",
+      "Bairro": "Engomadeira",
+      "Total": 157
+    },
+    {
+      "BairroNormalizado": "pituba",
+      "Bairro": "Pituba",
+      "Total": 157
+    },
+    {
+      "BairroNormalizado": "jaguaripe i",
+      "Bairro": "Jaguaripe I",
+      "Total": 151
+    },
+    {
+      "BairroNormalizado": "novo horizonte",
+      "Bairro": "Novo Horizonte",
+      "Total": 148
+    },
+    {
+      "BairroNormalizado": "fazenda grande i",
+      "Bairro": "Fazenda Grande I",
+      "Total": 147
+    },
+    {
+      "BairroNormalizado": "calabetao",
+      "Bairro": "Calabet\u00E3o",
+      "Total": 139
+    },
+    {
+      "BairroNormalizado": "pituacu",
+      "Bairro": "Pitua\u00E7u",
+      "Total": 138
+    },
+    {
+      "BairroNormalizado": "boca da mata de valeria",
+      "Bairro": "Boca da Mata de Val\u00E9ria",
+      "Total": 135
+    },
+    {
+      "BairroNormalizado": "vila canaria",
+      "Bairro": "Vila Can\u00E1ria",
+      "Total": 135
+    },
+    {
+      "BairroNormalizado": "cassange",
+      "Bairro": "Cassange",
+      "Total": 132
+    },
+    {
+      "BairroNormalizado": "jardim das margaridas",
+      "Bairro": "Jardim das Margaridas",
+      "Total": 126
+    },
+    {
+      "BairroNormalizado": "piata",
+      "Bairro": "Piat\u00E3",
+      "Total": 116
+    },
+    {
+      "BairroNormalizado": "stella maris",
+      "Bairro": "Stella Maris",
+      "Total": 115
+    },
+    {
+      "BairroNormalizado": "armacao",
+      "Bairro": "Arma\u00E7\u00E3o",
+      "Total": 114
+    },
+    {
+      "BairroNormalizado": "ceasa",
+      "Bairro": "CEASA",
+      "Total": 112
+    },
+    {
+      "BairroNormalizado": "jardim nova esperanca",
+      "Bairro": "Jardim Nova Esperan\u00E7a",
+      "Total": 110
+    },
+    {
+      "BairroNormalizado": "stiep",
+      "Bairro": "Stiep",
+      "Total": 109
+    },
+    {
+      "BairroNormalizado": "nova brasilia de itapua",
+      "Bairro": "Nova Bras\u00EDlia de Itapu\u00E3",
+      "Total": 107
+    },
+    {
+      "BairroNormalizado": "fazenda grande ii",
+      "Bairro": "Fazenda Grande II",
+      "Total": 105
+    },
+    {
+      "BairroNormalizado": "arraial do retiro",
+      "Bairro": "Arraial do Retiro",
+      "Total": 104
+    },
+    {
+      "BairroNormalizado": "fazenda grande iii",
+      "Bairro": "Fazenda Grande III",
+      "Total": 101
+    },
+    {
+      "BairroNormalizado": "marechal rondon",
+      "Bairro": "Marechal Rondon",
+      "Total": 101
+    },
+    {
+      "BairroNormalizado": "palestina",
+      "Bairro": "Palestina",
+      "Total": 101
+    },
+    {
+      "BairroNormalizado": "amaralina",
+      "Bairro": "Amaralina",
+      "Total": 100
+    },
+    {
+      "BairroNormalizado": "boca da mata",
+      "Bairro": "Boca da Mata",
+      "Total": 92
+    },
+    {
+      "BairroNormalizado": "canabrava",
+      "Bairro": "Canabrava",
+      "Total": 91
+    },
+    {
+      "BairroNormalizado": "santa cruz",
+      "Bairro": "Santa Cruz",
+      "Total": 88
+    },
+    {
+      "BairroNormalizado": "jardim santo inacio",
+      "Bairro": "Jardim Santo In\u00E1cio",
+      "Total": 86
+    },
+    {
+      "BairroNormalizado": "alto do coqueirinho",
+      "Bairro": "Alto do Coqueirinho",
+      "Total": 83
+    },
+    {
+      "BairroNormalizado": "mussurunga ii",
+      "Bairro": "Mussurunga II",
+      "Total": 83
+    },
+    {
+      "BairroNormalizado": "cajazeiras x",
+      "Bairro": "Cajazeiras X",
+      "Total": 81
+    },
+    {
+      "BairroNormalizado": "narandiba",
+      "Bairro": "Narandiba",
+      "Total": 80
+    },
+    {
+      "BairroNormalizado": "fazenda grande iv",
+      "Bairro": "Fazenda Grande IV",
+      "Total": 77
+    },
+    {
+      "BairroNormalizado": "caminho das arvores",
+      "Bairro": "Caminho das \u00C1rvores",
+      "Total": 74
+    },
+    {
+      "BairroNormalizado": "dom avelar",
+      "Bairro": "Dom Avelar",
+      "Total": 73
+    },
+    {
+      "BairroNormalizado": "praia do flamengo",
+      "Bairro": "Praia do Flamengo",
+      "Total": 72
+    },
+    {
+      "BairroNormalizado": "cajazeiras vi",
+      "Bairro": "Cajazeiras VI",
+      "Total": 67
+    },
+    {
+      "BairroNormalizado": "areia branca",
+      "Bairro": "Areia Branca",
+      "Total": 65
+    },
+    {
+      "BairroNormalizado": "jardim cajazeiras",
+      "Bairro": "Jardim Cajazeiras",
+      "Total": 64
+    },
+    {
+      "BairroNormalizado": "itaigara",
+      "Bairro": "Itaigara",
+      "Total": 59
+    },
+    {
+      "BairroNormalizado": "cajazeiras v",
+      "Bairro": "Cajazeiras V",
+      "Total": 52
+    },
+    {
+      "BairroNormalizado": "granjas rurais presidente vargas",
+      "Bairro": "Granjas Rurais Presidente Vargas",
+      "Total": 51
+    },
+    {
+      "BairroNormalizado": "patamares",
+      "Bairro": "Patamares",
+      "Total": 51
+    },
+    {
+      "BairroNormalizado": "jaguaribe",
+      "Bairro": "Jaguaribe",
+      "Total": 47
+    },
+    {
+      "BairroNormalizado": "jardim placaford",
+      "Bairro": "Jardim Placaford",
+      "Total": 44
+    },
+    {
+      "BairroNormalizado": "doron",
+      "Bairro": "Doron",
+      "Total": 41
+    },
+    {
+      "BairroNormalizado": "imbui",
+      "Bairro": "Imbu\u00ED",
+      "Total": 36
+    },
+    {
+      "BairroNormalizado": "novo marotinho",
+      "Bairro": "Novo Marotinho",
+      "Total": 34
+    },
+    {
+      "BairroNormalizado": "barragem de ipitanga",
+      "Bairro": "Barragem de Ipitanga",
+      "Total": 30
+    },
+    {
+      "BairroNormalizado": "trobogy",
+      "Bairro": "Trobogy",
+      "Total": 23
+    },
+    {
+      "BairroNormalizado": "vila 2 de julho",
+      "Bairro": "Vila 2 de Julho",
+      "Total": 21
+    },
+    {
+      "BairroNormalizado": "costa azul",
+      "Bairro": "Costa Azul",
+      "Total": 20
+    },
+    {
+      "BairroNormalizado": "alphaville i",
+      "Bairro": "Alphaville I",
+      "Total": 18
+    },
+    {
+      "BairroNormalizado": "alphaville ii",
+      "Bairro": "Alphaville II",
+      "Total": 14
+    },
+    {
+      "BairroNormalizado": "cajazeiras vii",
+      "Bairro": "Cajazeiras VII",
+      "Total": 13
+    },
+    {
+      "BairroNormalizado": "sao goncalo",
+      "Bairro": "S\u00E3o Gon\u00E7alo",
+      "Total": 13
+    },
+    {
+      "BairroNormalizado": "centro administrativo da bahia",
+      "Bairro": "Centro Administrativo da Bahia",
+      "Total": 11
+    },
+    {
+      "BairroNormalizado": "porto seco piraja",
+      "Bairro": "Porto Seco Piraj\u00E1",
+      "Total": 11
+    },
+    {
+      "BairroNormalizado": "cajazeiras iv",
+      "Bairro": "Cajazeiras IV",
+      "Total": 9
+    },
+    {
+      "BairroNormalizado": "paralela",
+      "Bairro": "Paralela",
+      "Total": 9
+    }
+  ],
+  "Consultas": [
+    {
+      "Cep": "41760-900",
+      "Bairro": "Stiep",
+      "BairroFrete": "STIEP",
+      "Atendido": true,
+      "ValorFrete": 15.00
+    },
+    {
+      "Cep": "41770-010",
+      "Bairro": "Stiep",
+      "BairroFrete": "STIEP",
+      "Atendido": true,
+      "ValorFrete": 15.00
+    },
+    {
+      "Cep": "41770-015",
+      "Bairro": "Stiep",
+      "BairroFrete": "STIEP",
+      "Atendido": true,
+      "ValorFrete": 15.00
+    },
+    {
+      "Cep": "41770-020",
+      "Bairro": "Stiep",
+      "BairroFrete": "STIEP",
+      "Atendido": true,
+      "ValorFrete": 15.00
+    },
+    {
+      "Cep": "41770-030",
+      "Bairro": "Stiep",
+      "BairroFrete": "STIEP",
+      "Atendido": true,
+      "ValorFrete": 15.00
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\QuentinhasDaTininha.Infraestrutura\QuentinhasDaTininha.Infraestrutura.csproj" />
+    <ProjectReference Include="..\..\src\QuentinhasDaTininha.Aplicacao\QuentinhasDaTininha.Aplicacao.csproj" />
+    <ProjectReference Include="..\..\src\QuentinhasDaTininha.Dominio\QuentinhasDaTininha.Dominio.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.29" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>3e7382a7-c41b-4ccf-b785-4f735247b0c2</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

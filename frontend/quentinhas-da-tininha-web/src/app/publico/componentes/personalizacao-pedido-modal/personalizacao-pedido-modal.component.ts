@@ -22,7 +22,7 @@ import {
   TamanhoRefeicao,
   TipoEntrega
 } from '../../../compartilhado/modelos/cardapio.model';
-import { CepService } from '../../../compartilhado/servicos/cep.service';
+import { CepService, ConsultaFreteCep } from '../../../compartilhado/servicos/cep.service';
 import { PedidoService } from '../../../compartilhado/servicos/pedido.service';
 import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.service';
 import { Subscription, finalize } from 'rxjs';
@@ -46,13 +46,13 @@ import { Subscription, finalize } from 'rxjs';
         <span class="pedido-modal__alca" aria-hidden="true"></span>
 
         <header class="pedido-modal__topo">
-          <span class="pedido-modal__imagem">
+            <span class="pedido-modal__imagem">
             @if (deveMostrarImagem()) {
-              <img [src]="prato.urlImagem" [alt]="prato.nome" loading="lazy" (error)="imagemFalhou.set(true)" />
+              <img [src]="prato.urlImagem" [alt]="prato.nome" width="72" height="72" loading="lazy" decoding="async" (error)="imagemFalhou.set(true)" />
             } @else {
-              <img src="/assets/prato-hero-real.png" [alt]="prato.nome" loading="lazy" />
+              <img src="/assets/prato-hero-real.png" [alt]="prato.nome" width="72" height="72" loading="lazy" decoding="async" />
             }
-          </span>
+            </span>
 
           <div>
             <h3 [id]="tituloId">{{ prato.nome }}</h3>
@@ -710,15 +710,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
       });
   }
 
-  private aplicarConsultaCep(resposta: {
-    logradouro: string | null;
-    bairro: string;
-    cidade: string;
-    estado: string;
-    atendido: boolean;
-    valorFrete: number | null;
-    mensagem: string | null;
-  }): void {
+  private aplicarConsultaCep(resposta: ConsultaFreteCep): void {
     this.logradouro.set(resposta.logradouro ?? '');
     this.bairro.set(resposta.bairro ?? '');
     this.cidade.set(resposta.cidade ?? '');
@@ -727,7 +719,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
     if (resposta.atendido && resposta.valorFrete !== null) {
       this.freteAtendido.set(true);
       this.valorFrete.set(resposta.valorFrete);
-      this.definirMensagemCep('Entrega disponível para este bairro.', 'sucesso');
+      this.definirMensagemCep('Entrega disponível.', 'sucesso');
       return;
     }
 

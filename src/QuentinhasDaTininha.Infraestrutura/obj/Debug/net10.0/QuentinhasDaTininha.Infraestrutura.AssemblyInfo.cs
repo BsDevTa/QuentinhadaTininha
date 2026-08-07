@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuentinhasDaTininha.Infraestrutura")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+357213edfd8324bb34b8f4d1addf7466af64c0fd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+447203dcd205fe15d4b1349d8d55059ac61daf42")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuentinhasDaTininha.Infraestrutura")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuentinhasDaTininha.Infraestrutura")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

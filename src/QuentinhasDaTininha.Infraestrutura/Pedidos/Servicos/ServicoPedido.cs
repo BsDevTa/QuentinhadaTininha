@@ -5,6 +5,7 @@ using QuentinhasDaTininha.Aplicacao.Pedidos.DTOs;
 using QuentinhasDaTininha.Aplicacao.Pedidos.Interfaces;
 using QuentinhasDaTininha.Dominio.Entidades;
 using QuentinhasDaTininha.Dominio.Enumeracoes;
+using QuentinhasDaTininha.Dominio.Utilitarios;
 using QuentinhasDaTininha.Infraestrutura.Persistencia;
 
 namespace QuentinhasDaTininha.Infraestrutura.Pedidos.Servicos;
@@ -54,7 +55,7 @@ public class ServicoPedido : IServicoPedido
 
         if (itens.Count > 0)
         {
-            ValidarTotaisInformados(requisicao, subtotal, valorTotal, dadosEntrega?.ValorFrete);
+            ValidarSubtotalInformado(requisicao, subtotal);
         }
 
         var precisaTroco = false;
@@ -318,7 +319,7 @@ public class ServicoPedido : IServicoPedido
             return null;
         }
 
-        var cep = SomenteNumeros(requisicao.Cep);
+        var cep = NormalizadorCep.SomenteNumeros(requisicao.Cep);
         if (cep.Length != 8)
         {
             throw new ArgumentException("Informe um CEP com 8 números.");
@@ -333,12 +334,6 @@ public class ServicoPedido : IServicoPedido
             throw new InvalidOperationException(
                 consultaFrete.Mensagem ??
                 $"No momento, ainda não realizamos entregas para o bairro {consultaFrete.Bairro}. Você pode selecionar a opção de retirada no local.");
-        }
-
-        if (requisicao.ValorFrete.HasValue &&
-            requisicao.ValorFrete.Value != consultaFrete.ValorFrete.Value)
-        {
-            throw new ArgumentException("Valor do frete divergente. Consulte o CEP novamente.");
         }
 
         var numero = NormalizarTextoOpcional(requisicao.Numero);
@@ -361,7 +356,7 @@ public class ServicoPedido : IServicoPedido
         var enderecoEntrega = MontarEnderecoEntrega(logradouro, numero, complemento);
 
         return new DadosEntrega(
-            consultaFrete.Cep,
+            cep,
             logradouro,
             numero,
             complemento,
@@ -397,28 +392,14 @@ public class ServicoPedido : IServicoPedido
         return subtotal;
     }
 
-    private static void ValidarTotaisInformados(
+    private static void ValidarSubtotalInformado(
         PedidoCriacaoRequisicao requisicao,
-        decimal subtotalCalculado,
-        decimal totalCalculado,
-        decimal? valorFreteCalculado)
+        decimal subtotalCalculado)
     {
         if (requisicao.ValorSubtotal > 0 &&
             requisicao.ValorSubtotal != subtotalCalculado)
         {
             throw new ArgumentException("Subtotal do pedido divergente.");
-        }
-
-        if (requisicao.ValorTotal > 0 && requisicao.ValorTotal != totalCalculado)
-        {
-            throw new ArgumentException("Total do pedido divergente.");
-        }
-
-        if (valorFreteCalculado.HasValue &&
-            requisicao.ValorFrete.HasValue &&
-            requisicao.ValorFrete.Value != valorFreteCalculado.Value)
-        {
-            throw new ArgumentException("Valor do frete divergente. Consulte o CEP novamente.");
         }
     }
 
@@ -436,11 +417,6 @@ public class ServicoPedido : IServicoPedido
         }
 
         return observacao;
-    }
-
-    private static string SomenteNumeros(string? valor)
-    {
-        return new string((valor ?? string.Empty).Where(char.IsDigit).ToArray());
     }
 
     private static string MontarEnderecoEntrega(

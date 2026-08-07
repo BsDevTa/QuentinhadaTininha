@@ -9,6 +9,7 @@ export interface ConsultaFreteCep {
   bairro: string;
   cidade: string;
   estado: string;
+  bairroFrete: string | null;
   atendido: boolean;
   valorFrete: number | null;
   mensagem: string | null;

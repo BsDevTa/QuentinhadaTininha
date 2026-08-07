@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using QuentinhasDaTininha.Aplicacao.Ceps.DTOs;
 using QuentinhasDaTininha.Aplicacao.Ceps.Interfaces;
+using QuentinhasDaTininha.Dominio.Utilitarios;
 
 namespace QuentinhasDaTininha.Infraestrutura.Ceps.Servicos;
 
@@ -18,7 +19,7 @@ public class ServicoViaCep : IServicoCep
         string cep,
         CancellationToken cancellationToken = default)
     {
-        var cepNumerico = SomenteNumeros(cep);
+        var cepNumerico = NormalizadorCep.SomenteNumeros(cep);
         if (cepNumerico.Length != 8)
         {
             throw new ArgumentException("Informe um CEP com 8 números.");
@@ -65,11 +66,6 @@ public class ServicoViaCep : IServicoCep
                 "Não foi possível consultar o CEP agora. Tente novamente em alguns instantes.",
                 excecao);
         }
-    }
-
-    private static string SomenteNumeros(string valor)
-    {
-        return new string((valor ?? string.Empty).Where(char.IsDigit).ToArray());
     }
 
     private static string NormalizarObrigatorio(string? valor)
