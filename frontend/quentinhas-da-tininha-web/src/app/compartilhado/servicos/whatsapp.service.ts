@@ -3,6 +3,7 @@ import { environment } from '../../../environments/environment';
 import { Acompanhamento, FormaPagamento, Prato, TamanhoRefeicao, TipoEntrega } from '../modelos/cardapio.model';
 
 export interface DetalhesPedidoWhatsapp {
+  pedidoId?: string | null;
   nomeCliente?: string | null;
   precisaTroco?: boolean;
   valorTroco?: number | null;
@@ -38,10 +39,12 @@ export class WhatsappService {
   ): string {
     const numeroRestaurante = numero ?? environment.whatsappRestaurante;
     const nomeCliente = this.normalizarTexto(detalhes?.nomeCliente) ?? 'Cliente';
+    const pedidoId = this.normalizarTexto(detalhes?.pedidoId);
     const pagamentoTexto = this.rotuloPagamento(formaPagamento);
     const subtotal = detalhes?.subtotal ?? valor;
     const blocos = [
       '*🍽️ Pedido — Quentinhas da Tininha*',
+      pedidoId ? `*Pedido:*\n#${pedidoId.slice(-6).toUpperCase()}` : null,
       `*Cliente:*\n${nomeCliente}`,
       '━━━━━━━━━━━━━━━━━━',
       `*🍛 Prato:*\n${prato.nome}`,

@@ -155,7 +155,8 @@ export class InicioPage implements OnInit, OnDestroy {
     this.personalizacaoOverlay = this.overlayService.open(PersonalizacaoPedidoModalComponent, {
       prato,
       whatsappRestaurante: this.restaurante()?.whatsapp ?? '',
-      restauranteAberto: this.restaurante()?.permitirPedidos ?? false
+      restauranteAberto: this.restaurante()?.permitirPedidos ?? false,
+      dataPedido: this.obterDataPedidoSelecionada()
     });
 
     this.fecharPersonalizacaoSubscription = this.personalizacaoOverlay.componentRef.instance.fechar
@@ -373,6 +374,18 @@ export class InicioPage implements OnInit, OnDestroy {
     const dia = String(data.getDate()).padStart(2, '0');
 
     return `${ano}-${mes}-${dia}`;
+  }
+
+  private obterDataPedidoSelecionada(): string {
+    const dataDisponibilidade = this.statusDias()[this.diaSelecionado()]?.data;
+    if (dataDisponibilidade) {
+      return dataDisponibilidade;
+    }
+
+    const hoje = this.criarDataLocalHoje();
+    const diferencaDias = (this.diaSelecionado() - hoje.getDay() + 7) % 7;
+    hoje.setDate(hoje.getDate() + diferencaDias);
+    return this.formatarDataIso(hoje);
   }
 
   private limparAvisoDemora(): void {

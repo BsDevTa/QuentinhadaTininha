@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { Prato } from '../../../compartilhado/modelos/cardapio.model';
 import { CepService, ConsultaFreteCep } from '../../../compartilhado/servicos/cep.service';
+import { PedidoApiService } from '../../../compartilhado/servicos/pedido-api.service';
 import { PersonalizacaoPedidoModalComponent } from './personalizacao-pedido-modal.component';
 
 describe('PersonalizacaoPedidoModalComponent entrega', () => {
@@ -74,7 +75,8 @@ describe('PersonalizacaoPedidoModalComponent entrega', () => {
 function criarComponente(cepService: CepServiceFake): any {
   TestBed.configureTestingModule({
     providers: [
-      { provide: CepService, useValue: cepService }
+      { provide: CepService, useValue: cepService },
+      { provide: PedidoApiService, useValue: {} }
     ]
   });
 
@@ -84,6 +86,7 @@ function criarComponente(cepService: CepServiceFake): any {
   componente.prato = criarPrato();
   componente.whatsappRestaurante = '5571982189319';
   componente.restauranteAberto = true;
+  componente.dataPedido = '2026-08-08';
 
   return componente as any;
 }

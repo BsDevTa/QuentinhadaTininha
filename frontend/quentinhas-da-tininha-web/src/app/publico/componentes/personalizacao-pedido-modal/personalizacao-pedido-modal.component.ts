@@ -15,6 +15,7 @@ import {
   signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   FormaPagamento,
   PersonalizacaoPedido,
@@ -23,6 +24,7 @@ import {
   TipoEntrega
 } from '../../../compartilhado/modelos/cardapio.model';
 import { CepService, ConsultaFreteCep } from '../../../compartilhado/servicos/cep.service';
+import { PedidoApiService, PedidoCriacaoRequisicao } from '../../../compartilhado/servicos/pedido-api.service';
 import { PedidoService } from '../../../compartilhado/servicos/pedido.service';
 import { WhatsappService } from '../../../compartilhado/servicos/whatsapp.service';
 import { Subscription, finalize } from 'rxjs';
@@ -73,6 +75,10 @@ import { Subscription, finalize } from 'rxjs';
               <label class="campo-pedido campo-pedido--largo">
                 Nome
                 <input type="text" placeholder="Seu nome" [ngModel]="nomeCliente()" (ngModelChange)="nomeCliente.set($event)" />
+              </label>
+              <label class="campo-pedido campo-pedido--largo">
+                Telefone
+                <input type="tel" placeholder="(71) 99999-9999" [ngModel]="telefoneCliente()" (ngModelChange)="telefoneCliente.set($event)" />
               </label>
               @if (nomeClienteInvalido()) {
                 <small class="aviso-pedido">Informe seu nome para finalizar o pedido.</small>
@@ -330,15 +336,17 @@ import { Subscription, finalize } from 'rxjs';
         </div>
 
         <footer class="pedido-modal__rodape">
-          @if (linkWhatsapp(); as link) {
-            <a class="botao botao-pedido-expandido" [href]="link" target="_blank" rel="noopener" aria-label="Finalizar pedido de {{ prato.nome }} pelo WhatsApp">
-              Finalizar Pedido
-            </a>
-          } @else {
-            <button class="botao botao-pedido-expandido" type="button" disabled>
-              Finalizar Pedido
-            </button>
+          @if (erroFinalizacao(); as erro) {
+            <small class="aviso-pedido">{{ erro }}</small>
           }
+          <button
+            class="botao botao-pedido-expandido"
+            type="button"
+            [disabled]="!podeFinalizarPedido()"
+            (click)="finalizarPedido()"
+          >
+            {{ finalizandoPedido() ? 'Enviando pedido...' : 'Finalizar Pedido' }}
+          </button>
         </footer>
       </section>
     </div>
@@ -347,6 +355,7 @@ import { Subscription, finalize } from 'rxjs';
 })
 export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDestroy {
   private readonly pedidoService = inject(PedidoService);
+  private readonly pedidoApiService = inject(PedidoApiService);
   private readonly whatsappService = inject(WhatsappService);
   private readonly cepService = inject(CepService);
 
@@ -356,11 +365,13 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
   @Input({ required: true }) prato!: Prato;
   @Input({ required: true }) whatsappRestaurante = '';
   @Input({ required: true }) restauranteAberto = true;
+  @Input({ required: true }) dataPedido = '';
   @Output() readonly fechar = new EventEmitter<void>();
 
   protected readonly imagemFalhou = signal(false);
   protected readonly tamanho = signal<TamanhoRefeicao>('P');
   protected readonly nomeCliente = signal('');
+  protected readonly telefoneCliente = signal('');
   protected readonly formaPagamento = signal<FormaPagamento>('pix');
   protected readonly precisaTroco = signal(false);
   protected readonly valorTrocoTexto = signal('');
@@ -382,6 +393,8 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
   private readonly ultimoCepConsultado = signal('');
   protected readonly acompanhamentoIds = signal<string[]>([]);
   protected readonly tipoFeijaoId = signal<string | null>(null);
+  protected readonly finalizandoPedido = signal(false);
+  protected readonly erroFinalizacao = signal('');
 
   protected readonly tamanhos: { valor: TamanhoRefeicao; rotulo: string }[] = [
     { valor: 'P', rotulo: 'Pequena' },
@@ -474,11 +487,14 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
       : 0
   );
   protected readonly total = computed(() => this.subtotal() + this.freteAplicado());
-  protected readonly linkWhatsapp = computed(() => {
-    if (!this.restauranteAberto || !this.whatsappRestaurante.trim() || !this.pedidoValido()) {
-      return null;
-    }
+  protected readonly podeFinalizarPedido = computed(() =>
+    this.restauranteAberto &&
+    Boolean(this.whatsappRestaurante.trim()) &&
+    this.pedidoValido() &&
+    !this.finalizandoPedido()
+  );
 
+  private criarLinkWhatsapp(pedidoId?: string): string {
     return this.whatsappService.criarLinkPedido(
       this.prato,
       this.tamanho(),
@@ -487,6 +503,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
       this.total(),
       this.whatsappRestaurante,
       {
+        pedidoId,
         nomeCliente: this.normalizarTexto(this.nomeCliente()),
         precisaTroco: this.personalizacao().precisaTroco,
         valorTroco: this.personalizacao().valorTroco,
@@ -504,7 +521,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
         referencia: this.personalizacao().referencia
       }
     );
-  });
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.painel?.nativeElement.focus());
@@ -668,6 +685,103 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
     );
   }
 
+  protected finalizarPedido(): void {
+    if (!this.podeFinalizarPedido()) {
+      return;
+    }
+
+    this.erroFinalizacao.set('');
+    this.finalizandoPedido.set(true);
+
+    const requisicao = this.montarPedidoCriacaoRequisicao();
+    this.pedidoApiService.criar(requisicao)
+      .pipe(finalize(() => this.finalizandoPedido.set(false)))
+      .subscribe({
+        next: (pedido) => {
+          window.location.assign(this.criarLinkWhatsapp(pedido.id));
+        },
+        error: (erro: unknown) => {
+          this.erroFinalizacao.set(this.criarMensagemErroFinalizacao(erro));
+        }
+      });
+  }
+
+  private montarPedidoCriacaoRequisicao(): PedidoCriacaoRequisicao {
+    const personalizacao = this.personalizacao();
+
+    return {
+      dataPedido: this.dataPedido || this.criarDataLocalHoje(),
+      nomeCliente: this.normalizarTexto(this.nomeCliente()) ?? '',
+      telefoneCliente: this.normalizarTexto(this.telefoneCliente()),
+      valorSubtotal: this.subtotal(),
+      valorFrete: personalizacao.valorFrete,
+      valorTotal: this.total(),
+      formaPagamento: this.mapearFormaPagamento(personalizacao.formaPagamento),
+      precisaTroco: personalizacao.precisaTroco,
+      valorTroco: personalizacao.valorTroco,
+      tipoEntrega: this.mapearTipoEntrega(personalizacao.tipoEntrega),
+      cep: personalizacao.cep,
+      logradouro: personalizacao.logradouro,
+      numero: personalizacao.numero,
+      complemento: personalizacao.complemento,
+      enderecoEntrega: personalizacao.enderecoEntrega,
+      bairro: personalizacao.bairro,
+      cidade: personalizacao.cidade,
+      estado: personalizacao.estado,
+      referencia: personalizacao.referencia,
+      observacao: null,
+      itens: [
+        {
+          pratoId: this.prato.id,
+          tamanho: this.mapearTamanho(personalizacao.tamanho),
+          acompanhamentoIds: this.acompanhamentoIdsPedido(),
+          observacao: personalizacao.observacao
+        }
+      ]
+    };
+  }
+
+  private acompanhamentoIdsPedido(): string[] {
+    return Array.from(new Set([
+      ...(this.tipoFeijaoId() ? [this.tipoFeijaoId()!] : []),
+      ...this.acompanhamentoIds()
+    ]));
+  }
+
+  private mapearFormaPagamento(formaPagamento: FormaPagamento): 1 | 2 | 3 {
+    switch (formaPagamento) {
+      case 'dinheiro':
+        return 1;
+      case 'pix':
+        return 2;
+      case 'cartao':
+        return 3;
+    }
+  }
+
+  private mapearTipoEntrega(tipoEntrega: TipoEntrega): 1 | 2 {
+    return tipoEntrega === 'retirada' ? 1 : 2;
+  }
+
+  private mapearTamanho(tamanho: TamanhoRefeicao): 1 | 2 {
+    return tamanho === 'P' ? 1 : 2;
+  }
+
+  private criarMensagemErroFinalizacao(erro: unknown): string {
+    if (erro instanceof HttpErrorResponse) {
+      const mensagem = erro.error?.mensagem;
+      if (typeof mensagem === 'string' && mensagem.trim()) {
+        return mensagem;
+      }
+
+      if (erro.status === 0) {
+        return 'Nao foi possivel conectar com a API. Tente novamente.';
+      }
+    }
+
+    return 'Nao foi possivel finalizar o pedido. Tente novamente.';
+  }
+
   private consultarCep(forcar = false): void {
     if (this.tipoEntrega() !== 'entrega') {
       return;
@@ -770,6 +884,14 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
     }
 
     return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+  }
+
+  private criarDataLocalHoje(): string {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
   }
 
   private normalizarTexto(texto?: string | null): string | null {

@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://quentinhadatininha.onrender.com/api',
+  apiUrl: 'http://localhost:5045/api',
   usarDadosMockados: false,
   whatsappRestaurante: '5571982189319'
 } as const;
