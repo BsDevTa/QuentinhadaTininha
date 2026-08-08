@@ -225,50 +225,52 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHealthChecks();
 var app = builder.Build();
 
-var executarInicializacaoBanco = builder.Configuration.GetValue(
+var executarSeedsBanco = builder.Configuration.GetValue(
     "InicializacaoBanco:Executar",
     true);
 
-if (executarInicializacaoBanco)
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-    var dbContext =
-        scope.ServiceProvider.GetRequiredService<QuentinhasDaTininhaDbContext>();
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<QuentinhasDaTininhaDbContext>();
 
     await dbContext.Database.MigrateAsync();
 
-    var inicializadorAdministrador =
-        scope.ServiceProvider.GetRequiredService<InicializadorAdministrador>();
-
-    var administradorNome = builder.Configuration["ADMIN_NOME"] ??
-        builder.Configuration["AdministradorInicial:Nome"];
-    var administradorEmail = builder.Configuration["ADMIN_EMAIL"] ??
-        builder.Configuration["AdministradorInicial:Email"];
-    var administradorSenha = builder.Configuration["ADMIN_SENHA"] ??
-        builder.Configuration["AdministradorInicial:Senha"];
-
-    if (string.IsNullOrWhiteSpace(administradorNome) ||
-        string.IsNullOrWhiteSpace(administradorEmail) ||
-        string.IsNullOrWhiteSpace(administradorSenha))
+    if (!executarSeedsBanco)
     {
         app.Logger.LogWarning(
-            "Administrador inicial nao configurado. Defina ADMIN_NOME, ADMIN_EMAIL e ADMIN_SENHA ou AdministradorInicial:* em User Secrets.");
+            "Seeds de banco desativados por configuracao. Migrations foram executadas normalmente.");
     }
+    else
+    {
+        var inicializadorAdministrador =
+            scope.ServiceProvider.GetRequiredService<InicializadorAdministrador>();
 
-    await inicializadorAdministrador.InicializarAsync(
-        administradorNome,
-        administradorEmail,
-        administradorSenha);
+        var administradorNome = builder.Configuration["ADMIN_NOME"] ??
+            builder.Configuration["AdministradorInicial:Nome"];
+        var administradorEmail = builder.Configuration["ADMIN_EMAIL"] ??
+            builder.Configuration["AdministradorInicial:Email"];
+        var administradorSenha = builder.Configuration["ADMIN_SENHA"] ??
+            builder.Configuration["AdministradorInicial:Senha"];
 
-    var inicializadorCardapioPublico =
-        scope.ServiceProvider.GetRequiredService<InicializadorCardapioPublico>();
+        if (string.IsNullOrWhiteSpace(administradorNome) ||
+            string.IsNullOrWhiteSpace(administradorEmail) ||
+            string.IsNullOrWhiteSpace(administradorSenha))
+        {
+            app.Logger.LogWarning(
+                "Administrador inicial nao configurado. Defina ADMIN_NOME, ADMIN_EMAIL e ADMIN_SENHA ou AdministradorInicial:* em User Secrets.");
+        }
 
-    await inicializadorCardapioPublico.InicializarAsync();
-}
-else
-{
-    app.Logger.LogWarning(
-        "Inicializacao de banco desativada por configuracao. Migrations e seeds nao serao executados neste startup.");
+        await inicializadorAdministrador.InicializarAsync(
+            administradorNome,
+            administradorEmail,
+            administradorSenha);
+
+        var inicializadorCardapioPublico =
+            scope.ServiceProvider.GetRequiredService<InicializadorCardapioPublico>();
+
+        await inicializadorCardapioPublico.InicializarAsync();
+    }
 }
 
 if (app.Environment.IsDevelopment())

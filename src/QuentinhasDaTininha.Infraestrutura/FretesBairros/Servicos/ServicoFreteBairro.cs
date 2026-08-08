@@ -475,12 +475,23 @@ public class ServicoFreteBairro : IServicoFreteBairro
             .OrderBy(alias => alias.CriadoEm)
             .FirstOrDefaultAsync(cancellationToken);
 
+        var aliasExistenteMesmoFrete = aliasAutomatico is null
+            ? await _dbContext.FretesBairrosAliases
+                .Where(alias =>
+                    alias.FreteBairroId == freteBairroId &&
+                    alias.AliasNormalizado == aliasNormalizado)
+                .OrderBy(alias => alias.CriadoEm)
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
+        var aliasSincronizado = aliasAutomatico ?? aliasExistenteMesmoFrete;
+
         await GarantirAliasNormalizadoLivreAsync(
             aliasNormalizado,
-            aliasAutomatico?.Id,
+            aliasSincronizado?.Id,
             cancellationToken);
 
-        if (aliasAutomatico is null)
+        if (aliasSincronizado is null)
         {
             await _dbContext.FretesBairrosAliases.AddAsync(
                 CriarAliasAutomatico(freteBairroId, aliasNormalizado, agora),
@@ -489,9 +500,10 @@ public class ServicoFreteBairro : IServicoFreteBairro
             return;
         }
 
-        aliasAutomatico.AliasNormalizado = aliasNormalizado;
-        aliasAutomatico.Ativo = true;
-        aliasAutomatico.AtualizadoEm = agora;
+        aliasSincronizado.AliasNormalizado = aliasNormalizado;
+        aliasSincronizado.Ativo = true;
+        aliasSincronizado.GeradoAutomaticamente = true;
+        aliasSincronizado.AtualizadoEm = agora;
     }
 
     private async Task GarantirAliasNormalizadoLivreAsync(

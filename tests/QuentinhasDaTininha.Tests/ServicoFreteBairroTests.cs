@@ -165,6 +165,35 @@ public class ServicoFreteBairroTests
     }
 
     [Fact]
+    public async Task AtualizarAsync_QuandoAliasLegadoDoMesmoFreteExiste_PromoveAliasESalvaValor()
+    {
+        await using var dbContext = CriarDbContext();
+        var frete = CriarFreteBairro("Pituba", 8m);
+        dbContext.Add(frete);
+        dbContext.Add(CriarAlias(frete, "Pituba"));
+        await dbContext.SaveChangesAsync();
+        var servico = CriarServico(dbContext);
+
+        var resposta = await servico.AtualizarAsync(
+            frete.Id,
+            new FreteBairroSalvarRequisicao
+            {
+                Bairro = "Pituba",
+                Valor = 15m,
+                Ativo = true
+            });
+
+        Assert.NotNull(resposta);
+        Assert.Equal(15m, resposta.Valor);
+
+        var alias = await dbContext.FretesBairrosAliases.SingleAsync(
+            alias => alias.FreteBairroId == frete.Id);
+        Assert.Equal("pituba", alias.AliasNormalizado);
+        Assert.True(alias.GeradoAutomaticamente);
+        Assert.True(alias.Ativo);
+    }
+
+    [Fact]
     public async Task ConsultarPorCepAsync_QuandoCepExisteEmFreteCepECepSalvador_FreteCepTemPrioridade()
     {
         await using var dbContext = CriarDbContext();

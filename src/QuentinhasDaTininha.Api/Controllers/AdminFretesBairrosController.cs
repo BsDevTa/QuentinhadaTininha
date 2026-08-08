@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuentinhasDaTininha.Aplicacao.FretesBairros.DTOs;
 using QuentinhasDaTininha.Aplicacao.FretesBairros.Interfaces;
 
@@ -66,6 +67,10 @@ public class AdminFretesBairrosController : ControllerBase
         {
             return Conflict(new { mensagem = excecao.Message });
         }
+        catch (DbUpdateException)
+        {
+            return Conflict(new { mensagem = "Nao foi possivel salvar o frete por conflito nos dados cadastrados." });
+        }
     }
 
     [HttpPut("{id:guid}")]
@@ -95,6 +100,10 @@ public class AdminFretesBairrosController : ControllerBase
         catch (InvalidOperationException excecao)
         {
             return Conflict(new { mensagem = excecao.Message });
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict(new { mensagem = "Nao foi possivel salvar o frete por conflito nos dados cadastrados." });
         }
     }
 
