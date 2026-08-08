@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { ImpressaoTermicaService } from '../../../nucleo/servicos/impressao-termica.service';
 import { ConfiguracoesPublicasAdmin } from '../../modelos/admin-cardapio.model';
 import { ConfiguracoesAdministrativoService } from '../../servicos/configuracoes-administrativo.service';
 
@@ -19,6 +20,19 @@ import { ConfiguracoesAdministrativoService } from '../../servicos/configuracoes
 
       <p class="admin-feedback" *ngIf="mensagem()" aria-live="polite">{{ mensagem() }}</p>
       <p class="admin-feedback admin-feedback--erro" *ngIf="erro()" aria-live="assertive">{{ erro() }}</p>
+
+      <section class="admin-bloco">
+        <div>
+          <span class="admin-tag">Impressao local</span>
+          <h2>Teste da impressora termica</h2>
+          <p>Status: {{ qzConectado() ? 'QZ Tray conectado' : 'QZ Tray desconectado' }}</p>
+        </div>
+        <footer class="admin-form-footer">
+          <button class="botao secundario" type="button" [disabled]="imprimindoTeste()" (click)="imprimirTeste()">
+            {{ imprimindoTeste() ? 'Imprimindo...' : 'Imprimir teste' }}
+          </button>
+        </footer>
+      </section>
 
       <form class="admin-bloco" [formGroup]="form" (ngSubmit)="salvar()">
         <section class="admin-form-grid">
@@ -67,10 +81,13 @@ import { ConfiguracoesAdministrativoService } from '../../servicos/configuracoes
 })
 export class ConfiguracoesPage {
   private readonly service = inject(ConfiguracoesAdministrativoService);
+  private readonly impressaoTermicaService = inject(ImpressaoTermicaService);
   private readonly fb = inject(FormBuilder);
 
   readonly configuracoes = signal<ConfiguracoesPublicasAdmin | null>(null);
   readonly salvando = signal(false);
+  readonly imprimindoTeste = signal(false);
+  readonly qzConectado = signal(false);
   readonly mensagem = signal('');
   readonly erro = signal('');
 
@@ -125,6 +142,27 @@ export class ConfiguracoesPage {
       },
       error: () => this.erro.set('Nao foi possivel concluir a operacao.')
     });
+  }
+
+  async imprimirTeste(): Promise<void> {
+    if (this.imprimindoTeste()) {
+      return;
+    }
+
+    this.mensagem.set('');
+    this.erro.set('');
+    this.imprimindoTeste.set(true);
+
+    try {
+      await this.impressaoTermicaService.imprimirTeste();
+      this.qzConectado.set(this.impressaoTermicaService.estaConectado());
+      this.mensagem.set('Teste enviado para a impressora.');
+    } catch (erro: unknown) {
+      this.qzConectado.set(this.impressaoTermicaService.estaConectado());
+      this.erro.set(erro instanceof Error ? erro.message : 'Nao foi possivel enviar o teste para a impressora.');
+    } finally {
+      this.imprimindoTeste.set(false);
+    }
   }
 
   whatsappNormalizado(): string {

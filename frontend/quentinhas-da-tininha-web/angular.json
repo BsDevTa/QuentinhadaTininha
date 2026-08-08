@@ -52,6 +52,9 @@
                 "input": "public"
               }
             ],
+            "allowedCommonJsDependencies": [
+              "qz-tray"
+            ],
             "styles": [
               "src/styles.scss"
             ]
