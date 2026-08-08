@@ -722,6 +722,84 @@ E muitas vezes foi necessário voltar em uma decisão anterior e refatorar a sol
 
 # Executando o projeto localmente
 
+## Configurando um novo computador
+
+O backend usa a configuracao padrao do ASP.NET Core via `IConfiguration`.
+Nao existe connection string hardcoded nem fallback para localhost.
+
+Em producao, o Render continua fornecendo os valores por Environment Variables.
+No desenvolvimento local, a configuracao padronizada fica em **User Secrets** do projeto `QuentinhasDaTininha.Api`.
+
+Esse processo precisa ser feito apenas uma vez por computador:
+
+```powershell
+Copy-Item config.local.example.ps1 config.local.ps1
+```
+
+Preencha o arquivo local `config.local.ps1` com os valores reais:
+
+```powershell
+$ConfiguracaoLocal = @{
+    PostgresConnectionString = ''
+    JwtChave = ''
+    JwtEmissor = ''
+    JwtAudiencia = ''
+    JwtExpiracaoEmMinutos = '120'
+    SupabaseUrl = ''
+    SupabaseServiceKey = ''
+    SupabaseBucket = ''
+    AdministradorInicialNome = ''
+    AdministradorInicialEmail = ''
+    AdministradorInicialSenha = ''
+}
+```
+
+Depois execute:
+
+```powershell
+.\scripts\configurar-ambiente-local.ps1
+```
+
+Para conferir a configuracao sem exibir segredos:
+
+```powershell
+.\scripts\verificar-ambiente-local.ps1
+```
+
+O arquivo `config.local.ps1` fica fora do Git por `.gitignore`.
+O script grava os valores em User Secrets com as mesmas chaves usadas pela aplicacao:
+
+```text
+ConnectionStrings:ConexaoPostgreSql
+Jwt:Chave
+Jwt:Emissor
+Jwt:Audiencia
+Jwt:ExpiracaoEmMinutos
+SupabaseStorage:Url
+SupabaseStorage:ChaveServico
+SupabaseStorage:Bucket
+AdministradorInicial:Nome
+AdministradorInicial:Email
+AdministradorInicial:Senha
+```
+
+Como o EF Core design-time usa o host da aplicacao, `dotnet ef` e `dotnet run` leem a mesma origem de configuracao.
+Depois da configuracao inicial, o fluxo normal fica:
+
+```powershell
+git pull
+dotnet ef database update --project src/QuentinhasDaTininha.Infraestrutura --startup-project src/QuentinhasDaTininha.Api
+dotnet run --project src/QuentinhasDaTininha.Api
+```
+
+E para o frontend:
+
+```powershell
+cd frontend/quentinhas-da-tininha-web
+npm install
+ng serve
+```
+
 ## Backend
 
 Na raiz do projeto:

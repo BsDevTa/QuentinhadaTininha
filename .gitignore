@@ -1,0 +1,23 @@
+# Local secrets and machine-specific configuration
+.env
+.env.*
+!.env.local.example
+config.local.ps1
+*.local.ps1
+
+# Build outputs
+**/bin/
+**/obj/
+frontend/**/dist/
+frontend/**/node_modules/
+
+# Logs and local tool caches
+*.log
+frontend/**/.firebase/
+
+# IDE/user files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
