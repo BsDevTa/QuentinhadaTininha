@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs';
 import { LogoMarcaComponent } from '../../compartilhado/componentes/logo-marca/logo-marca.component';
 import { AutenticacaoService } from '../../nucleo/autenticacao/autenticacao.service';
+import { ImpressaoAutomaticaService } from '../../nucleo/servicos/impressao-automatica.service';
 
 interface ItemMenuAdmin {
   rotulo: string;
@@ -61,6 +62,13 @@ interface ItemMenuAdmin {
             <span>{{ subtituloPagina() }}</span>
           </div>
           <div class="admin-topbar__acoes">
+            <span
+              class="admin-status"
+              [class.admin-status--fechado]="!impressaoAutomatica.qzDisponivel()"
+              [title]="impressaoAutomatica.ultimoErro() || impressaoAutomatica.descricaoStatus()"
+            >
+              {{ impressaoAutomatica.descricaoStatus() }}
+            </span>
             <span class="admin-status" [class.admin-status--fechado]="!restauranteAberto()">
               {{ restauranteAberto() ? 'Aberto' : 'Fechado' }}
             </span>
@@ -79,6 +87,7 @@ interface ItemMenuAdmin {
 })
 export class LayoutAdministrativoComponent {
   private readonly autenticacaoService = inject(AutenticacaoService);
+  protected readonly impressaoAutomatica = inject(ImpressaoAutomaticaService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -101,6 +110,8 @@ export class LayoutAdministrativoComponent {
   protected readonly subtituloPagina = signal('Gerencie o cardapio e o funcionamento do restaurante.');
 
   constructor() {
+    this.impressaoAutomatica.iniciar();
+    this.destroyRef.onDestroy(() => this.impressaoAutomatica.parar());
     this.atualizarTitulo(this.router.url);
     this.router.events
       .pipe(
@@ -121,6 +132,7 @@ export class LayoutAdministrativoComponent {
   }
 
   protected sair(): void {
+    this.impressaoAutomatica.parar();
     this.autenticacaoService.sair();
     this.fecharMenu();
     void this.router.navigateByUrl('/admin/login');

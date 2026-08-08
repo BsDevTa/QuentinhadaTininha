@@ -1,4 +1,18 @@
 export type StatusImpressaoPedido = 'aguardando' | 'imprimindo' | 'impresso' | 'erro';
+export type StatusImpressaoPedidoBackend = 'Pendente' | 'Processando' | 'Impresso' | 'Erro';
+
+export interface ImpressaoPedidoPendente {
+  id: string;
+  pedidoId: string;
+  status: StatusImpressaoPedidoBackend;
+  tentativas: number;
+  reimpressao: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+  impressoEm?: string | null;
+  ultimoErro?: string | null;
+  pedido: PedidoImpressao;
+}
 
 export interface PedidoImpressao {
   id: string;

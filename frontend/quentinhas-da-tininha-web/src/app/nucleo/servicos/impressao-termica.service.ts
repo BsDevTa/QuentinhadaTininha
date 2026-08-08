@@ -72,11 +72,14 @@ export class ImpressaoTermicaService {
     }
   }
 
-  async imprimirPedido(pedido: PedidoImpressao): Promise<void> {
+  async imprimirPedido(
+    pedido: PedidoImpressao,
+    opcoes: { reimpressao?: boolean } = {}
+  ): Promise<void> {
     try {
       const nomeImpressora = await this.buscarImpressora();
       const config = qz.configs.create(nomeImpressora);
-      const dados = this.montarCupomPedido(pedido);
+      const dados = this.montarCupomPedido(pedido, opcoes);
 
       await qz.print(config, [
         {
@@ -141,7 +144,10 @@ export class ImpressaoTermicaService {
     ].join('');
   }
 
-  private montarCupomPedido(pedido: PedidoImpressao): string {
+  private montarCupomPedido(
+    pedido: PedidoImpressao,
+    opcoes: { reimpressao?: boolean }
+  ): string {
     const inicializar = '\x1B\x40';
     const paginaCodigo = '\x1B\x74\x02';
     const alinharCentro = '\x1B\x61\x01';
@@ -165,6 +171,16 @@ export class ImpressaoTermicaService {
       negritoDesligado,
       alinharEsquerda,
       this.linha(),
+      ...(opcoes.reimpressao
+        ? [
+            alinharCentro,
+            negritoLigado,
+            '*** REIMPRESSAO ***\n',
+            negritoDesligado,
+            alinharEsquerda,
+            this.linha()
+          ]
+        : []),
       `${negritoLigado}PEDIDO${negritoDesligado} ${this.sufixoPedido(pedido.id)}\n`,
       `Criado: ${this.formatarDataHora(pedido.criadoEm)}\n`,
       this.linha(),
@@ -213,8 +229,15 @@ export class ImpressaoTermicaService {
     if (pedido.observacao) {
       linhas.push(
         this.linha(),
-        `${negritoLigado}OBSERVACAO${negritoDesligado}\n`,
-        ...this.quebrarLinhas(this.limparTexto(pedido.observacao)).map((linha) => `${linha}\n`)
+        alinharCentro,
+        negritoLigado,
+        '*** OBSERVACAO ***\n',
+        negritoDesligado,
+        alinharEsquerda,
+        ...this.quebrarLinhas(this.limparTexto(pedido.observacao).toUpperCase()).map((linha) => `${linha}\n`),
+        alinharCentro,
+        '******************\n',
+        alinharEsquerda
       );
     }
 
@@ -245,7 +268,7 @@ export class ImpressaoTermicaService {
     });
 
     if (item.observacao) {
-      this.quebrarLinhas(`Obs: ${this.limparTexto(item.observacao)}`, LARGURA_CUPOM_58MM - 2)
+      this.quebrarLinhas(`OBS: ${this.limparTexto(item.observacao).toUpperCase()}`, LARGURA_CUPOM_58MM - 2)
         .forEach((linha) => linhas.push(`  ${linha}\n`));
     }
 

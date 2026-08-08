@@ -24,6 +24,7 @@ public class QuentinhasDaTininhaDbContext : DbContext
     public DbSet<FechamentoExcepcional> FechamentosExcepcionais { get; set; } = null!;
     public DbSet<Pedido> Pedidos { get; set; } = null!;
     public DbSet<PedidoItem> PedidosItens { get; set; } = null!;
+    public DbSet<ImpressaoPedido> ImpressoesPedidos { get; set; } = null!;
     public DbSet<CepSalvador> CepsSalvador { get; set; } = null!;
     public DbSet<FreteBairro> FretesBairros { get; set; } = null!;
     public DbSet<FreteCep> FretesCep { get; set; } = null!;

@@ -99,6 +99,14 @@ public class ServicoPedido : IServicoPedido
         }
 
         await _dbContext.Pedidos.AddAsync(pedido, cancellationToken);
+        await _dbContext.ImpressoesPedidos.AddAsync(new ImpressaoPedido
+        {
+            PedidoId = pedido.Id,
+            Status = StatusImpressaoPedido.Pendente,
+            Reimpressao = false,
+            CriadoEm = agora,
+            AtualizadoEm = agora
+        }, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return MapearResposta(pedido);
