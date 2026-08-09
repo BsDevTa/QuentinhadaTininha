@@ -84,7 +84,7 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
             restaurante.MensagemStatus = restaurante.MotivoBloqueio;
         }
 
-        if (diaSemana == 7)
+        if (diaSemana == 7 && !restaurante.PermitirPedidos)
         {
             restaurante.EstaAberto = false;
             restaurante.PermitirPedidos = false;

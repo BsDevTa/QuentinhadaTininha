@@ -7,6 +7,7 @@ import { ImpressaoTermicaService } from './impressao-termica.service';
 
 const INTERVALO_POLLING_MS = 5000;
 const LIMITE_PENDENTES = 10;
+const INTERVALO_RETENTATIVA_QZ_MS = 15000;
 
 @Injectable({ providedIn: 'root' })
 export class ImpressaoAutomaticaService {
@@ -17,6 +18,7 @@ export class ImpressaoAutomaticaService {
   private timer: ReturnType<typeof setInterval> | null = null;
   private pollingEmAndamento = false;
   private processandoFila = false;
+  private proximaTentativaQzEm = 0;
 
   readonly ativo = signal(false);
   readonly qzDisponivel = signal(false);
@@ -46,6 +48,7 @@ export class ImpressaoAutomaticaService {
       return;
     }
 
+    console.info('[IMPRESSAO] Iniciando monitor');
     this.ativo.set(true);
     void this.executarCiclo();
     this.timer = setInterval(() => {
@@ -75,23 +78,47 @@ export class ImpressaoAutomaticaService {
     this.pollingEmAndamento = true;
 
     try {
-      await this.impressaoTermicaService.conectar();
-      this.qzDisponivel.set(this.impressaoTermicaService.estaConectado());
-    } catch (erro: unknown) {
-      this.qzDisponivel.set(false);
-      this.ultimoErro.set(this.normalizarErro(erro));
-      this.pollingEmAndamento = false;
-      return;
-    }
-
-    try {
+      console.info('[IMPRESSAO] Consultando pendentes');
       const pendentes = await firstValueFrom(this.api.listarPendentes(LIMITE_PENDENTES));
+      console.info(`[IMPRESSAO] Pendentes encontrados: ${pendentes.length}`);
       pendentes.forEach((impressao) => this.enfileirar(impressao));
-      void this.processarFila();
+
+      if (!this.fila.length) {
+        this.qzDisponivel.set(this.impressaoTermicaService.estaConectado());
+        return;
+      }
+
+      if (!this.podeTentarQzAgora()) {
+        return;
+      }
+
+      const qzDisponivel = await this.verificarQzDisponivel();
+      console.info(`[IMPRESSAO] QZ disponivel: ${qzDisponivel}`);
+
+      if (qzDisponivel) {
+        void this.processarFila();
+      }
     } catch (erro: unknown) {
       this.ultimoErro.set(this.normalizarErro(erro));
     } finally {
       this.pollingEmAndamento = false;
+    }
+  }
+
+  private async verificarQzDisponivel(): Promise<boolean> {
+    try {
+      await this.impressaoTermicaService.conectar();
+      const conectado = this.impressaoTermicaService.estaConectado();
+      this.qzDisponivel.set(conectado);
+      if (conectado) {
+        this.ultimoErro.set(null);
+      }
+      return conectado;
+    } catch (erro: unknown) {
+      this.qzDisponivel.set(false);
+      this.ultimoErro.set(this.normalizarErro(erro));
+      this.proximaTentativaQzEm = Date.now() + INTERVALO_RETENTATIVA_QZ_MS;
+      return false;
     }
   }
 
@@ -114,9 +141,23 @@ export class ImpressaoAutomaticaService {
 
     while (this.ativo() && this.fila.length) {
       const impressao = this.fila.shift()!;
+      let manterNaFila = false;
       this.aguardando.set(this.fila.length);
 
       try {
+        try {
+          await this.impressaoTermicaService.conectar();
+          this.qzDisponivel.set(true);
+        } catch (erro: unknown) {
+          this.fila.unshift(impressao);
+          this.aguardando.set(this.fila.length);
+          manterNaFila = true;
+          this.qzDisponivel.set(false);
+          this.ultimoErro.set(this.normalizarErro(erro));
+          this.proximaTentativaQzEm = Date.now() + INTERVALO_RETENTATIVA_QZ_MS;
+          break;
+        }
+
         const reservada = await this.reservar(impressao);
         if (!reservada) {
           continue;
@@ -130,10 +171,18 @@ export class ImpressaoAutomaticaService {
         await firstValueFrom(this.api.concluir(reservada.id));
         this.ultimoErro.set(null);
       } catch (erro: unknown) {
-        await this.registrarFalha(impressao.id, erro);
+        if (this.ehErroConexaoQz(erro)) {
+          this.qzDisponivel.set(false);
+          this.ultimoErro.set(this.normalizarErro(erro));
+          this.proximaTentativaQzEm = Date.now() + INTERVALO_RETENTATIVA_QZ_MS;
+        } else {
+          await this.registrarFalha(impressao.id, erro);
+        }
       } finally {
         this.imprimindo.set(false);
-        this.idsNaFila.delete(impressao.id);
+        if (!manterNaFila) {
+          this.idsNaFila.delete(impressao.id);
+        }
       }
     }
 
@@ -169,5 +218,30 @@ export class ImpressaoAutomaticaService {
     }
 
     return 'Nao foi possivel processar a impressao automatica.';
+  }
+
+  private podeTentarQzAgora(): boolean {
+    if (this.impressaoTermicaService.estaConectado()) {
+      return true;
+    }
+
+    const podeTentar = Date.now() >= this.proximaTentativaQzEm;
+    if (!podeTentar) {
+      console.info('[QZ] aguardando proxima tentativa de conexao');
+    }
+
+    return podeTentar;
+  }
+
+  private ehErroConexaoQz(erro: unknown): boolean {
+    if (!(erro instanceof Error)) {
+      return false;
+    }
+
+    const mensagem = erro.message.toLowerCase();
+    return mensagem.includes('qz tray nao esta conectado') ||
+      mensagem.includes('websocket') ||
+      mensagem.includes('connection') ||
+      mensagem.includes('connect');
   }
 }

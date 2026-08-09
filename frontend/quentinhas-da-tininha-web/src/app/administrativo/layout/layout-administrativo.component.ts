@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
@@ -85,7 +85,7 @@ interface ItemMenuAdmin {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LayoutAdministrativoComponent {
+export class LayoutAdministrativoComponent implements OnInit, OnDestroy {
   private readonly autenticacaoService = inject(AutenticacaoService);
   protected readonly impressaoAutomatica = inject(ImpressaoAutomaticaService);
   private readonly router = inject(Router);
@@ -110,8 +110,6 @@ export class LayoutAdministrativoComponent {
   protected readonly subtituloPagina = signal('Gerencie o cardapio e o funcionamento do restaurante.');
 
   constructor() {
-    this.impressaoAutomatica.iniciar();
-    this.destroyRef.onDestroy(() => this.impressaoAutomatica.parar());
     this.atualizarTitulo(this.router.url);
     this.router.events
       .pipe(
@@ -119,6 +117,15 @@ export class LayoutAdministrativoComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((evento) => this.atualizarTitulo(evento.urlAfterRedirects));
+  }
+
+  ngOnInit(): void {
+    console.info('[IMPRESSAO] Layout administrativo iniciado');
+    this.impressaoAutomatica.iniciar();
+  }
+
+  ngOnDestroy(): void {
+    this.impressaoAutomatica.parar();
   }
 
   protected abrirMenu(): void {

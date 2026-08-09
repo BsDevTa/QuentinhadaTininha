@@ -9,10 +9,20 @@ declare module 'qz-tray' {
     data: string;
   }
 
+  export interface QzConnectionInfo {
+    host?: string;
+    port?: number;
+    socket?: string;
+    [key: string]: unknown;
+  }
+
   export interface QzTray {
     websocket: {
       isActive(): boolean;
       connect(): Promise<void>;
+      getConnectionInfo(): QzConnectionInfo;
+      setClosedCallbacks(callback: (event: unknown) => void): void;
+      setErrorCallbacks(callback: (event: unknown) => void): void;
     };
     printers: {
       find(query?: string): Promise<string | string[]>;

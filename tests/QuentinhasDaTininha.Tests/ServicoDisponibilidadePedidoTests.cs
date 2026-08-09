@@ -40,6 +40,41 @@ public class ServicoDisponibilidadePedidoTests
             data => data.Data.DayOfWeek == DayOfWeek.Sunday && !data.PermitirPedidos);
     }
 
+    [Fact]
+    public async Task ValidarPedidoAsync_LiberaExcecaoTemporariaEmNoveDeAgosto()
+    {
+        await using var dbContext = CriarDbContext();
+        var hoje = new DateOnly(2026, 8, 9);
+        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext);
+        await dbContext.SaveChangesAsync();
+        var servico = new ServicoDisponibilidadePedido(
+            dbContext,
+            new ServicoDataLocalFake(hoje));
+
+        var resposta = await servico.ValidarPedidoAsync(hoje);
+
+        Assert.True(resposta.PermitirPedidos);
+        Assert.Null(resposta.MotivoBloqueio);
+    }
+
+    [Fact]
+    public async Task ValidarPedidoAsync_NaoMantemExcecaoTemporariaEmDezDeAgosto()
+    {
+        await using var dbContext = CriarDbContext();
+        var hoje = new DateOnly(2026, 8, 10);
+        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext);
+        await LiberarHorarioIntegralAsync(dbContext);
+        await dbContext.SaveChangesAsync();
+        var servico = new ServicoDisponibilidadePedido(
+            dbContext,
+            new ServicoDataLocalFake(hoje));
+
+        var resposta = await servico.ValidarPedidoAsync(hoje);
+
+        Assert.False(resposta.PermitirPedidos);
+        Assert.Equal("Fechado.", resposta.MotivoBloqueio);
+    }
+
     private static QuentinhasDaTininhaDbContext CriarDbContext()
     {
         var options = new DbContextOptionsBuilder<QuentinhasDaTininhaDbContext>()
@@ -58,6 +93,20 @@ public class ServicoDisponibilidadePedidoTests
             EstaAtivo = true,
             AceitaPedidos = true,
             ModoFuncionamento = ModoFuncionamento.Automatico,
+            MensagemAberto = "Estamos atendendo.",
+            MensagemFechado = "Fechado."
+        });
+    }
+
+    private static async Task ConfigurarRestauranteFechadoManualmenteAsync(
+        QuentinhasDaTininhaDbContext dbContext)
+    {
+        await dbContext.ConfiguracoesRestaurante.AddAsync(new ConfiguracaoRestaurante
+        {
+            Nome = "Quentinhas da Tininha",
+            EstaAtivo = true,
+            AceitaPedidos = true,
+            ModoFuncionamento = ModoFuncionamento.FechadoManualmente,
             MensagemAberto = "Estamos atendendo.",
             MensagemFechado = "Fechado."
         });

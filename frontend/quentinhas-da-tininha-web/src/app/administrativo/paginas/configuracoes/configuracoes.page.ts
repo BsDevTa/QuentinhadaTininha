@@ -28,6 +28,9 @@ import { ConfiguracoesAdministrativoService } from '../../servicos/configuracoes
           <p>Status: {{ qzConectado() ? 'QZ Tray conectado' : 'QZ Tray desconectado' }}</p>
         </div>
         <footer class="admin-form-footer">
+          <button class="botao secundario" type="button" [disabled]="testandoQz()" (click)="testarConexaoQz()">
+            {{ testandoQz() ? 'Conectando...' : 'Testar conexao QZ' }}
+          </button>
           <button class="botao secundario" type="button" [disabled]="imprimindoTeste()" (click)="imprimirTeste()">
             {{ imprimindoTeste() ? 'Imprimindo...' : 'Imprimir teste' }}
           </button>
@@ -86,8 +89,9 @@ export class ConfiguracoesPage {
 
   readonly configuracoes = signal<ConfiguracoesPublicasAdmin | null>(null);
   readonly salvando = signal(false);
+  readonly testandoQz = signal(false);
   readonly imprimindoTeste = signal(false);
-  readonly qzConectado = signal(false);
+  readonly qzConectado = this.impressaoTermicaService.qzConectado;
   readonly mensagem = signal('');
   readonly erro = signal('');
 
@@ -155,13 +159,30 @@ export class ConfiguracoesPage {
 
     try {
       await this.impressaoTermicaService.imprimirTeste();
-      this.qzConectado.set(this.impressaoTermicaService.estaConectado());
       this.mensagem.set('Teste enviado para a impressora.');
     } catch (erro: unknown) {
-      this.qzConectado.set(this.impressaoTermicaService.estaConectado());
       this.erro.set(erro instanceof Error ? erro.message : 'Nao foi possivel enviar o teste para a impressora.');
     } finally {
       this.imprimindoTeste.set(false);
+    }
+  }
+
+  async testarConexaoQz(): Promise<void> {
+    if (this.testandoQz()) {
+      return;
+    }
+
+    this.mensagem.set('');
+    this.erro.set('');
+    this.testandoQz.set(true);
+
+    try {
+      const conectado = await this.impressaoTermicaService.conectarQzTeste();
+      this.mensagem.set(conectado ? 'QZ Tray conectado.' : 'QZ Tray desconectado.');
+    } catch (erro: unknown) {
+      this.erro.set(erro instanceof Error ? erro.message : 'Nao foi possivel conectar ao QZ Tray.');
+    } finally {
+      this.testandoQz.set(false);
     }
   }
 

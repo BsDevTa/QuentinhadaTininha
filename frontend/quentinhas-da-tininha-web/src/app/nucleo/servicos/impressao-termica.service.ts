@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import qz from 'qz-tray';
 import { environment } from '../../../environments/environment';
 import { PedidoImpressao, PedidoItemImpressao } from '../modelos/pedido-impressao.model';
@@ -6,30 +6,81 @@ import { PedidoImpressao, PedidoItemImpressao } from '../modelos/pedido-impressa
 const NOME_IMPRESSORA_PADRAO = 'HPRT MPT-II';
 const LARGURA_CUPOM_58MM = 32;
 
+type EstadoQz = 'desconectado' | 'conectando' | 'conectado';
+
 @Injectable({ providedIn: 'root' })
 export class ImpressaoTermicaService {
-  private conexaoEmAndamento: Promise<void> | null = null;
+  private readonly qzConectadoInterno = signal(false);
+  private estado: EstadoQz = 'desconectado';
+  private conexaoPromise?: Promise<void>;
+  private callbacksRegistrados = false;
+
+  readonly qzConectado = this.qzConectadoInterno.asReadonly();
+
+  constructor() {
+    this.registrarCallbacksQz();
+  }
 
   estaConectado(): boolean {
-    return qz.websocket.isActive();
+    const conectado = this.estado === 'conectado' && qz.websocket.isActive();
+    this.qzConectadoInterno.set(conectado);
+    return conectado;
   }
 
   async conectar(): Promise<void> {
-    if (this.estaConectado()) {
+    console.info(`[QZ] estado antes: ${this.estado}; isActive antes: ${qz.websocket.isActive()}`);
+
+    if (this.estado === 'conectado' && qz.websocket.isActive()) {
+      console.info('[QZ] conexao ja ativa');
       return;
     }
 
-    if (!this.conexaoEmAndamento) {
-      this.conexaoEmAndamento = qz.websocket.connect()
-        .catch((erro: unknown) => {
-          throw this.normalizarErro(erro, 'conexao');
-        })
-        .finally(() => {
-          this.conexaoEmAndamento = null;
-        });
+    if (this.conexaoPromise) {
+      console.info('[QZ] conexao em andamento; reutilizando Promise');
+      return this.conexaoPromise;
     }
 
-    return this.conexaoEmAndamento;
+    this.estado = 'conectando';
+
+    this.conexaoPromise = (async () => {
+      console.info('[QZ] conectando...');
+
+      try {
+        await qz.websocket.connect();
+
+        if (!qz.websocket.isActive()) {
+          throw new Error('QZ connect resolveu, mas websocket nao esta ativo.');
+        }
+
+        const info = qz.websocket.getConnectionInfo();
+        this.estado = 'conectado';
+        this.qzConectadoInterno.set(true);
+        console.info('[QZ] conectado', info);
+      } catch (erro: unknown) {
+        this.estado = 'desconectado';
+        this.qzConectadoInterno.set(false);
+        console.warn(`[QZ] falha ao conectar: ${this.mensagemErro(erro)}`);
+        throw this.normalizarErro(erro, 'conexao');
+      } finally {
+        this.conexaoPromise = undefined;
+      }
+    })();
+
+    return this.conexaoPromise;
+  }
+
+  async conectarQzTeste(): Promise<boolean> {
+    await this.conectar();
+
+    const info = qz.websocket.getConnectionInfo();
+    console.info('[QZ TESTE]', {
+      conectado: true,
+      host: info.host,
+      port: info.port,
+      socket: info.socket
+    });
+
+    return true;
   }
 
   async buscarImpressora(nome = NOME_IMPRESSORA_PADRAO): Promise<string> {
@@ -484,5 +535,30 @@ export class ImpressaoTermicaService {
         ? 'QZ Tray nao esta conectado. Abra o QZ Tray e tente novamente.'
         : 'Nao foi possivel enviar o teste para a impressora.'
     );
+  }
+
+  private mensagemErro(erro: unknown): string {
+    return erro instanceof Error
+      ? erro.message
+      : 'Falha desconhecida ao conectar ao QZ Tray.';
+  }
+
+  private registrarCallbacksQz(): void {
+    if (this.callbacksRegistrados) {
+      return;
+    }
+
+    qz.websocket.setClosedCallbacks((evento: unknown) => {
+      console.info('[QZ] websocket fechado', evento);
+      this.estado = 'desconectado';
+      this.qzConectadoInterno.set(false);
+      this.conexaoPromise = undefined;
+    });
+
+    qz.websocket.setErrorCallbacks((evento: unknown) => {
+      console.warn('[QZ] websocket erro', evento);
+    });
+
+    this.callbacksRegistrados = true;
   }
 }

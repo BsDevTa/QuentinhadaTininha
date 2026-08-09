@@ -11,6 +11,7 @@ namespace QuentinhasDaTininha.Infraestrutura.Funcionamento.Servicos;
 
 public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
 {
+    private static readonly DateOnly DataExcecaoPedidosTeste = new(2026, 8, 9);
     private const int QuantidadeDiasPadrao = 30;
     private const int QuantidadeMaximaDiasConsulta = 366;
     private readonly QuentinhasDaTininhaDbContext _dbContext;
@@ -146,16 +147,20 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         var datas = periodo
             .Select(data =>
             {
-                var avaliacaoData = AvaliarData(
-                    data,
-                    dataAtual,
-                    registros.GetValueOrDefault(data));
-                var validacao = avaliacaoData.PermitirPedidos
-                    ? AvaliarRestaurante(
+                var avaliacaoData = DeveAplicarExcecaoPedidosTeste(data, dataAtual)
+                    ? Liberar(data)
+                    : AvaliarData(
                         data,
                         dataAtual,
-                        configuracao,
-                        horariosPorDia)
+                        registros.GetValueOrDefault(data));
+                var validacao = avaliacaoData.PermitirPedidos
+                    ? DeveAplicarExcecaoPedidosTeste(data, dataAtual)
+                        ? avaliacaoData
+                        : AvaliarRestaurante(
+                            data,
+                            dataAtual,
+                            configuracao,
+                            horariosPorDia)
                     : avaliacaoData;
 
                 return new DisponibilidadeDataPublicaResposta
@@ -188,8 +193,14 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
     {
         ValidarData(data);
 
+        var dataAtual = _servicoDataLocal.ObterDataAtual();
+        if (DeveAplicarExcecaoPedidosTeste(data, dataAtual))
+        {
+            return Liberar(data);
+        }
+
         var registro = await ObterRegistroAtivoAsync(data, cancellationToken);
-        var avaliacaoData = AvaliarData(data, _servicoDataLocal.ObterDataAtual(), registro);
+        var avaliacaoData = AvaliarData(data, dataAtual, registro);
         if (!avaliacaoData.PermitirPedidos)
         {
             return new ValidacaoDisponibilidadePedidoResposta
@@ -479,6 +490,11 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         {
             yield return data;
         }
+    }
+
+    private static bool DeveAplicarExcecaoPedidosTeste(DateOnly data, DateOnly dataAtual)
+    {
+        return data == DataExcecaoPedidosTeste && dataAtual == DataExcecaoPedidosTeste;
     }
 
     private static ValidacaoDisponibilidadePedidoResposta Liberar(DateOnly data)

@@ -109,6 +109,7 @@ export class InicioPage implements OnInit, OnDestroy {
   private disponibilidadeSubscription?: Subscription;
   private avisoDemora?: ReturnType<typeof setTimeout>;
   private requisicaoCardapioAtual = 0;
+  private readonly dataExcecaoPedidosTeste = '2026-08-09';
 
   protected readonly diaAtual = this.cardapioService.obterDiaAtual();
   protected readonly restaurante = signal<Restaurante | null>(null);
@@ -152,11 +153,12 @@ export class InicioPage implements OnInit, OnDestroy {
     this.fecharModalDiaBloqueado();
     this.fecharPersonalizacao();
 
+    const dataPedido = this.obterDataPedidoParaFinalizacao();
     this.personalizacaoOverlay = this.overlayService.open(PersonalizacaoPedidoModalComponent, {
       prato,
       whatsappRestaurante: this.restaurante()?.whatsapp ?? '',
-      restauranteAberto: this.restaurante()?.permitirPedidos ?? false,
-      dataPedido: this.obterDataPedidoSelecionada()
+      restauranteAberto: this.permitirPedidoParaData(dataPedido),
+      dataPedido
     });
 
     this.fecharPersonalizacaoSubscription = this.personalizacaoOverlay.componentRef.instance.fechar
@@ -193,7 +195,7 @@ export class InicioPage implements OnInit, OnDestroy {
 
   protected readonly criarLinkPedido = (prato: Prato): string => {
     const whatsapp = this.restaurante()?.whatsapp ?? '';
-    if (!this.restaurante()?.permitirPedidos || !whatsapp.trim()) {
+    if (!this.permitirPedidoParaData(this.obterDataPedidoParaFinalizacao()) || !whatsapp.trim()) {
       return '#cardapio';
     }
 
@@ -269,12 +271,25 @@ export class InicioPage implements OnInit, OnDestroy {
   }
 
   private aplicarCardapio(cardapio: CardapioDia): void {
-    this.cardapio.set(cardapio);
     this.diaSelecionado.set(cardapio.diaSemana);
 
     if (cardapio.restaurante) {
-      this.restaurante.set(cardapio.restaurante);
+      const dataPedido = this.obterDataPedidoParaFinalizacao();
+      const restaurante = this.deveAplicarExcecaoPedidosTeste(dataPedido)
+        ? {
+            ...cardapio.restaurante,
+            estaAberto: true,
+            permitirPedidos: true,
+            motivoBloqueio: null
+          }
+        : cardapio.restaurante;
+
+      this.restaurante.set(restaurante);
+      this.cardapio.set({ ...cardapio, restaurante });
+      return;
     }
+
+    this.cardapio.set(cardapio);
   }
 
   private iniciarCarregamento(): number {
@@ -349,13 +364,20 @@ export class InicioPage implements OnInit, OnDestroy {
       const diaSemana = this.obterDiaSemanaData(data.data);
       statusDias[diaSemana] = {
         data: data.data,
-        permitirPedidos: data.permitirPedidos ?? data.disponivel,
-        motivo: data.motivo,
-        motivoBloqueio: data.motivoBloqueio
+        permitirPedidos: this.deveAplicarExcecaoHoje()
+          ? true
+          : data.permitirPedidos ?? data.disponivel,
+        motivo: this.deveAplicarExcecaoHoje() ? null : data.motivo,
+        motivoBloqueio: this.deveAplicarExcecaoHoje() ? null : data.motivoBloqueio
       };
     }
 
     return statusDias;
+  }
+
+  private permitirPedidoParaData(dataPedido: string): boolean {
+    return this.deveAplicarExcecaoPedidosTeste(dataPedido) ||
+      (this.restaurante()?.permitirPedidos ?? false);
   }
 
   private criarDataLocalHoje(): Date {
@@ -386,6 +408,35 @@ export class InicioPage implements OnInit, OnDestroy {
     const diferencaDias = (this.diaSelecionado() - hoje.getDay() + 7) % 7;
     hoje.setDate(hoje.getDate() + diferencaDias);
     return this.formatarDataIso(hoje);
+  }
+
+  private obterDataPedidoParaFinalizacao(): string {
+    return this.deveAplicarExcecaoHoje()
+      ? this.dataExcecaoPedidosTeste
+      : this.obterDataPedidoSelecionada();
+  }
+
+  private deveAplicarExcecaoPedidosTeste(dataPedido: string): boolean {
+    return dataPedido === this.dataExcecaoPedidosTeste && this.deveAplicarExcecaoHoje();
+  }
+
+  private deveAplicarExcecaoHoje(): boolean {
+    return this.criarDataLocalSalvadorHojeIso() === this.dataExcecaoPedidosTeste;
+  }
+
+  private criarDataLocalSalvadorHojeIso(): string {
+    const partes = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bahia',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+
+    const ano = partes.find((parte) => parte.type === 'year')?.value;
+    const mes = partes.find((parte) => parte.type === 'month')?.value;
+    const dia = partes.find((parte) => parte.type === 'day')?.value;
+
+    return ano && mes && dia ? `${ano}-${mes}-${dia}` : this.formatarDataIso(this.criarDataLocalHoje());
   }
 
   private limparAvisoDemora(): void {
