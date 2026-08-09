@@ -109,7 +109,6 @@ export class InicioPage implements OnInit, OnDestroy {
   private disponibilidadeSubscription?: Subscription;
   private avisoDemora?: ReturnType<typeof setTimeout>;
   private requisicaoCardapioAtual = 0;
-  private readonly dataExcecaoPedidosTeste = '2026-08-09';
 
   protected readonly diaAtual = this.cardapioService.obterDiaAtual();
   protected readonly restaurante = signal<Restaurante | null>(null);
@@ -157,7 +156,7 @@ export class InicioPage implements OnInit, OnDestroy {
     this.personalizacaoOverlay = this.overlayService.open(PersonalizacaoPedidoModalComponent, {
       prato,
       whatsappRestaurante: this.restaurante()?.whatsapp ?? '',
-      restauranteAberto: this.permitirPedidoParaData(dataPedido),
+      restauranteAberto: this.permitirPedido(),
       dataPedido
     });
 
@@ -195,7 +194,7 @@ export class InicioPage implements OnInit, OnDestroy {
 
   protected readonly criarLinkPedido = (prato: Prato): string => {
     const whatsapp = this.restaurante()?.whatsapp ?? '';
-    if (!this.permitirPedidoParaData(this.obterDataPedidoParaFinalizacao()) || !whatsapp.trim()) {
+    if (!this.permitirPedido() || !whatsapp.trim()) {
       return '#cardapio';
     }
 
@@ -274,17 +273,8 @@ export class InicioPage implements OnInit, OnDestroy {
     this.diaSelecionado.set(cardapio.diaSemana);
 
     if (cardapio.restaurante) {
-      const restaurante = this.modoTestePedidosAtivo()
-        ? {
-            ...cardapio.restaurante,
-            estaAberto: true,
-            permitirPedidos: true,
-            motivoBloqueio: null
-          }
-        : cardapio.restaurante;
-
-      this.restaurante.set(restaurante);
-      this.cardapio.set({ ...cardapio, restaurante });
+      this.restaurante.set(cardapio.restaurante);
+      this.cardapio.set(cardapio);
       return;
     }
 
@@ -363,20 +353,17 @@ export class InicioPage implements OnInit, OnDestroy {
       const diaSemana = this.obterDiaSemanaData(data.data);
       statusDias[diaSemana] = {
         data: data.data,
-        permitirPedidos: this.modoTestePedidosAtivo()
-          ? true
-          : data.permitirPedidos ?? data.disponivel,
-        motivo: this.modoTestePedidosAtivo() ? null : data.motivo,
-        motivoBloqueio: this.modoTestePedidosAtivo() ? null : data.motivoBloqueio
+        permitirPedidos: data.permitirPedidos ?? data.disponivel,
+        motivo: data.motivo,
+        motivoBloqueio: data.motivoBloqueio
       };
     }
 
     return statusDias;
   }
 
-  private permitirPedidoParaData(dataPedido: string): boolean {
-    return (dataPedido === this.dataExcecaoPedidosTeste && this.modoTestePedidosAtivo()) ||
-      (this.restaurante()?.permitirPedidos ?? false);
+  private permitirPedido(): boolean {
+    return this.restaurante()?.permitirPedidos ?? false;
   }
 
   private criarDataLocalHoje(): Date {
@@ -410,28 +397,7 @@ export class InicioPage implements OnInit, OnDestroy {
   }
 
   private obterDataPedidoParaFinalizacao(): string {
-    return this.modoTestePedidosAtivo()
-      ? this.dataExcecaoPedidosTeste
-      : this.obterDataPedidoSelecionada();
-  }
-
-  private modoTestePedidosAtivo(): boolean {
-    return this.criarDataLocalSalvadorHojeIso() === this.dataExcecaoPedidosTeste;
-  }
-
-  private criarDataLocalSalvadorHojeIso(): string {
-    const partes = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Bahia',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(new Date());
-
-    const ano = partes.find((parte) => parte.type === 'year')?.value;
-    const mes = partes.find((parte) => parte.type === 'month')?.value;
-    const dia = partes.find((parte) => parte.type === 'day')?.value;
-
-    return ano && mes && dia ? `${ano}-${mes}-${dia}` : this.formatarDataIso(this.criarDataLocalHoje());
+    return this.obterDataPedidoSelecionada();
   }
 
   private limparAvisoDemora(): void {

@@ -11,7 +11,6 @@ namespace QuentinhasDaTininha.Infraestrutura.Funcionamento.Servicos;
 
 public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
 {
-    private static readonly DateOnly DataExcecaoPedidosTeste = new(2026, 8, 9);
     private const int QuantidadeDiasPadrao = 30;
     private const int QuantidadeMaximaDiasConsulta = 366;
     private readonly QuentinhasDaTininhaDbContext _dbContext;
@@ -41,8 +40,7 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             .Select(data => MapearResposta(
                 data,
                 dataAtual,
-                registros.GetValueOrDefault(data),
-                ModoTestePedidosAtivo(dataAtual)))
+                registros.GetValueOrDefault(data)))
             .ToList();
     }
 
@@ -54,7 +52,7 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
 
         var dataAtual = _servicoDataLocal.ObterDataAtual();
         var registro = await ObterRegistroAtivoAsync(data, cancellationToken);
-        return MapearResposta(data, dataAtual, registro, ModoTestePedidosAtivo(dataAtual));
+        return MapearResposta(data, dataAtual, registro);
     }
 
     public async Task<DisponibilidadeDataResposta> LiberarDataAsync(
@@ -127,7 +125,6 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             dataFinal,
             _servicoDataLocal.ObterDataAtual());
         var dataAtual = _servicoDataLocal.ObterDataAtual();
-        var modoTestePedidosAtivo = ModoTestePedidosAtivo(dataAtual);
         var periodo = CriarPeriodo(inicio, fim).ToList();
         var registros = await ObterRegistrosAtivosAsync(inicio, fim, cancellationToken);
         var configuracao = await _dbContext.ConfiguracoesRestaurante
@@ -153,20 +150,16 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         var datas = periodo
             .Select(data =>
             {
-                var avaliacaoData = modoTestePedidosAtivo
-                    ? Liberar(data)
-                    : AvaliarData(
+                var avaliacaoData = AvaliarData(
+                    data,
+                    dataAtual,
+                    registros.GetValueOrDefault(data));
+                var validacao = avaliacaoData.PermitirPedidos
+                    ? AvaliarRestaurante(
                         data,
                         dataAtual,
-                        registros.GetValueOrDefault(data));
-                var validacao = avaliacaoData.PermitirPedidos
-                    ? modoTestePedidosAtivo
-                        ? avaliacaoData
-                        : AvaliarRestaurante(
-                            data,
-                            dataAtual,
-                            configuracao,
-                            horariosPorDia)
+                        configuracao,
+                        horariosPorDia)
                     : avaliacaoData;
 
                 return new DisponibilidadeDataPublicaResposta
@@ -200,11 +193,6 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         ValidarData(data);
 
         var dataAtual = _servicoDataLocal.ObterDataAtual();
-        if (ModoTestePedidosAtivo(dataAtual))
-        {
-            return Liberar(data);
-        }
-
         var registro = await ObterRegistroAtivoAsync(data, cancellationToken);
         var avaliacaoData = AvaliarData(data, dataAtual, registro);
         if (!avaliacaoData.PermitirPedidos)
@@ -420,10 +408,9 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
     private static DisponibilidadeDataResposta MapearResposta(
         DateOnly data,
         DateOnly dataAtual,
-        FechamentoExcepcional? registro,
-        bool modoTestePedidosAtivo = false)
+        FechamentoExcepcional? registro)
     {
-        var avaliacao = modoTestePedidosAtivo ? Liberar(data) : AvaliarData(data, dataAtual, registro);
+        var avaliacao = AvaliarData(data, dataAtual, registro);
         var permitirPedidos = avaliacao.PermitirPedidos;
 
         return new DisponibilidadeDataResposta
@@ -497,11 +484,6 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         {
             yield return data;
         }
-    }
-
-    private static bool ModoTestePedidosAtivo(DateOnly dataAtual)
-    {
-        return dataAtual == DataExcecaoPedidosTeste;
     }
 
     private static ValidacaoDisponibilidadePedidoResposta Liberar(DateOnly data)

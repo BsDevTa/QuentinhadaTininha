@@ -41,7 +41,7 @@ public class ServicoDisponibilidadePedidoTests
     }
 
     [Fact]
-    public async Task ValidarPedidoAsync_LiberaExcecaoTemporariaEmNoveDeAgosto()
+    public async Task ValidarPedidoAsync_BloqueiaNoveDeAgostoQuandoRestauranteEstaFechado()
     {
         await using var dbContext = CriarDbContext();
         var hoje = new DateOnly(2026, 8, 9);
@@ -53,12 +53,12 @@ public class ServicoDisponibilidadePedidoTests
 
         var resposta = await servico.ValidarPedidoAsync(hoje);
 
-        Assert.True(resposta.PermitirPedidos);
-        Assert.Null(resposta.MotivoBloqueio);
+        Assert.False(resposta.PermitirPedidos);
+        Assert.Contains("Hoje não temos atendimento", resposta.MotivoBloqueio);
     }
 
     [Fact]
-    public async Task ValidarPedidoAsync_LiberaQualquerDataDuranteModoTesteDeNoveDeAgosto()
+    public async Task ValidarPedidoAsync_RespeitaDataBloqueadaEmNoveDeAgosto()
     {
         await using var dbContext = CriarDbContext();
         var hoje = new DateOnly(2026, 8, 9);
@@ -78,12 +78,12 @@ public class ServicoDisponibilidadePedidoTests
 
         var resposta = await servico.ValidarPedidoAsync(hoje.AddDays(1));
 
-        Assert.True(resposta.PermitirPedidos);
-        Assert.Null(resposta.MotivoBloqueio);
+        Assert.False(resposta.PermitirPedidos);
+        Assert.Equal("Bloqueado", resposta.MotivoBloqueio);
     }
 
     [Fact]
-    public async Task ListarPublicaAsync_LiberaPeriodoDuranteModoTesteDeNoveDeAgosto()
+    public async Task ListarPublicaAsync_RespeitaFechamentoDuranteNoveDeAgosto()
     {
         await using var dbContext = CriarDbContext();
         var hoje = new DateOnly(2026, 8, 9);
@@ -95,8 +95,8 @@ public class ServicoDisponibilidadePedidoTests
 
         var resposta = await servico.ListarPublicaAsync(hoje, hoje.AddDays(2));
 
-        Assert.All(resposta.Datas, data => Assert.True(data.PermitirPedidos));
-        Assert.Empty(resposta.DatasBloqueadas);
+        Assert.All(resposta.Datas, data => Assert.False(data.PermitirPedidos));
+        Assert.Equal(3, resposta.DatasBloqueadas.Count);
     }
 
     [Fact]
