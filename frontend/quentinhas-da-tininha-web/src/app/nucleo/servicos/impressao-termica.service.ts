@@ -17,7 +17,8 @@ export class ImpressaoTermicaService {
   private estado: EstadoQz = 'desconectado';
   private conexaoPromise?: Promise<void>;
   private callbacksRegistrados = false;
-  private securityConfigurada = false;
+  private segurancaConfigurada = false;
+  private segurancaPromise?: Promise<void>;
 
   readonly qzConectado = this.qzConectadoInterno.asReadonly();
 
@@ -33,6 +34,7 @@ export class ImpressaoTermicaService {
 
   async conectar(): Promise<void> {
     console.info(`[QZ] estado antes: ${this.estado}; isActive antes: ${qz.websocket.isActive()}`);
+    await this.configurarSeguranca();
 
     if (this.estado === 'conectado' && qz.websocket.isActive()) {
       console.info('[QZ] conexao ja ativa');
@@ -50,7 +52,6 @@ export class ImpressaoTermicaService {
       console.info('[QZ] conectando...');
 
       try {
-        await this.configurarSeguranca();
         await qz.websocket.connect();
 
         if (!qz.websocket.isActive()) {
@@ -90,6 +91,7 @@ export class ImpressaoTermicaService {
 
   async buscarImpressora(nome = NOME_IMPRESSORA_PADRAO): Promise<string> {
     await this.conectar();
+    await this.configurarSeguranca();
 
     try {
       const impressoraExata = await qz.printers.find(nome);
@@ -116,6 +118,7 @@ export class ImpressaoTermicaService {
       const config = qz.configs.create(nomeImpressora);
       const dados = this.montarCupomTeste(nomeImpressora);
 
+      await this.configurarSeguranca();
       await qz.print(config, [
         {
           type: 'raw',
@@ -137,6 +140,7 @@ export class ImpressaoTermicaService {
       const config = qz.configs.create(nomeImpressora);
       const dados = this.montarCupomPedido(pedido, opcoes);
 
+      await this.configurarSeguranca();
       await qz.print(config, [
         {
           type: 'raw',
@@ -549,26 +553,46 @@ export class ImpressaoTermicaService {
   }
 
   private async configurarSeguranca(): Promise<void> {
-    if (this.securityConfigurada) {
+    if (this.segurancaConfigurada) {
       return;
     }
 
-    if (!qz.security) {
-      throw new Error('QZ Tray nao possui API de assinatura disponivel.');
+    if (this.segurancaPromise) {
+      return this.segurancaPromise;
     }
 
-    qz.security.setCertificatePromise(async () =>
-      firstValueFrom(this.qzSigningService.obterCertificado())
-    );
+    this.segurancaPromise = (async () => {
+      console.log('[QZ SECURITY] iniciando');
 
-    qz.security.setSignatureAlgorithm('SHA512');
+      if (!qz.security) {
+        throw new Error('QZ Tray nao possui API de assinatura disponivel.');
+      }
 
-    qz.security.setSignaturePromise(async (dados: string) => {
-      const resposta = await firstValueFrom(this.qzSigningService.assinar(dados));
-      return resposta.assinatura;
-    });
+      qz.security.setCertificatePromise(async () => {
+        console.log('[QZ SECURITY] solicitando certificado');
+        const certificado = await firstValueFrom(this.qzSigningService.obterCertificado());
+        console.log('[QZ SECURITY] certificado recebido');
+        return certificado;
+      });
 
-    this.securityConfigurada = true;
+      qz.security.setSignatureAlgorithm('SHA512');
+
+      qz.security.setSignaturePromise(async (toSign: string) => {
+        console.log('[QZ SECURITY] solicitando assinatura');
+        const resposta = await firstValueFrom(this.qzSigningService.assinar(toSign));
+        console.log('[QZ SECURITY] assinatura recebida');
+        return resposta.assinatura;
+      });
+
+      this.segurancaConfigurada = true;
+      console.log('[QZ SECURITY] configurado');
+    })();
+
+    try {
+      await this.segurancaPromise;
+    } finally {
+      this.segurancaPromise = undefined;
+    }
   }
 
   private registrarCallbacksQz(): void {

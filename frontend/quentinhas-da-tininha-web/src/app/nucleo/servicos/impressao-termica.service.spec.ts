@@ -12,6 +12,9 @@ const qzMock = vi.hoisted(() => {
     resetar: () => {
       ativo = false;
     },
+    ativar: () => {
+      ativo = true;
+    },
     websocket: {
       isActive: vi.fn(() => ativo),
       connect: vi.fn(async () => {
@@ -78,6 +81,27 @@ describe('ImpressaoTermicaService QZ security', () => {
     expect(qzMock.security.setSignatureAlgorithm).toHaveBeenCalledWith('SHA512');
     expect(qzMock.security.setSignaturePromise).toHaveBeenCalledTimes(1);
     expect(qzMock.websocket.connect).toHaveBeenCalledTimes(1);
+  });
+
+  it('configura seguranca antes de conectar o websocket', async () => {
+    await service.conectar();
+
+    const chamadaSeguranca = qzMock.security.setCertificatePromise.mock.invocationCallOrder[0];
+    const chamadaConnect = qzMock.websocket.connect.mock.invocationCallOrder[0];
+
+    expect(chamadaSeguranca).toBeLessThan(chamadaConnect);
+  });
+
+  it('configura seguranca mesmo quando a conexao ja esta ativa', async () => {
+    qzMock.ativar();
+    (service as unknown as { estado: 'conectado' }).estado = 'conectado';
+
+    await service.conectar();
+
+    expect(qzMock.security.setCertificatePromise).toHaveBeenCalledTimes(1);
+    expect(qzMock.security.setSignatureAlgorithm).toHaveBeenCalledWith('SHA512');
+    expect(qzMock.security.setSignaturePromise).toHaveBeenCalledTimes(1);
+    expect(qzMock.websocket.connect).not.toHaveBeenCalled();
   });
 
   it('usa certificate promise e signature promise chamando a API admin', async () => {
