@@ -17,6 +17,7 @@ public class AdminQzController : ControllerBase
         _servicoQzSigning = servicoQzSigning;
     }
 
+    [AllowAnonymous]
     [HttpGet("certificado")]
     public ActionResult ObterCertificado()
     {

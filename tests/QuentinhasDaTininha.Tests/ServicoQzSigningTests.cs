@@ -89,6 +89,28 @@ public class ServicoQzSigningTests
         Assert.NotNull(atributo);
     }
 
+    [Fact]
+    public void AdminQzController_CertificadoPermiteAcessoAnonimo()
+    {
+        var atributo = typeof(AdminQzController)
+            .GetMethod(nameof(AdminQzController.ObterCertificado))!
+            .GetCustomAttributes<AllowAnonymousAttribute>(inherit: true)
+            .FirstOrDefault();
+
+        Assert.NotNull(atributo);
+    }
+
+    [Fact]
+    public void AdminQzController_AssinaturaContinuaProtegida()
+    {
+        var atributo = typeof(AdminQzController)
+            .GetMethod(nameof(AdminQzController.Assinar))!
+            .GetCustomAttributes<AllowAnonymousAttribute>(inherit: true)
+            .FirstOrDefault();
+
+        Assert.Null(atributo);
+    }
+
     private static ServicoQzSigning CriarServico(string privateKey)
     {
         return new ServicoQzSigning(Options.Create(new QzSigningConfiguracao
