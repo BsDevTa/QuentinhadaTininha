@@ -77,10 +77,6 @@ describe('ImpressaoTermicaService QZ security', () => {
     await service.conectar();
 
     expect(qzMock.security.setCertificatePromise).toHaveBeenCalledTimes(1);
-    expect(qzMock.security.setCertificatePromise).toHaveBeenCalledWith(
-      expect.any(Function),
-      { rejectOnFailure: true }
-    );
     expect(qzMock.security.setSignatureAlgorithm).toHaveBeenCalledTimes(1);
     expect(qzMock.security.setSignatureAlgorithm).toHaveBeenCalledWith('SHA512');
     expect(qzMock.security.setSignaturePromise).toHaveBeenCalledTimes(1);
@@ -123,5 +119,25 @@ describe('ImpressaoTermicaService QZ security', () => {
     req.flush({ assinatura: 'assinatura-base64' });
 
     await expect(signaturePromise).resolves.toBe('assinatura-base64');
+  });
+
+  it('segue com aprovacao manual quando certificado ou assinatura falham', async () => {
+    await service.conectar();
+
+    const certificateHandler = qzMock.security.setCertificatePromise.mock.calls[0][0] as () => Promise<string>;
+    const certificatePromise = certificateHandler();
+    http.expectOne(`${environment.apiUrl}/admin/qz/certificado`).flush(
+      { mensagem: 'Certificado publico QZ nao configurado.' },
+      { status: 503, statusText: 'Service Unavailable' }
+    );
+    await expect(certificatePromise).resolves.toBe('');
+
+    const signatureHandler = qzMock.security.setSignaturePromise.mock.calls[0][0] as (dados: string) => Promise<string>;
+    const signaturePromise = signatureHandler('dados qz');
+    http.expectOne(`${environment.apiUrl}/admin/qz/assinar`).flush(
+      { mensagem: 'Private key QZ nao configurada.' },
+      { status: 503, statusText: 'Service Unavailable' }
+    );
+    await expect(signaturePromise).resolves.toBe('');
   });
 });

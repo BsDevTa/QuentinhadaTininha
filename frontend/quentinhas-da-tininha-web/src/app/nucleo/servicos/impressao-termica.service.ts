@@ -643,16 +643,17 @@ export class ImpressaoTermicaService {
           const certificado = await firstValueFrom(this.qzSigningService.obterCertificado());
 
           if (!certificado.trim()) {
-            throw new Error('Certificado QZ vazio.');
+            console.warn('[QZ SECURITY] certificado vazio; seguindo com aprovacao manual do QZ');
+            return '';
           }
 
           console.log('[QZ SECURITY] certificado recebido');
           return certificado;
         } catch (erro: unknown) {
-          console.warn(`[QZ SECURITY] falha ao obter certificado: ${this.mensagemErro(erro)}`);
-          throw erro;
+          console.warn(`[QZ SECURITY] falha ao obter certificado; seguindo com aprovacao manual do QZ: ${this.mensagemErro(erro)}`);
+          return '';
         }
-      }, { rejectOnFailure: true });
+      });
 
       qz.security.setSignatureAlgorithm('SHA512');
 
@@ -662,14 +663,15 @@ export class ImpressaoTermicaService {
           const resposta = await firstValueFrom(this.qzSigningService.assinar(toSign));
 
           if (!resposta.assinatura?.trim()) {
-            throw new Error('Assinatura QZ vazia.');
+            console.warn('[QZ SECURITY] assinatura vazia; seguindo com aprovacao manual do QZ');
+            return '';
           }
 
           console.log('[QZ SECURITY] assinatura recebida');
           return resposta.assinatura;
         } catch (erro: unknown) {
-          console.warn(`[QZ SECURITY] falha ao obter assinatura: ${this.mensagemErro(erro)}`);
-          throw erro;
+          console.warn(`[QZ SECURITY] falha ao obter assinatura; seguindo com aprovacao manual do QZ: ${this.mensagemErro(erro)}`);
+          return '';
         }
       });
 
