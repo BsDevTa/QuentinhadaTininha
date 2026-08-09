@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import qz from 'qz-tray';
 import { firstValueFrom } from 'rxjs';
@@ -522,6 +523,11 @@ export class ImpressaoTermicaService {
       console.error('Falha na impressao termica via QZ Tray.', erro);
     }
 
+    const erroSigning = this.normalizarErroSigning(erro);
+    if (erroSigning) {
+      return erroSigning;
+    }
+
     if (erro instanceof Error) {
       const mensagem = erro.message.toLowerCase();
 
@@ -547,9 +553,72 @@ export class ImpressaoTermicaService {
   }
 
   private mensagemErro(erro: unknown): string {
+    if (erro instanceof HttpErrorResponse) {
+      return this.mensagemErroHttp(erro);
+    }
+
     return erro instanceof Error
       ? erro.message
       : 'Falha desconhecida ao conectar ao QZ Tray.';
+  }
+
+  private normalizarErroSigning(erro: unknown): Error | null {
+    if (erro instanceof HttpErrorResponse) {
+      return new Error(this.mensagemErroHttp(erro));
+    }
+
+    if (!(erro instanceof Error)) {
+      return null;
+    }
+
+    const mensagem = erro.message.toLowerCase();
+    if (
+      mensagem.includes('certificado qz') ||
+      mensagem.includes('assinatura qz') ||
+      mensagem.includes('failed to sign request')
+    ) {
+      return erro;
+    }
+
+    return null;
+  }
+
+  private mensagemErroHttp(erro: HttpErrorResponse): string {
+    const corpoErro = this.normalizarCorpoErroHttp(erro.error);
+    const mensagemApi = typeof corpoErro === 'object' &&
+      corpoErro !== null &&
+      'mensagem' in corpoErro &&
+      typeof corpoErro.mensagem === 'string'
+        ? corpoErro.mensagem
+        : '';
+
+    if (erro.status === 401) {
+      return 'Sessao administrativa expirada. Entre novamente no admin para assinar a impressao QZ.';
+    }
+
+    if (erro.status === 503 && mensagemApi) {
+      return mensagemApi;
+    }
+
+    if (mensagemApi) {
+      return mensagemApi;
+    }
+
+    return `Falha ao chamar assinatura QZ (${erro.status}).`;
+  }
+
+  private normalizarCorpoErroHttp(corpo: unknown): unknown {
+    if (typeof corpo !== 'string') {
+      return corpo;
+    }
+
+    try {
+      return JSON.parse(corpo) as unknown;
+    } catch {
+      return {
+        mensagem: corpo
+      };
+    }
   }
 
   private async configurarSeguranca(): Promise<void> {

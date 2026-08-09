@@ -19,12 +19,14 @@ public class ServicoQzSigning : IServicoQzSigning
 
     public string ObterCertificado()
     {
-        if (string.IsNullOrWhiteSpace(_configuracao.Certificate))
+        var certificado = NormalizarPem(_configuracao.Certificate);
+
+        if (string.IsNullOrWhiteSpace(certificado))
         {
             throw new InvalidOperationException("Certificado publico QZ nao configurado.");
         }
 
-        return _configuracao.Certificate;
+        return certificado;
     }
 
     public string Assinar(string dados)
@@ -39,7 +41,9 @@ public class ServicoQzSigning : IServicoQzSigning
             throw new ArgumentException("Dados para assinatura QZ excedem o tamanho permitido.");
         }
 
-        if (string.IsNullOrWhiteSpace(_configuracao.PrivateKey))
+        var privateKey = NormalizarPem(_configuracao.PrivateKey);
+
+        if (string.IsNullOrWhiteSpace(privateKey))
         {
             throw new InvalidOperationException("Private key QZ nao configurada.");
         }
@@ -47,7 +51,7 @@ public class ServicoQzSigning : IServicoQzSigning
         try
         {
             using var rsa = RSA.Create();
-            rsa.ImportFromPem(_configuracao.PrivateKey.AsSpan());
+            rsa.ImportFromPem(privateKey.AsSpan());
 
             var bytes = Encoding.UTF8.GetBytes(dados);
             var assinatura = rsa.SignData(
@@ -65,5 +69,13 @@ public class ServicoQzSigning : IServicoQzSigning
         {
             throw new InvalidOperationException("Private key QZ invalida ou incompativel.", excecao);
         }
+    }
+
+    private static string NormalizarPem(string valor)
+    {
+        return valor
+            .Replace("\\r\\n", "\n", StringComparison.Ordinal)
+            .Replace("\\n", "\n", StringComparison.Ordinal)
+            .Trim();
     }
 }
