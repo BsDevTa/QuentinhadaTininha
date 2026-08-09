@@ -45,7 +45,7 @@ import { DiaBloqueadoSelecionado, EstadoDiaSeletor, SeletorDiaComponent } from '
         } @else {
           <div class="estado-cardapio">
             <h3>{{ diaSelecionado === 0 ? 'Domingo sem cardapio' : 'Nao ha cardapio disponivel para este dia.' }}</h3>
-            <p>{{ mensagemStatus || (diaSelecionado === 0 ? 'Hoje nao temos atendimento. Consulte o cardapio dos outros dias.' : 'Volte em breve para conferir as opcoes da Tininha.') }}</p>
+            <p>{{ textoEstadoVazio }}</p>
           </div>
         }
       </div>
@@ -70,6 +70,14 @@ export class CardapioDiaComponent {
   protected get titulo(): string {
     const nomeDia = this.diaSemanaPipe.transform(this.diaSelecionado);
     return this.diaSelecionado === 0 ? 'Cardapio da semana' : `Cardapio de ${nomeDia}`;
+  }
+
+  protected get textoEstadoVazio(): string {
+    if (!this.restauranteAberto && this.mensagemStatus) {
+      return this.mensagemStatus;
+    }
+
+    return 'Volte em breve para conferir as opcoes da Tininha.';
   }
 
   protected abrirPersonalizacao(pratoId: string): void {

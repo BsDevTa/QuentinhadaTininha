@@ -58,6 +58,48 @@ public class ServicoDisponibilidadePedidoTests
     }
 
     [Fact]
+    public async Task ValidarPedidoAsync_LiberaQualquerDataDuranteModoTesteDeNoveDeAgosto()
+    {
+        await using var dbContext = CriarDbContext();
+        var hoje = new DateOnly(2026, 8, 9);
+        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext);
+        dbContext.FechamentosExcepcionais.Add(new FechamentoExcepcional
+        {
+            DataFechamento = hoje.AddDays(1),
+            PermitirPedidos = false,
+            EstaAtivo = true,
+            Motivo = "Bloqueado",
+            MensagemCliente = "Bloqueado"
+        });
+        await dbContext.SaveChangesAsync();
+        var servico = new ServicoDisponibilidadePedido(
+            dbContext,
+            new ServicoDataLocalFake(hoje));
+
+        var resposta = await servico.ValidarPedidoAsync(hoje.AddDays(1));
+
+        Assert.True(resposta.PermitirPedidos);
+        Assert.Null(resposta.MotivoBloqueio);
+    }
+
+    [Fact]
+    public async Task ListarPublicaAsync_LiberaPeriodoDuranteModoTesteDeNoveDeAgosto()
+    {
+        await using var dbContext = CriarDbContext();
+        var hoje = new DateOnly(2026, 8, 9);
+        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext);
+        await dbContext.SaveChangesAsync();
+        var servico = new ServicoDisponibilidadePedido(
+            dbContext,
+            new ServicoDataLocalFake(hoje));
+
+        var resposta = await servico.ListarPublicaAsync(hoje, hoje.AddDays(2));
+
+        Assert.All(resposta.Datas, data => Assert.True(data.PermitirPedidos));
+        Assert.Empty(resposta.DatasBloqueadas);
+    }
+
+    [Fact]
     public async Task ValidarPedidoAsync_NaoMantemExcecaoTemporariaEmDezDeAgosto()
     {
         await using var dbContext = CriarDbContext();

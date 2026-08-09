@@ -274,8 +274,7 @@ export class InicioPage implements OnInit, OnDestroy {
     this.diaSelecionado.set(cardapio.diaSemana);
 
     if (cardapio.restaurante) {
-      const dataPedido = this.obterDataPedidoParaFinalizacao();
-      const restaurante = this.deveAplicarExcecaoPedidosTeste(dataPedido)
+      const restaurante = this.modoTestePedidosAtivo()
         ? {
             ...cardapio.restaurante,
             estaAberto: true,
@@ -364,11 +363,11 @@ export class InicioPage implements OnInit, OnDestroy {
       const diaSemana = this.obterDiaSemanaData(data.data);
       statusDias[diaSemana] = {
         data: data.data,
-        permitirPedidos: this.deveAplicarExcecaoHoje()
+        permitirPedidos: this.modoTestePedidosAtivo()
           ? true
           : data.permitirPedidos ?? data.disponivel,
-        motivo: this.deveAplicarExcecaoHoje() ? null : data.motivo,
-        motivoBloqueio: this.deveAplicarExcecaoHoje() ? null : data.motivoBloqueio
+        motivo: this.modoTestePedidosAtivo() ? null : data.motivo,
+        motivoBloqueio: this.modoTestePedidosAtivo() ? null : data.motivoBloqueio
       };
     }
 
@@ -376,7 +375,7 @@ export class InicioPage implements OnInit, OnDestroy {
   }
 
   private permitirPedidoParaData(dataPedido: string): boolean {
-    return this.deveAplicarExcecaoPedidosTeste(dataPedido) ||
+    return (dataPedido === this.dataExcecaoPedidosTeste && this.modoTestePedidosAtivo()) ||
       (this.restaurante()?.permitirPedidos ?? false);
   }
 
@@ -411,16 +410,12 @@ export class InicioPage implements OnInit, OnDestroy {
   }
 
   private obterDataPedidoParaFinalizacao(): string {
-    return this.deveAplicarExcecaoHoje()
+    return this.modoTestePedidosAtivo()
       ? this.dataExcecaoPedidosTeste
       : this.obterDataPedidoSelecionada();
   }
 
-  private deveAplicarExcecaoPedidosTeste(dataPedido: string): boolean {
-    return dataPedido === this.dataExcecaoPedidosTeste && this.deveAplicarExcecaoHoje();
-  }
-
-  private deveAplicarExcecaoHoje(): boolean {
+  private modoTestePedidosAtivo(): boolean {
     return this.criarDataLocalSalvadorHojeIso() === this.dataExcecaoPedidosTeste;
   }
 

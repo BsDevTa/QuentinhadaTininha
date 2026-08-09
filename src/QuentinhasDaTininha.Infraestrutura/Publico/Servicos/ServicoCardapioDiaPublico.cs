@@ -75,7 +75,7 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
         var restaurante = await ObterStatusRestauranteAsync(cancellationToken);
         var diaAtual = ConverterParaDiaPublico(dataAtual.DayOfWeek);
 
-        if (diaSemana != diaAtual)
+        if (diaSemana != diaAtual && !restaurante.PermitirPedidos)
         {
             restaurante.EstaAberto = false;
             restaurante.PermitirPedidos = false;

@@ -38,7 +38,11 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         var dataAtual = _servicoDataLocal.ObterDataAtual();
 
         return CriarPeriodo(inicio, fim)
-            .Select(data => MapearResposta(data, dataAtual, registros.GetValueOrDefault(data)))
+            .Select(data => MapearResposta(
+                data,
+                dataAtual,
+                registros.GetValueOrDefault(data),
+                ModoTestePedidosAtivo(dataAtual)))
             .ToList();
     }
 
@@ -48,8 +52,9 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
     {
         ValidarData(data);
 
+        var dataAtual = _servicoDataLocal.ObterDataAtual();
         var registro = await ObterRegistroAtivoAsync(data, cancellationToken);
-        return MapearResposta(data, _servicoDataLocal.ObterDataAtual(), registro);
+        return MapearResposta(data, dataAtual, registro, ModoTestePedidosAtivo(dataAtual));
     }
 
     public async Task<DisponibilidadeDataResposta> LiberarDataAsync(
@@ -122,6 +127,7 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             dataFinal,
             _servicoDataLocal.ObterDataAtual());
         var dataAtual = _servicoDataLocal.ObterDataAtual();
+        var modoTestePedidosAtivo = ModoTestePedidosAtivo(dataAtual);
         var periodo = CriarPeriodo(inicio, fim).ToList();
         var registros = await ObterRegistrosAtivosAsync(inicio, fim, cancellationToken);
         var configuracao = await _dbContext.ConfiguracoesRestaurante
@@ -147,14 +153,14 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         var datas = periodo
             .Select(data =>
             {
-                var avaliacaoData = DeveAplicarExcecaoPedidosTeste(data, dataAtual)
+                var avaliacaoData = modoTestePedidosAtivo
                     ? Liberar(data)
                     : AvaliarData(
                         data,
                         dataAtual,
                         registros.GetValueOrDefault(data));
                 var validacao = avaliacaoData.PermitirPedidos
-                    ? DeveAplicarExcecaoPedidosTeste(data, dataAtual)
+                    ? modoTestePedidosAtivo
                         ? avaliacaoData
                         : AvaliarRestaurante(
                             data,
@@ -194,7 +200,7 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         ValidarData(data);
 
         var dataAtual = _servicoDataLocal.ObterDataAtual();
-        if (DeveAplicarExcecaoPedidosTeste(data, dataAtual))
+        if (ModoTestePedidosAtivo(dataAtual))
         {
             return Liberar(data);
         }
@@ -414,9 +420,10 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
     private static DisponibilidadeDataResposta MapearResposta(
         DateOnly data,
         DateOnly dataAtual,
-        FechamentoExcepcional? registro)
+        FechamentoExcepcional? registro,
+        bool modoTestePedidosAtivo = false)
     {
-        var avaliacao = AvaliarData(data, dataAtual, registro);
+        var avaliacao = modoTestePedidosAtivo ? Liberar(data) : AvaliarData(data, dataAtual, registro);
         var permitirPedidos = avaliacao.PermitirPedidos;
 
         return new DisponibilidadeDataResposta
@@ -492,9 +499,9 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         }
     }
 
-    private static bool DeveAplicarExcecaoPedidosTeste(DateOnly data, DateOnly dataAtual)
+    private static bool ModoTestePedidosAtivo(DateOnly dataAtual)
     {
-        return data == DataExcecaoPedidosTeste && dataAtual == DataExcecaoPedidosTeste;
+        return dataAtual == DataExcecaoPedidosTeste;
     }
 
     private static ValidacaoDisponibilidadePedidoResposta Liberar(DateOnly data)

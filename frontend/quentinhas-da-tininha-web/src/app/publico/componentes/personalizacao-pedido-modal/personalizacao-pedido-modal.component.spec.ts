@@ -70,6 +70,18 @@ describe('PersonalizacaoPedidoModalComponent entrega', () => {
     expect(componente.entregaInvalida()).toBe(false);
     expect(componente.total()).toBe(20);
   });
+
+  it('permite finalizar quando restaurante esta liberado e dados obrigatorios estao preenchidos', () => {
+    const cepService = new CepServiceFake();
+    const componente = criarComponente(cepService);
+
+    componente.restauranteAberto = true;
+    componente.dataPedido = '2026-08-09';
+    componente.nomeCliente.set('Cliente Teste');
+    componente.telefoneCliente.set('(71) 99999-9999');
+
+    expect(componente.podeFinalizarPedido()).toBe(true);
+  });
 });
 
 function criarComponente(cepService: CepServiceFake): any {
