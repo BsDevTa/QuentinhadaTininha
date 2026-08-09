@@ -17,4 +17,9 @@ $ConfiguracaoLocal = @{
     AdministradorInicialNome = ''
     AdministradorInicialEmail = ''
     AdministradorInicialSenha = ''
+
+    # Opcional: caminhos locais para o Demo Cert do QZ Tray.
+    # O script le o conteudo e grava em User Secrets. Nao cole PEMs neste arquivo.
+    QzCertificatePath = ''
+    QzPrivateKeyPath = ''
 }

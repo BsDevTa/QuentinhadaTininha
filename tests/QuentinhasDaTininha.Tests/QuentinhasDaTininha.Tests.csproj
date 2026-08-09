@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\src\QuentinhasDaTininha.Infraestrutura\QuentinhasDaTininha.Infraestrutura.csproj" />
     <ProjectReference Include="..\..\src\QuentinhasDaTininha.Aplicacao\QuentinhasDaTininha.Aplicacao.csproj" />
     <ProjectReference Include="..\..\src\QuentinhasDaTininha.Dominio\QuentinhasDaTininha.Dominio.csproj" />
+    <ProjectReference Include="..\..\src\QuentinhasDaTininha.Api\QuentinhasDaTininha.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -87,4 +87,27 @@ if ($adminNome -or $adminEmail -or $adminSenha) {
     Salvar-UserSecret 'AdministradorInicial:Senha' $adminSenha
 }
 
+$qzCertificatePath = Obter-ValorOpcional $ConfiguracaoLocal 'QzCertificatePath'
+$qzPrivateKeyPath = Obter-ValorOpcional $ConfiguracaoLocal 'QzPrivateKeyPath'
+
+if ($qzCertificatePath -or $qzPrivateKeyPath) {
+    if (-not ($qzCertificatePath -and $qzPrivateKeyPath)) {
+        throw "Preencha QzCertificatePath e QzPrivateKeyPath juntos, ou deixe os dois vazios."
+    }
+
+    if (-not (Test-Path -LiteralPath $qzCertificatePath)) {
+        throw "Certificado QZ nao encontrado em $qzCertificatePath."
+    }
+
+    if (-not (Test-Path -LiteralPath $qzPrivateKeyPath)) {
+        throw "Private Key QZ nao encontrada em $qzPrivateKeyPath."
+    }
+
+    $qzCertificate = Get-Content -LiteralPath $qzCertificatePath -Raw
+    $qzPrivateKey = Get-Content -LiteralPath $qzPrivateKeyPath -Raw
+
+    Salvar-UserSecret 'QzSigning:Certificate' $qzCertificate
+    Salvar-UserSecret 'QzSigning:PrivateKey' $qzPrivateKey
+}
+
 Write-Host "Ambiente local configurado. Nenhum valor secreto foi exibido."

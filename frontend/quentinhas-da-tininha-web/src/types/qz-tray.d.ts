@@ -32,8 +32,9 @@ declare module 'qz-tray' {
     };
     print(config: QzPrinterConfig, data: Array<QzPrintData | string>): Promise<void>;
     security?: {
-      setCertificatePromise(handler: (resolve: (certificate: string) => void, reject: (erro: unknown) => void) => void): void;
-      setSignaturePromise(handler: (toSign: string) => (resolve: (signature?: string) => void, reject: (erro: unknown) => void) => void): void;
+      setCertificatePromise(handler: (() => Promise<string>) | ((resolve: (certificate: string) => void, reject: (erro: unknown) => void) => void)): void;
+      setSignatureAlgorithm(algorithm: 'SHA1' | 'SHA256' | 'SHA512'): void;
+      setSignaturePromise(handler: ((toSign: string) => Promise<string>) | ((toSign: string) => (resolve: (signature?: string) => void, reject: (erro: unknown) => void) => void)): void;
     };
   }
 

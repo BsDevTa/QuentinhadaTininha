@@ -1,6 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import qz from 'qz-tray';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { QzSigningAdministrativoService } from '../../administrativo/servicos/qz-signing-administrativo.service';
 import { PedidoImpressao, PedidoItemImpressao } from '../modelos/pedido-impressao.model';
 
 const NOME_IMPRESSORA_PADRAO = 'HPRT MPT-II';
@@ -10,10 +12,12 @@ type EstadoQz = 'desconectado' | 'conectando' | 'conectado';
 
 @Injectable({ providedIn: 'root' })
 export class ImpressaoTermicaService {
+  private readonly qzSigningService = inject(QzSigningAdministrativoService);
   private readonly qzConectadoInterno = signal(false);
   private estado: EstadoQz = 'desconectado';
   private conexaoPromise?: Promise<void>;
   private callbacksRegistrados = false;
+  private securityConfigurada = false;
 
   readonly qzConectado = this.qzConectadoInterno.asReadonly();
 
@@ -46,6 +50,7 @@ export class ImpressaoTermicaService {
       console.info('[QZ] conectando...');
 
       try {
+        await this.configurarSeguranca();
         await qz.websocket.connect();
 
         if (!qz.websocket.isActive()) {
@@ -541,6 +546,29 @@ export class ImpressaoTermicaService {
     return erro instanceof Error
       ? erro.message
       : 'Falha desconhecida ao conectar ao QZ Tray.';
+  }
+
+  private async configurarSeguranca(): Promise<void> {
+    if (this.securityConfigurada) {
+      return;
+    }
+
+    if (!qz.security) {
+      throw new Error('QZ Tray nao possui API de assinatura disponivel.');
+    }
+
+    qz.security.setCertificatePromise(async () =>
+      firstValueFrom(this.qzSigningService.obterCertificado())
+    );
+
+    qz.security.setSignatureAlgorithm('SHA512');
+
+    qz.security.setSignaturePromise(async (dados: string) => {
+      const resposta = await firstValueFrom(this.qzSigningService.assinar(dados));
+      return resposta.assinatura;
+    });
+
+    this.securityConfigurada = true;
   }
 
   private registrarCallbacksQz(): void {

@@ -17,6 +17,7 @@ using QuentinhasDaTininha.Aplicacao.ImpressoesPedidos.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Pedidos.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Pratos.Interfaces;
 using QuentinhasDaTininha.Aplicacao.Publico.Interfaces;
+using QuentinhasDaTininha.Aplicacao.Qz.Interfaces;
 using QuentinhasDaTininha.Api.Configuracoes;
 using QuentinhasDaTininha.Infraestrutura.Acompanhamentos.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Armazenamento.Servicos;
@@ -34,6 +35,8 @@ using QuentinhasDaTininha.Infraestrutura.Persistencia.Inicializacao;
 using QuentinhasDaTininha.Infraestrutura.Pratos.Servicos;
 using QuentinhasDaTininha.Infraestrutura.Publico.Cache;
 using QuentinhasDaTininha.Infraestrutura.Publico.Servicos;
+using QuentinhasDaTininha.Infraestrutura.Qz.Configuracoes;
+using QuentinhasDaTininha.Infraestrutura.Qz.Servicos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +44,8 @@ builder.Services.Configure<JwtConfiguracao>(
     builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<SupabaseStorageConfiguracao>(
     builder.Configuration.GetSection("SupabaseStorage"));
+builder.Services.Configure<QzSigningConfiguracao>(
+    builder.Configuration.GetSection("QzSigning"));
 
 var jwtConfiguracao = builder.Configuration
     .GetSection("Jwt")
@@ -122,6 +127,7 @@ builder.Services.AddScoped<IServicoCepSalvador, ServicoCepSalvador>();
 builder.Services.AddScoped<IServicoFreteBairro, ServicoFreteBairro>();
 builder.Services.AddScoped<IServicoPedido, ServicoPedido>();
 builder.Services.AddScoped<IServicoImpressaoPedido, ServicoImpressaoPedido>();
+builder.Services.AddScoped<IServicoQzSigning, ServicoQzSigning>();
 builder.Services.AddScoped<IServicoCardapioPublico, ServicoCardapioPublico>();
 builder.Services.AddScoped<IServicoDataLocal, ServicoDataLocal>();
 builder.Services.AddScoped<IServicoCardapioDiaPublico, ServicoCardapioDiaPublico>();

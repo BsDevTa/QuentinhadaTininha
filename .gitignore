@@ -4,6 +4,9 @@
 !.env.local.example
 config.local.ps1
 *.local.ps1
+private-key.pem
+*.pem
+QZ Tray Demo Cert/
 
 # Build outputs
 **/bin/
