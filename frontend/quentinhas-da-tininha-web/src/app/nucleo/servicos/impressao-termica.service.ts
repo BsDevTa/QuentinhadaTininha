@@ -569,19 +569,39 @@ export class ImpressaoTermicaService {
       }
 
       qz.security.setCertificatePromise(async () => {
-        console.log('[QZ SECURITY] solicitando certificado');
-        const certificado = await firstValueFrom(this.qzSigningService.obterCertificado());
-        console.log('[QZ SECURITY] certificado recebido');
-        return certificado;
-      });
+        try {
+          console.log('[QZ SECURITY] solicitando certificado');
+          const certificado = await firstValueFrom(this.qzSigningService.obterCertificado());
+
+          if (!certificado.trim()) {
+            throw new Error('Certificado QZ vazio.');
+          }
+
+          console.log('[QZ SECURITY] certificado recebido');
+          return certificado;
+        } catch (erro: unknown) {
+          console.warn(`[QZ SECURITY] falha ao obter certificado: ${this.mensagemErro(erro)}`);
+          throw erro;
+        }
+      }, { rejectOnFailure: true });
 
       qz.security.setSignatureAlgorithm('SHA512');
 
       qz.security.setSignaturePromise(async (toSign: string) => {
-        console.log('[QZ SECURITY] solicitando assinatura');
-        const resposta = await firstValueFrom(this.qzSigningService.assinar(toSign));
-        console.log('[QZ SECURITY] assinatura recebida');
-        return resposta.assinatura;
+        try {
+          console.log('[QZ SECURITY] solicitando assinatura');
+          const resposta = await firstValueFrom(this.qzSigningService.assinar(toSign));
+
+          if (!resposta.assinatura?.trim()) {
+            throw new Error('Assinatura QZ vazia.');
+          }
+
+          console.log('[QZ SECURITY] assinatura recebida');
+          return resposta.assinatura;
+        } catch (erro: unknown) {
+          console.warn(`[QZ SECURITY] falha ao obter assinatura: ${this.mensagemErro(erro)}`);
+          throw erro;
+        }
       });
 
       this.segurancaConfigurada = true;

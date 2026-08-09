@@ -77,6 +77,10 @@ describe('ImpressaoTermicaService QZ security', () => {
     await service.conectar();
 
     expect(qzMock.security.setCertificatePromise).toHaveBeenCalledTimes(1);
+    expect(qzMock.security.setCertificatePromise).toHaveBeenCalledWith(
+      expect.any(Function),
+      { rejectOnFailure: true }
+    );
     expect(qzMock.security.setSignatureAlgorithm).toHaveBeenCalledTimes(1);
     expect(qzMock.security.setSignatureAlgorithm).toHaveBeenCalledWith('SHA512');
     expect(qzMock.security.setSignaturePromise).toHaveBeenCalledTimes(1);
