@@ -98,6 +98,7 @@ export class LayoutAdministrativoComponent implements OnInit, OnDestroy {
     { rotulo: 'Painel', icone: '▦', rota: '/admin/painel' },
     { rotulo: 'Pratos', icone: '◉', rota: '/admin/pratos' },
     { rotulo: 'Acompanhamentos', icone: '☑', rota: '/admin/acompanhamentos' },
+    { rotulo: 'Bebidas', icone: '◍', rota: '/admin/bebidas' },
     { rotulo: 'Funcionamento', icone: '◷', rota: '/admin/funcionamento' },
     { rotulo: 'Fretes por bairro', icone: '⌂', rota: '/admin/fretes-bairros' },
     { rotulo: 'Configuracoes', icone: '⚙', rota: '/admin/configuracoes' }
@@ -158,6 +159,10 @@ export class LayoutAdministrativoComponent implements OnInit, OnDestroy {
       '/admin/acompanhamentos': {
         titulo: 'Acompanhamentos',
         subtitulo: 'Organize as opcoes que acompanham cada quentinha.'
+      },
+      '/admin/bebidas': {
+        titulo: 'Bebidas',
+        subtitulo: 'Cadastre, edite e remova as bebidas opcionais do cardapio.'
       },
       '/admin/funcionamento': {
         titulo: 'Funcionamento',

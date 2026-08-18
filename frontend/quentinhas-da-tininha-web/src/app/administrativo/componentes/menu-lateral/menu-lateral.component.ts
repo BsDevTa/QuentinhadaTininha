@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LogoMarcaComponent } from '../../../compartilhado/componentes/logo-marca/logo-marca.component';
 import { AutenticacaoService } from '../../../nucleo/autenticacao/autenticacao.service';
 
 @Component({
   selector: 'app-menu-lateral',
   standalone: true,
-  imports: [LogoMarcaComponent],
+  imports: [LogoMarcaComponent, RouterLink],
   template: `
     <aside class="menu-lateral">
       <app-logo-marca />
@@ -14,7 +14,7 @@ import { AutenticacaoService } from '../../../nucleo/autenticacao/autenticacao.s
         <a href="#status">Funcionamento</a>
         <a href="#pratos">Pratos do dia</a>
         <a href="#acompanhamentos">Acompanhamentos</a>
-        <a href="/admin/bebidas">Bebidas</a>
+        <a routerLink="/admin/bebidas">Bebidas</a>
       </nav>
       <button class="botao secundario" type="button" (click)="sair()">Sair</button>
     </aside>

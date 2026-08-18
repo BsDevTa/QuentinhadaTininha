@@ -56,6 +56,7 @@ interface CardResumo {
           <div class="admin-acoes-rapidas">
             <a routerLink="/admin/pratos">Gerenciar pratos</a>
             <a routerLink="/admin/acompanhamentos">Gerenciar acompanhamentos</a>
+            <a routerLink="/admin/bebidas">Gerenciar bebidas</a>
             <a routerLink="/admin/funcionamento">Alterar funcionamento</a>
             <a href="/" target="_blank" rel="noopener">Ver pagina publica</a>
           </div>
@@ -144,6 +145,13 @@ export class PainelPage implements OnInit {
         valor: String(resumo.quantidadeAcompanhamentosIndisponiveis),
         descricao: 'Continuam visiveis, mas bloqueados.',
         status: resumo.quantidadeAcompanhamentosIndisponiveis > 0 ? 'alerta' : 'neutro'
+      },
+      {
+        icone: '◍',
+        titulo: 'Atalho bebidas',
+        valor: 'Admin',
+        descricao: 'Cadastre e mantenha bebidas opcionais.',
+        status: 'neutro'
       }
     ];
   }
