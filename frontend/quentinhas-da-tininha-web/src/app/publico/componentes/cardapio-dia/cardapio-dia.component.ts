@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { CardapioDia, DiaSemana, Prato } from '../../../compartilhado/modelos/cardapio.model';
+import { Bebida, CardapioDia, DiaSemana, Prato } from '../../../compartilhado/modelos/cardapio.model';
 import { DiaSemanaPipe } from '../../../compartilhado/utilitarios/dia-semana.pipe';
 import { CardMascoteComponent } from '../card-mascote/card-mascote.component';
 import { CartaoPratoComponent } from '../cartao-prato/cartao-prato.component';
@@ -48,6 +48,28 @@ import { DiaBloqueadoSelecionado, EstadoDiaSeletor, SeletorDiaComponent } from '
             <p>{{ textoEstadoVazio }}</p>
           </div>
         }
+
+        @if ((cardapio.bebidas?.length ?? 0) > 0) {
+          <section class="bebidas-opcionais">
+            <header class="cardapio-ref__cabecalho cardapio-ref__cabecalho--compacto">
+              <div>
+                <span class="cardapio-ref__selo">Bebidas</span>
+                <h2>Bebidas (opcional)</h2>
+              </div>
+            </header>
+            <div class="bebidas-opcionais__lista">
+              @for (bebida of cardapio.bebidas; track bebida.id) {
+                <article>
+                  <strong>{{ bebida.nome }}</strong>
+                  @if (bebida.descricao) {
+                    <small>{{ bebida.descricao }}</small>
+                  }
+                  <span>{{ formatarMoeda(bebida.preco) }}</span>
+                </article>
+              }
+            </div>
+          </section>
+        }
       </div>
     </section>
   `,
@@ -62,7 +84,7 @@ export class CardapioDiaComponent {
   @Input({ required: true }) restauranteAberto!: boolean;
   @Input() statusDias: Partial<Record<DiaSemana, EstadoDiaSeletor>> = {};
   @Input() mensagemStatus = '';
-  @Output() readonly personalizarPrato = new EventEmitter<Prato>();
+  @Output() readonly personalizarPrato = new EventEmitter<{ prato: Prato; bebidas: Bebida[] }>();
   @Output() readonly diaBloqueado = new EventEmitter<DiaBloqueadoSelecionado>();
 
   private readonly diaSemanaPipe = new DiaSemanaPipe();
@@ -86,6 +108,13 @@ export class CardapioDiaComponent {
       return;
     }
 
-    this.personalizarPrato.emit(prato);
+    this.personalizarPrato.emit({ prato, bebidas: this.cardapio.bebidas ?? [] });
+  }
+
+  protected formatarMoeda(valor: number): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor);
   }
 }

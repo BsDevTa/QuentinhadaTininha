@@ -32,6 +32,8 @@ public class ServicoImpressaoPedido : IServicoImpressaoPedido
             .AsNoTracking()
             .Include(impressao => impressao.Pedido)
                 .ThenInclude(pedido => pedido.Itens)
+            .Include(impressao => impressao.Pedido)
+                .ThenInclude(pedido => pedido.Bebidas)
             .Where(impressao =>
                 impressao.Status == StatusImpressaoPedido.Pendente ||
                 (impressao.Status == StatusImpressaoPedido.Erro &&
@@ -157,6 +159,8 @@ public class ServicoImpressaoPedido : IServicoImpressaoPedido
             .AsNoTracking()
             .Include(item => item.Pedido)
                 .ThenInclude(pedido => pedido.Itens)
+            .Include(item => item.Pedido)
+                .ThenInclude(pedido => pedido.Bebidas)
             .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         return impressao is null ? null : MapearResposta(impressao);
@@ -224,6 +228,18 @@ public class ServicoImpressaoPedido : IServicoImpressaoPedido
                     Acompanhamentos = item.Acompanhamentos,
                     ValorUnitario = item.ValorUnitario,
                     Observacao = item.Observacao
+                })
+                .ToList(),
+            Bebidas = pedido.Bebidas
+                .OrderBy(item => item.CriadoEm)
+                .Select(item => new PedidoBebidaResposta
+                {
+                    Id = item.Id,
+                    BebidaId = item.BebidaId,
+                    NomeBebida = item.NomeBebida,
+                    Quantidade = item.Quantidade,
+                    ValorUnitario = item.ValorUnitario,
+                    ValorTotal = item.ValorUnitario * item.Quantidade
                 })
                 .ToList(),
             CriadoEm = pedido.CriadoEm

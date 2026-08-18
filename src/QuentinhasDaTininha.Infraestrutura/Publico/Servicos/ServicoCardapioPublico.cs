@@ -122,8 +122,27 @@ public class ServicoCardapioPublico : IServicoCardapioPublico
         }
 
         resposta.Categorias = await ObterCategoriasAsync(diaSemana, cancellationToken);
+        resposta.Bebidas = await ObterBebidasAsync(cancellationToken);
 
         return resposta;
+    }
+
+    private async Task<IReadOnlyList<BebidaCardapioPublicoResposta>> ObterBebidasAsync(
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.Bebidas
+            .AsNoTracking()
+            .Where(bebida => bebida.Ativa)
+            .OrderBy(bebida => bebida.Nome)
+            .Select(bebida => new BebidaCardapioPublicoResposta
+            {
+                Id = bebida.Id,
+                Nome = bebida.Nome,
+                Descricao = bebida.Descricao,
+                Preco = bebida.Preco,
+                ImagemUrl = bebida.ImagemUrl
+            })
+            .ToListAsync(cancellationToken);
     }
 
     private async Task<IReadOnlyList<CategoriaCardapioPublicoResposta>> ObterCategoriasAsync(

@@ -25,6 +25,7 @@ public class PedidoCriacaoRequisicao
     public string? Referencia { get; set; }
     public string? Observacao { get; set; }
     public List<PedidoItemCriacaoRequisicao> Itens { get; set; } = new();
+    public List<PedidoBebidaCriacaoRequisicao> Bebidas { get; set; } = new();
 }
 
 public class PedidoItemCriacaoRequisicao
@@ -33,4 +34,11 @@ public class PedidoItemCriacaoRequisicao
     public TamanhoRefeicao Tamanho { get; set; }
     public List<Guid> AcompanhamentoIds { get; set; } = new();
     public string? Observacao { get; set; }
+}
+
+public class PedidoBebidaCriacaoRequisicao
+{
+    public Guid BebidaId { get; set; }
+    public int Quantidade { get; set; }
+    public decimal? ValorUnitario { get; set; }
 }

@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Subscription, TimeoutError, catchError, finalize, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { CardapioDia, DiaSemana, Prato, Restaurante } from '../../../compartilhado/modelos/cardapio.model';
+import { Bebida, CardapioDia, DiaSemana, Prato, Restaurante } from '../../../compartilhado/modelos/cardapio.model';
 import { CardapioService } from '../../../compartilhado/servicos/cardapio.service';
 import { OverlayHandle, OverlayService } from '../../../compartilhado/servicos/overlay.service';
 import { PedidoService } from '../../../compartilhado/servicos/pedido.service';
@@ -78,7 +78,7 @@ import { StatusRestauranteComponent } from '../../componentes/status-restaurante
           [whatsappRestaurante]="restaurante()?.whatsapp ?? ''"
           [restauranteAberto]="restaurante()?.permitirPedidos ?? false"
           [mensagemStatus]="restaurante()?.mensagemStatus ?? ''"
-          (personalizarPrato)="abrirPersonalizacao($event)"
+          (personalizarPrato)="abrirPersonalizacao($event.prato, $event.bebidas)"
           (diaBloqueado)="abrirModalDiaBloqueado($event)"
         />
       }
@@ -148,7 +148,7 @@ export class InicioPage implements OnInit, OnDestroy {
     this.carregarCardapioPorDia(this.diaSelecionado());
   }
 
-  protected abrirPersonalizacao(prato: Prato): void {
+  protected abrirPersonalizacao(prato: Prato, bebidas: Bebida[] = []): void {
     this.fecharModalDiaBloqueado();
     this.fecharPersonalizacao();
 
@@ -157,7 +157,8 @@ export class InicioPage implements OnInit, OnDestroy {
       prato,
       whatsappRestaurante: this.restaurante()?.whatsapp ?? '',
       restauranteAberto: this.permitirPedido(),
-      dataPedido
+      dataPedido,
+      bebidas
     });
 
     this.fecharPersonalizacaoSubscription = this.personalizacaoOverlay.componentRef.instance.fechar

@@ -17,6 +17,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
+  Bebida,
   FormaPagamento,
   PersonalizacaoPedido,
   Prato,
@@ -202,6 +203,36 @@ import { Subscription, finalize } from 'rxjs';
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
                 <span>5</span>
+                <h4>Bebidas</h4>
+              </header>
+
+              @if (bebidas.length > 0) {
+                <div class="grupo-opcoes">
+                  <strong>Bebidas (opcional)</strong>
+                  <div class="lista-bebidas">
+                    @for (bebida of bebidas; track bebida.id) {
+                      <article>
+                        <div>
+                          <strong>{{ bebida.nome }}</strong>
+                          <span>{{ bebida.preco | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</span>
+                        </div>
+                        <div class="controle-quantidade">
+                          <button type="button" (click)="alterarQuantidadeBebida(bebida.id, -1)" [disabled]="quantidadeBebida(bebida.id) === 0">-</button>
+                          <span>{{ quantidadeBebida(bebida.id) }}</span>
+                          <button type="button" (click)="alterarQuantidadeBebida(bebida.id, 1)">+</button>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <small class="info-pedido">Nenhuma bebida disponivel hoje.</small>
+              }
+            </section>
+
+            <section class="etapa-pedido">
+              <header class="etapa-pedido__cabecalho">
+                <span>6</span>
                 <h4>Observação</h4>
               </header>
 
@@ -220,7 +251,7 @@ import { Subscription, finalize } from 'rxjs';
 
             <section class="etapa-pedido">
               <header class="etapa-pedido__cabecalho">
-                <span>6</span>
+                <span>7</span>
                 <h4>Entrega</h4>
               </header>
               <div class="radio-cards">
@@ -312,6 +343,12 @@ import { Subscription, finalize } from 'rxjs';
                   <strong>{{ freteResumo }}</strong>
                 </div>
               }
+              @if (bebidasSelecionadas().length > 0) {
+                <div class="resumo-pedido__linha">
+                  <span>Bebidas</span>
+                  <strong>{{ totalBebidas() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+                </div>
+              }
               <div class="resumo-pedido__linha resumo-pedido__linha--total">
                 <span>Total</span>
                 <strong>{{ total() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
@@ -331,6 +368,9 @@ import { Subscription, finalize } from 'rxjs';
                 <strong>{{ resumoEntrega }}</strong>
               </div>
               <small>Acompanhamentos: {{ resumoAcompanhamentos }}</small>
+              @if (bebidasSelecionadas().length > 0) {
+                <small>Bebidas: {{ resumoBebidas }}</small>
+              }
             </section>
           </div>
         </div>
@@ -366,6 +406,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
   @Input({ required: true }) whatsappRestaurante = '';
   @Input({ required: true }) restauranteAberto = true;
   @Input({ required: true }) dataPedido = '';
+  @Input() bebidas: Bebida[] = [];
   @Output() readonly fechar = new EventEmitter<void>();
 
   protected readonly imagemFalhou = signal(false);
@@ -392,6 +433,7 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
   protected readonly cepMensagemTipo = signal<'erro' | 'sucesso' | ''>('');
   private readonly ultimoCepConsultado = signal('');
   protected readonly acompanhamentoIds = signal<string[]>([]);
+  protected readonly quantidadesBebidas = signal<Record<string, number>>({});
   protected readonly tipoFeijaoId = signal<string | null>(null);
   protected readonly finalizandoPedido = signal(false);
   protected readonly erroFinalizacao = signal('');
@@ -478,8 +520,21 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
   protected readonly acompanhamentosSelecionados = computed(() =>
     this.pedidoService.listarAcompanhamentosSelecionados(this.personalizacao(), this.grupo())
   );
+  protected readonly bebidasSelecionadas = computed(() =>
+    this.bebidas
+      .map((bebida) => ({
+        ...bebida,
+        quantidade: this.quantidadeBebida(bebida.id)
+      }))
+      .filter((bebida) => bebida.quantidade > 0)
+  );
+  protected readonly totalBebidas = computed(() =>
+    this.bebidasSelecionadas()
+      .reduce((total, bebida) => total + bebida.preco * bebida.quantidade, 0)
+  );
   protected readonly subtotal = computed(() =>
-    this.pedidoService.calcularPreco(this.prato, this.tamanho(), this.formaPagamento())
+    this.pedidoService.calcularPreco(this.prato, this.tamanho(), this.formaPagamento()) +
+    this.totalBebidas()
   );
   protected readonly freteAplicado = computed(() =>
     this.tipoEntrega() === 'entrega' && this.freteAtendido()
@@ -518,7 +573,8 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
         bairro: this.personalizacao().bairro,
         cidade: this.personalizacao().cidade,
         estado: this.personalizacao().estado,
-        referencia: this.personalizacao().referencia
+        referencia: this.personalizacao().referencia,
+        bebidas: this.bebidasSelecionadas()
       }
     );
   }
@@ -539,6 +595,12 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
   protected get resumoAcompanhamentos(): string {
     const nomes = this.acompanhamentosSelecionados().map((acompanhamento) => acompanhamento.nome);
     return nomes.length > 0 ? nomes.join(', ') : 'sem acompanhamentos selecionados';
+  }
+
+  protected get resumoBebidas(): string {
+    return this.bebidasSelecionadas()
+      .map((bebida) => `${bebida.nome} x${bebida.quantidade}`)
+      .join(', ');
   }
 
   protected get rotuloPagamento(): string {
@@ -685,6 +747,25 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
     );
   }
 
+  protected quantidadeBebida(id: string): number {
+    return this.quantidadesBebidas()[id] ?? 0;
+  }
+
+  protected alterarQuantidadeBebida(id: string, delta: number): void {
+    this.quantidadesBebidas.update((quantidades) => {
+      const proximaQuantidade = Math.max(0, (quantidades[id] ?? 0) + delta);
+      const atualizadas = { ...quantidades };
+
+      if (proximaQuantidade === 0) {
+        delete atualizadas[id];
+      } else {
+        atualizadas[id] = proximaQuantidade;
+      }
+
+      return atualizadas;
+    });
+  }
+
   protected finalizarPedido(): void {
     if (!this.podeFinalizarPedido()) {
       return;
@@ -737,7 +818,11 @@ export class PersonalizacaoPedidoModalComponent implements AfterViewInit, OnDest
           acompanhamentoIds: this.acompanhamentoIdsPedido(),
           observacao: personalizacao.observacao
         }
-      ]
+      ],
+      bebidas: this.bebidasSelecionadas().map((bebida) => ({
+        bebidaId: bebida.id,
+        quantidade: bebida.quantidade
+      }))
     };
   }
 

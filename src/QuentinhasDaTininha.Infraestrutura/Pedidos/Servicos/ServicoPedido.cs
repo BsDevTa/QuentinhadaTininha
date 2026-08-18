@@ -49,11 +49,14 @@ public class ServicoPedido : IServicoPedido
             requisicao.Itens ?? new List<PedidoItemCriacaoRequisicao>(),
             requisicao.FormaPagamento,
             cancellationToken);
+        var bebidas = await MontarBebidasPedidoAsync(
+            requisicao.Bebidas ?? new List<PedidoBebidaCriacaoRequisicao>(),
+            cancellationToken);
         var dadosEntrega = await PrepararEntregaAsync(requisicao, cancellationToken);
-        var subtotal = CalcularSubtotal(requisicao, itens, dadosEntrega?.ValorFrete);
+        var subtotal = CalcularSubtotal(requisicao, itens, bebidas, dadosEntrega?.ValorFrete);
         var valorTotal = subtotal + (dadosEntrega?.ValorFrete ?? 0);
 
-        if (itens.Count > 0)
+        if (itens.Count > 0 || bebidas.Count > 0)
         {
             ValidarSubtotalInformado(requisicao, subtotal);
         }
@@ -98,6 +101,11 @@ public class ServicoPedido : IServicoPedido
             pedido.Itens.Add(item);
         }
 
+        foreach (var bebida in bebidas)
+        {
+            pedido.Bebidas.Add(bebida);
+        }
+
         await _dbContext.Pedidos.AddAsync(pedido, cancellationToken);
         await _dbContext.ImpressoesPedidos.AddAsync(new ImpressaoPedido
         {
@@ -119,6 +127,7 @@ public class ServicoPedido : IServicoPedido
         var pedido = await _dbContext.Pedidos
             .AsNoTracking()
             .Include(pedido => pedido.Itens)
+            .Include(pedido => pedido.Bebidas)
             .Where(pedido => pedido.Id == id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -247,6 +256,61 @@ public class ServicoPedido : IServicoPedido
         }
 
         return itensPedido;
+    }
+
+    private async Task<List<PedidoBebida>> MontarBebidasPedidoAsync(
+        IReadOnlyCollection<PedidoBebidaCriacaoRequisicao> bebidas,
+        CancellationToken cancellationToken)
+    {
+        var bebidasPedido = new List<PedidoBebida>();
+
+        if (bebidas.Count == 0)
+        {
+            return bebidasPedido;
+        }
+
+        var bebidasNormalizadas = bebidas
+            .Where(item => item.BebidaId != Guid.Empty && item.Quantidade > 0)
+            .GroupBy(item => item.BebidaId)
+            .Select(grupo => new
+            {
+                BebidaId = grupo.Key,
+                Quantidade = grupo.Sum(item => item.Quantidade)
+            })
+            .ToList();
+
+        if (bebidasNormalizadas.Count != bebidas.Select(item => item.BebidaId).Distinct().Count() ||
+            bebidas.Any(item => item.BebidaId == Guid.Empty || item.Quantidade <= 0))
+        {
+            throw new ArgumentException("Informe bebidas validas com quantidade maior que zero.");
+        }
+
+        var ids = bebidasNormalizadas.Select(item => item.BebidaId).ToList();
+        var bebidasAtivas = await _dbContext.Bebidas
+            .AsNoTracking()
+            .Where(bebida => ids.Contains(bebida.Id) && bebida.Ativa)
+            .ToListAsync(cancellationToken);
+
+        if (bebidasAtivas.Count != ids.Count)
+        {
+            throw new ArgumentException("Informe apenas bebidas ativas.");
+        }
+
+        var bebidasPorId = bebidasAtivas.ToDictionary(bebida => bebida.Id);
+
+        foreach (var item in bebidasNormalizadas)
+        {
+            var bebida = bebidasPorId[item.BebidaId];
+            bebidasPedido.Add(new PedidoBebida
+            {
+                BebidaId = bebida.Id,
+                NomeBebida = bebida.Nome,
+                Quantidade = item.Quantidade,
+                ValorUnitario = bebida.Preco
+            });
+        }
+
+        return bebidasPedido;
     }
 
     private static void ValidarItem(PedidoItemCriacaoRequisicao item)
@@ -379,11 +443,13 @@ public class ServicoPedido : IServicoPedido
     private static decimal CalcularSubtotal(
         PedidoCriacaoRequisicao requisicao,
         IReadOnlyCollection<PedidoItem> itens,
+        IReadOnlyCollection<PedidoBebida> bebidas,
         decimal? valorFrete)
     {
-        if (itens.Count > 0)
+        if (itens.Count > 0 || bebidas.Count > 0)
         {
-            return itens.Sum(item => item.ValorUnitario);
+            return itens.Sum(item => item.ValorUnitario) +
+                bebidas.Sum(item => item.ValorUnitario * item.Quantidade);
         }
 
         if (requisicao.ValorSubtotal > 0)
@@ -473,6 +539,18 @@ public class ServicoPedido : IServicoPedido
                     Acompanhamentos = item.Acompanhamentos,
                     ValorUnitario = item.ValorUnitario,
                     Observacao = item.Observacao
+                })
+                .ToList(),
+            Bebidas = pedido.Bebidas
+                .OrderBy(item => item.CriadoEm)
+                .Select(item => new PedidoBebidaResposta
+                {
+                    Id = item.Id,
+                    BebidaId = item.BebidaId,
+                    NomeBebida = item.NomeBebida,
+                    Quantidade = item.Quantidade,
+                    ValorUnitario = item.ValorUnitario,
+                    ValorTotal = item.ValorUnitario * item.Quantidade
                 })
                 .ToList(),
             CriadoEm = pedido.CriadoEm

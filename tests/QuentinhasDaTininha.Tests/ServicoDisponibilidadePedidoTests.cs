@@ -49,7 +49,7 @@ public class ServicoDisponibilidadePedidoTests
         await dbContext.SaveChangesAsync();
         var servico = new ServicoDisponibilidadePedido(
             dbContext,
-            new ServicoDataLocalFake(hoje));
+            new ServicoDataLocalFake(hoje, new TimeOnly(12, 0)));
 
         var resposta = await servico.ValidarPedidoAsync(hoje);
 
@@ -74,7 +74,7 @@ public class ServicoDisponibilidadePedidoTests
         await dbContext.SaveChangesAsync();
         var servico = new ServicoDisponibilidadePedido(
             dbContext,
-            new ServicoDataLocalFake(hoje));
+            new ServicoDataLocalFake(hoje, new TimeOnly(12, 0)));
 
         var resposta = await servico.ValidarPedidoAsync(hoje.AddDays(1));
 
@@ -91,7 +91,7 @@ public class ServicoDisponibilidadePedidoTests
         await dbContext.SaveChangesAsync();
         var servico = new ServicoDisponibilidadePedido(
             dbContext,
-            new ServicoDataLocalFake(hoje));
+            new ServicoDataLocalFake(hoje, new TimeOnly(12, 0)));
 
         var resposta = await servico.ListarPublicaAsync(hoje, hoje.AddDays(2));
 
@@ -100,21 +100,62 @@ public class ServicoDisponibilidadePedidoTests
     }
 
     [Fact]
-    public async Task ValidarPedidoAsync_NaoMantemExcecaoTemporariaEmDezDeAgosto()
+    public async Task ValidarPedidoAsync_NaoMantemOverrideDoDiaAnterior()
     {
         await using var dbContext = CriarDbContext();
-        var hoje = new DateOnly(2026, 8, 10);
-        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext);
+        var hoje = new DateOnly(2026, 8, 11);
+        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext, hoje.AddDays(-1));
         await LiberarHorarioIntegralAsync(dbContext);
         await dbContext.SaveChangesAsync();
         var servico = new ServicoDisponibilidadePedido(
             dbContext,
-            new ServicoDataLocalFake(hoje));
+            new ServicoDataLocalFake(hoje, new TimeOnly(12, 0)));
+
+        var resposta = await servico.ValidarPedidoAsync(hoje);
+
+        Assert.True(resposta.PermitirPedidos);
+    }
+
+    [Fact]
+    public async Task ValidarPedidoAsync_RespeitaOverrideManualNoMesmoDia()
+    {
+        await using var dbContext = CriarDbContext();
+        var hoje = new DateOnly(2026, 8, 10);
+        await ConfigurarRestauranteFechadoManualmenteAsync(dbContext, hoje);
+        await LiberarHorarioIntegralAsync(dbContext);
+        await dbContext.SaveChangesAsync();
+        var servico = new ServicoDisponibilidadePedido(
+            dbContext,
+            new ServicoDataLocalFake(hoje, new TimeOnly(12, 0)));
 
         var resposta = await servico.ValidarPedidoAsync(hoje);
 
         Assert.False(resposta.PermitirPedidos);
         Assert.Equal("Fechado.", resposta.MotivoBloqueio);
+    }
+
+    [Theory]
+    [InlineData(5, 59, false)]
+    [InlineData(6, 0, true)]
+    [InlineData(14, 59, true)]
+    [InlineData(15, 0, false)]
+    public async Task ValidarPedidoAsync_RespeitaHorarioAutomaticoDoDiaAtual(
+        int hora,
+        int minuto,
+        bool esperadoAberto)
+    {
+        await using var dbContext = CriarDbContext();
+        var hoje = new DateOnly(2026, 8, 11);
+        await ConfigurarRestauranteAbertoAsync(dbContext);
+        await LiberarHorarioIntegralAsync(dbContext);
+        await dbContext.SaveChangesAsync();
+        var servico = new ServicoDisponibilidadePedido(
+            dbContext,
+            new ServicoDataLocalFake(hoje, new TimeOnly(hora, minuto)));
+
+        var resposta = await servico.ValidarPedidoAsync(hoje);
+
+        Assert.Equal(esperadoAberto, resposta.PermitirPedidos);
     }
 
     private static QuentinhasDaTininhaDbContext CriarDbContext()
@@ -141,7 +182,8 @@ public class ServicoDisponibilidadePedidoTests
     }
 
     private static async Task ConfigurarRestauranteFechadoManualmenteAsync(
-        QuentinhasDaTininhaDbContext dbContext)
+        QuentinhasDaTininhaDbContext dbContext,
+        DateOnly? dataOverride = null)
     {
         await dbContext.ConfiguracoesRestaurante.AddAsync(new ConfiguracaoRestaurante
         {
@@ -149,6 +191,7 @@ public class ServicoDisponibilidadePedidoTests
             EstaAtivo = true,
             AceitaPedidos = true,
             ModoFuncionamento = ModoFuncionamento.FechadoManualmente,
+            DataOverrideManual = dataOverride,
             MensagemAberto = "Estamos atendendo.",
             MensagemFechado = "Fechado."
         });
@@ -172,10 +215,17 @@ public class ServicoDisponibilidadePedidoTests
     private sealed class ServicoDataLocalFake : IServicoDataLocal
     {
         private readonly DateOnly _dataAtual;
+        private readonly TimeOnly _horaAtual;
 
-        public ServicoDataLocalFake(DateOnly dataAtual)
+        public ServicoDataLocalFake(DateOnly dataAtual, TimeOnly? horaAtual = null)
         {
             _dataAtual = dataAtual;
+            _horaAtual = horaAtual ?? new TimeOnly(12, 0);
+        }
+
+        public DateTimeOffset ObterAgora()
+        {
+            return _dataAtual.ToDateTime(_horaAtual, DateTimeKind.Unspecified);
         }
 
         public DateOnly ObterDataAtual()

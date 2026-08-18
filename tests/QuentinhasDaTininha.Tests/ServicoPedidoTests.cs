@@ -97,6 +97,184 @@ public class ServicoPedidoTests
         Assert.Equal("Imbuí", pedido.Bairro);
     }
 
+    [Fact]
+    public async Task CriarAsync_AdicionaBebidaAtivaAoPedidoEUsaPrecoDoServidor()
+    {
+        await using var dbContext = CriarDbContext();
+        var bebida = await CriarBebidaAsync(dbContext, "Pepsi 1L", 9m, ativa: true);
+        var servicoPedido = new ServicoPedido(
+            dbContext,
+            new ServicoDisponibilidadePedidoFake(),
+            new ServicoFreteBairroFake(10m));
+
+        var pedido = await servicoPedido.CriarAsync(new PedidoCriacaoRequisicao
+        {
+            DataPedido = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            NomeCliente = "Cliente Teste",
+            ValorSubtotal = 0m,
+            ValorTotal = 1m,
+            FormaPagamento = FormaPagamento.Pix,
+            TipoEntrega = TipoEntrega.Retirada,
+            Bebidas =
+            [
+                new PedidoBebidaCriacaoRequisicao
+                {
+                    BebidaId = bebida.Id,
+                    Quantidade = 1,
+                    ValorUnitario = 1m
+                }
+            ]
+        });
+
+        Assert.Single(pedido.Bebidas);
+        Assert.Equal("Pepsi 1L", pedido.Bebidas[0].NomeBebida);
+        Assert.Equal(9m, pedido.Bebidas[0].ValorUnitario);
+        Assert.Equal(9m, pedido.ValorSubtotal);
+        Assert.Equal(9m, pedido.ValorTotal);
+    }
+
+    [Fact]
+    public async Task CriarAsync_RejeitaBebidaInativa()
+    {
+        await using var dbContext = CriarDbContext();
+        var bebida = await CriarBebidaAsync(dbContext, "Coca-Cola Lata", 6m, ativa: false);
+        var servicoPedido = new ServicoPedido(
+            dbContext,
+            new ServicoDisponibilidadePedidoFake(),
+            new ServicoFreteBairroFake(10m));
+
+        var excecao = await Assert.ThrowsAsync<ArgumentException>(() =>
+            servicoPedido.CriarAsync(new PedidoCriacaoRequisicao
+            {
+                DataPedido = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                NomeCliente = "Cliente Teste",
+                ValorSubtotal = 0m,
+                ValorTotal = 1m,
+                FormaPagamento = FormaPagamento.Pix,
+                TipoEntrega = TipoEntrega.Retirada,
+                Bebidas =
+                [
+                    new PedidoBebidaCriacaoRequisicao
+                    {
+                        BebidaId = bebida.Id,
+                        Quantidade = 1
+                    }
+                ]
+            }));
+
+        Assert.Contains("bebidas ativas", excecao.Message);
+    }
+
+    [Fact]
+    public async Task CriarAsync_PermitePedidoSemBebida()
+    {
+        await using var dbContext = CriarDbContext();
+        var prato = await CriarPratoAsync(dbContext, 20m);
+        var servicoPedido = new ServicoPedido(
+            dbContext,
+            new ServicoDisponibilidadePedidoFake(),
+            new ServicoFreteBairroFake(10m));
+
+        var pedido = await servicoPedido.CriarAsync(new PedidoCriacaoRequisicao
+        {
+            DataPedido = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            NomeCliente = "Cliente Teste",
+            ValorSubtotal = 20m,
+            ValorTotal = 20m,
+            FormaPagamento = FormaPagamento.Pix,
+            TipoEntrega = TipoEntrega.Retirada,
+            Itens =
+            [
+                new PedidoItemCriacaoRequisicao
+                {
+                    PratoId = prato.Id,
+                    Tamanho = TamanhoRefeicao.P
+                }
+            ]
+        });
+
+        Assert.Empty(pedido.Bebidas);
+        Assert.Equal(20m, pedido.ValorSubtotal);
+        Assert.Equal(20m, pedido.ValorTotal);
+    }
+
+    [Fact]
+    public async Task CriarAsync_PermiteMultiplasBebidas()
+    {
+        await using var dbContext = CriarDbContext();
+        var bebida1 = await CriarBebidaAsync(dbContext, "Pepsi Lata", 6m, ativa: true);
+        var bebida2 = await CriarBebidaAsync(dbContext, "Coca-Cola Zero Lata", 6m, ativa: true);
+        var servicoPedido = new ServicoPedido(
+            dbContext,
+            new ServicoDisponibilidadePedidoFake(),
+            new ServicoFreteBairroFake(10m));
+
+        var pedido = await servicoPedido.CriarAsync(new PedidoCriacaoRequisicao
+        {
+            DataPedido = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            NomeCliente = "Cliente Teste",
+            ValorSubtotal = 0m,
+            ValorTotal = 1m,
+            FormaPagamento = FormaPagamento.Pix,
+            TipoEntrega = TipoEntrega.Retirada,
+            Bebidas =
+            [
+                new PedidoBebidaCriacaoRequisicao
+                {
+                    BebidaId = bebida1.Id,
+                    Quantidade = 1
+                },
+                new PedidoBebidaCriacaoRequisicao
+                {
+                    BebidaId = bebida2.Id,
+                    Quantidade = 2
+                }
+            ]
+        });
+
+        Assert.Equal(2, pedido.Bebidas.Count);
+        Assert.Equal(18m, pedido.ValorSubtotal);
+        Assert.Equal(18m, pedido.ValorTotal);
+    }
+
+    [Fact]
+    public async Task AtualizarPrecoDaBebidaNaoAlteraPedidoAntigo()
+    {
+        await using var dbContext = CriarDbContext();
+        var bebida = await CriarBebidaAsync(dbContext, "Pepsi 1L", 9m, ativa: true);
+        var servicoPedido = new ServicoPedido(
+            dbContext,
+            new ServicoDisponibilidadePedidoFake(),
+            new ServicoFreteBairroFake(10m));
+
+        var pedidoCriado = await servicoPedido.CriarAsync(new PedidoCriacaoRequisicao
+        {
+            DataPedido = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            NomeCliente = "Cliente Teste",
+            ValorSubtotal = 0m,
+            ValorTotal = 1m,
+            FormaPagamento = FormaPagamento.Pix,
+            TipoEntrega = TipoEntrega.Retirada,
+            Bebidas =
+            [
+                new PedidoBebidaCriacaoRequisicao
+                {
+                    BebidaId = bebida.Id,
+                    Quantidade = 1
+                }
+            ]
+        });
+
+        bebida.Preco = 12m;
+        await dbContext.SaveChangesAsync();
+
+        var pedidoRecarregado = await servicoPedido.ObterPorIdAsync(pedidoCriado.Id);
+
+        Assert.NotNull(pedidoRecarregado);
+        Assert.Equal(9m, pedidoRecarregado!.Bebidas[0].ValorUnitario);
+        Assert.Equal(9m, pedidoRecarregado.ValorTotal);
+    }
+
     private static QuentinhasDaTininhaDbContext CriarDbContext()
     {
         var options = new DbContextOptionsBuilder<QuentinhasDaTininhaDbContext>()
@@ -137,6 +315,24 @@ public class ServicoPedidoTests
         dbContext.Add(prato);
         await dbContext.SaveChangesAsync();
         return prato;
+    }
+
+    private static async Task<Bebida> CriarBebidaAsync(
+        QuentinhasDaTininhaDbContext dbContext,
+        string nome,
+        decimal preco,
+        bool ativa)
+    {
+        var bebida = new Bebida
+        {
+            Nome = nome,
+            Preco = preco,
+            Ativa = ativa
+        };
+
+        dbContext.Add(bebida);
+        await dbContext.SaveChangesAsync();
+        return bebida;
     }
 
     private static FreteBairro CriarFreteBairro(

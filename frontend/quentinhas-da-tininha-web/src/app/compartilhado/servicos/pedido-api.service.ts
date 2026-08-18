@@ -25,6 +25,7 @@ export interface PedidoCriacaoRequisicao {
   referencia?: string | null;
   observacao?: string | null;
   itens: PedidoItemCriacaoRequisicao[];
+  bebidas?: PedidoBebidaCriacaoRequisicao[];
 }
 
 export interface PedidoItemCriacaoRequisicao {
@@ -32,6 +33,11 @@ export interface PedidoItemCriacaoRequisicao {
   tamanho: 1 | 2;
   acompanhamentoIds: string[];
   observacao?: string | null;
+}
+
+export interface PedidoBebidaCriacaoRequisicao {
+  bebidaId: string;
+  quantidade: number;
 }
 
 export interface PedidoResposta {

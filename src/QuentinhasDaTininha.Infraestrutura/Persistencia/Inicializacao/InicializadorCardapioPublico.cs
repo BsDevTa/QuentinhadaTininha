@@ -15,12 +15,15 @@ public class InicializadorCardapioPublico
 
     public async Task InicializarAsync(CancellationToken cancellationToken = default)
     {
+        var agora = DateTimeOffset.UtcNow;
+
         if (await JaExisteCardapioConfiguradoAsync(cancellationToken))
         {
+            await ObterOuCriarBebidasAsync(agora, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
             return;
         }
 
-        var agora = DateTimeOffset.UtcNow;
         var categoria = await ObterOuCriarCategoriaAsync(agora, cancellationToken);
         await ObterOuAtualizarRestauranteAsync(agora, cancellationToken);
 
@@ -29,6 +32,7 @@ public class InicializadorCardapioPublico
         await ConfigurarItensGruposAsync(grupos, acompanhamentos, cancellationToken);
         var pratos = await ObterOuCriarPratosAsync(categoria.Id, grupos, agora, cancellationToken);
         await ConfigurarCardapiosAsync(pratos, cancellationToken);
+        await ObterOuCriarBebidasAsync(agora, cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
@@ -92,7 +96,7 @@ public class InicializadorCardapioPublico
         configuracao.Endereco = "Rua Apolinario de Santana, 129 - Engenho Velho da Federacao";
         configuracao.Cidade = "Salvador";
         configuracao.Estado = "BA";
-        configuracao.HorarioFuncionamento ??= "Segunda a sabado, das 10h as 14h";
+        configuracao.HorarioFuncionamento ??= "Segunda a sabado, das 06h as 15h";
         configuracao.UrlLogotipo = "/assets/logo-tininha.svg";
         configuracao.MensagemAberto = "Estamos atendendo hoje.";
         configuracao.MensagemFechado = "Hoje não temos atendimento. Consulte o cardápio dos outros dias.";
@@ -357,6 +361,40 @@ public class InicializadorCardapioPublico
                     EstaDisponivel = prato.EstaDisponivel
                 }, cancellationToken);
             }
+        }
+    }
+
+    private async Task ObterOuCriarBebidasAsync(
+        DateTimeOffset agora,
+        CancellationToken cancellationToken)
+    {
+        var dados = new[]
+        {
+            ("Pepsi 1L", 9m),
+            ("Coca-Cola 1L", 9m),
+            ("Pepsi Lata", 6m),
+            ("Coca-Cola Lata", 6m),
+            ("Coca-Cola Zero Lata", 6m)
+        };
+
+        var existentes = await _dbContext.Bebidas
+            .ToDictionaryAsync(bebida => bebida.Nome, cancellationToken);
+
+        foreach (var (nome, preco) in dados)
+        {
+            if (!existentes.TryGetValue(nome, out var bebida))
+            {
+                bebida = new Bebida
+                {
+                    Nome = nome,
+                    CriadoEm = agora
+                };
+                await _dbContext.Bebidas.AddAsync(bebida, cancellationToken);
+            }
+
+            bebida.Preco = preco;
+            bebida.Ativa = true;
+            bebida.AtualizadoEm = agora;
         }
     }
 

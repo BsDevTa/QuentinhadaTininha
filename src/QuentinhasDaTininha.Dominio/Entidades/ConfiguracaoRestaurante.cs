@@ -18,6 +18,7 @@ public class ConfiguracaoRestaurante
     public string? Cep { get; set; }
     public string? HorarioFuncionamento { get; set; }
     public ModoFuncionamento ModoFuncionamento { get; set; } = ModoFuncionamento.Automatico;
+    public DateOnly? DataOverrideManual { get; set; }
     public string? MensagemAberto { get; set; }
     public string? MensagemFechado { get; set; }
     public bool AceitaPedidos { get; set; }

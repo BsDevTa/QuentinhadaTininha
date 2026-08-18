@@ -159,12 +159,27 @@ public class ServicoCardapioDiaPublico : IServicoCardapioDiaPublico
             })
             .ToListAsync(cancellationToken);
 
+        var bebidas = await _dbContext.Bebidas
+            .AsNoTracking()
+            .Where(bebida => bebida.Ativa)
+            .OrderBy(bebida => bebida.Nome)
+            .Select(bebida => new BebidaPublicaResposta
+            {
+                Id = bebida.Id,
+                Nome = bebida.Nome,
+                Descricao = bebida.Descricao,
+                Preco = bebida.Preco,
+                ImagemUrl = bebida.ImagemUrl
+            })
+            .ToListAsync(cancellationToken);
+
         return new CardapioDiaPublicoResposta
         {
             DiaSemana = diaSemana,
             NomeDiaSemana = ObterNomeDia(diaSemana),
             Restaurante = restaurante,
-            Pratos = pratos
+            Pratos = pratos,
+            Bebidas = bebidas
         };
     }
 

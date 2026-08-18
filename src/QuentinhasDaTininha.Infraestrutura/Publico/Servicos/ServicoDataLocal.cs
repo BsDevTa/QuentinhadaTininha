@@ -6,9 +6,14 @@ public class ServicoDataLocal : IServicoDataLocal
 {
     private static readonly TimeZoneInfo TimeZone = ObterTimeZone();
 
+    public DateTimeOffset ObterAgora()
+    {
+        return TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZone);
+    }
+
     public DateOnly ObterDataAtual()
     {
-        var agoraLocal = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZone);
+        var agoraLocal = ObterAgora();
         return DateOnly.FromDateTime(agoraLocal.DateTime);
     }
 

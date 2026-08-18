@@ -99,6 +99,9 @@ export interface FuncionamentoAdmin {
   mensagemStatus: string;
   horarioFuncionamento: string;
   aberturaManual: boolean;
+  horarioAutomatico: string;
+  proximaAbertura: string;
+  fechamentoAutomatico: string;
   dataUltimaAlteracao: string;
 }
 

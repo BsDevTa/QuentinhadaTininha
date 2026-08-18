@@ -53,6 +53,8 @@ public class ConfiguracaoRestauranteConfiguracao : IEntityTypeConfiguration<Conf
             .IsRequired()
             .HasConversion<int>();
 
+        builder.Property(configuracaoRestaurante => configuracaoRestaurante.DataOverrideManual);
+
         builder.Property(configuracaoRestaurante => configuracaoRestaurante.MensagemAberto)
             .HasMaxLength(250);
 

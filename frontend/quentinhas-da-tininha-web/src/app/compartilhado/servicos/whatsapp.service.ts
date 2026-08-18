@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Acompanhamento, FormaPagamento, Prato, TamanhoRefeicao, TipoEntrega } from '../modelos/cardapio.model';
+import { Acompanhamento, Bebida, FormaPagamento, Prato, TamanhoRefeicao, TipoEntrega } from '../modelos/cardapio.model';
 
 export interface DetalhesPedidoWhatsapp {
   pedidoId?: string | null;
@@ -19,6 +19,7 @@ export interface DetalhesPedidoWhatsapp {
   cidade?: string | null;
   estado?: string | null;
   referencia?: string | null;
+  bebidas?: Array<Bebida & { quantidade: number }>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +51,7 @@ export class WhatsappService {
       `*🍛 Prato:*\n${prato.nome}`,
       `*📏 Tamanho:*\n${this.rotuloTamanho(tamanho)}`,
       `*🥗 Acompanhamentos:*\n${this.criarTextoAcompanhamentos(acompanhamentos)}`,
+      this.criarTextoBebidas(detalhes?.bebidas),
       this.criarTextoObservacao(detalhes?.observacaoItem),
       '━━━━━━━━━━━━━━━━━━',
       `*🚚 Tipo do pedido:*\n${detalhes?.tipoEntrega === 'entrega' ? 'Entrega' : 'Retirada no local'}`,
@@ -75,6 +77,19 @@ export class WhatsappService {
     }
 
     return acompanhamentos.map((acompanhamento) => `- ${acompanhamento.nome}`).join('\n');
+  }
+
+  private criarTextoBebidas(bebidas?: Array<Bebida & { quantidade: number }>): string {
+    const selecionadas = (bebidas ?? []).filter((bebida) => bebida.quantidade > 0);
+    if (selecionadas.length === 0) {
+      return '';
+    }
+
+    const linhas = selecionadas.map((bebida) =>
+      `- ${bebida.nome} x${bebida.quantidade} - ${this.formatadorMoeda.format(bebida.preco * bebida.quantidade)}`
+    );
+
+    return `*Bebidas:*\n${linhas.join('\n')}`;
   }
 
   private rotuloTamanho(tamanho: TamanhoRefeicao): string {

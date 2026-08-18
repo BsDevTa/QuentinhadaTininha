@@ -260,6 +260,14 @@ export class ImpressaoTermicaService {
 
     pedido.itens.forEach((item) => linhas.push(this.formatarItem(item)));
 
+    if ((pedido.bebidas?.length ?? 0) > 0) {
+      linhas.push(
+        this.linha(),
+        `${negritoLigado}BEBIDAS${negritoDesligado}\n`
+      );
+      pedido.bebidas?.forEach((bebida) => linhas.push(this.formatarBebida(bebida)));
+    }
+
     linhas.push(
       this.linha(),
       this.linhaValor('Subtotal', pedido.valorSubtotal)
@@ -332,6 +340,23 @@ export class ImpressaoTermicaService {
       this.quebrarLinhas(`OBS: ${this.limparTexto(item.observacao).toUpperCase()}`, LARGURA_CUPOM_58MM - 2)
         .forEach((linha) => linhas.push(`  ${linha}\n`));
     }
+
+    return linhas.join('');
+  }
+
+  private formatarBebida(bebida: { nomeBebida: string; quantidade: number; valorUnitario: number; valorTotal?: number }): string {
+    const quantidade = bebida.quantidade > 0 ? bebida.quantidade : 1;
+    const total = bebida.valorTotal ?? bebida.valorUnitario * quantidade;
+    const texto = `${this.limparTexto(bebida.nomeBebida)} x${quantidade}`;
+    const linhas = this.quebrarLinhas(texto, LARGURA_CUPOM_58MM - 12).map((linha, indice) => {
+      if (indice > 0) {
+        return `${linha}\n`;
+      }
+
+      const moeda = this.formatarMoeda(total);
+      const espacos = Math.max(1, LARGURA_CUPOM_58MM - linha.length - moeda.length);
+      return `${linha}${' '.repeat(espacos)}${moeda}\n`;
+    });
 
     return linhas.join('');
   }

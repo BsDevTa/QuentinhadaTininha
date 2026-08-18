@@ -95,5 +95,10 @@ public class PedidoConfiguracao : IEntityTypeConfiguration<Pedido>
             .WithOne(item => item.Pedido)
             .HasForeignKey(item => item.PedidoId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(pedido => pedido.Bebidas)
+            .WithOne(item => item.Pedido)
+            .HasForeignKey(item => item.PedidoId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

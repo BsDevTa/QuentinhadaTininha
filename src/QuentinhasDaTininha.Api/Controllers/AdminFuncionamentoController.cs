@@ -15,13 +15,16 @@ public class AdminFuncionamentoController : ControllerBase
 {
     private readonly QuentinhasDaTininhaDbContext _dbContext;
     private readonly IControleCacheCardapioPublico _controleCacheCardapioPublico;
+    private readonly IServicoDataLocal _servicoDataLocal;
 
     public AdminFuncionamentoController(
         QuentinhasDaTininhaDbContext dbContext,
-        IControleCacheCardapioPublico controleCacheCardapioPublico)
+        IControleCacheCardapioPublico controleCacheCardapioPublico,
+        IServicoDataLocal servicoDataLocal)
     {
         _dbContext = dbContext;
         _controleCacheCardapioPublico = controleCacheCardapioPublico;
+        _servicoDataLocal = servicoDataLocal;
     }
 
     [HttpGet]
@@ -29,7 +32,7 @@ public class AdminFuncionamentoController : ControllerBase
         CancellationToken cancellationToken)
     {
         var configuracao = await ObterOuCriarConfiguracaoAsync(cancellationToken);
-        return Ok(Mapear(configuracao));
+        return Ok(Mapear(configuracao, _servicoDataLocal.ObterDataAtual()));
     }
 
     [HttpPut]
@@ -52,7 +55,8 @@ public class AdminFuncionamentoController : ControllerBase
         configuracao.ModoFuncionamento = requisicao.EstaAberto
             ? ModoFuncionamento.AbertoManualmente
             : ModoFuncionamento.FechadoManualmente;
-        configuracao.AceitaPedidos = requisicao.EstaAberto;
+        configuracao.DataOverrideManual = _servicoDataLocal.ObterDataAtual();
+        configuracao.AceitaPedidos = true;
         configuracao.MensagemAberto = requisicao.EstaAberto
             ? NormalizarOpcional(requisicao.MensagemStatus)
             : configuracao.MensagemAberto;
@@ -65,7 +69,7 @@ public class AdminFuncionamentoController : ControllerBase
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         _controleCacheCardapioPublico.Invalidar();
-        return Ok(Mapear(configuracao));
+        return Ok(Mapear(configuracao, _servicoDataLocal.ObterDataAtual()));
     }
 
     private async Task<ConfiguracaoRestaurante> ObterOuCriarConfiguracaoAsync(
@@ -87,7 +91,7 @@ public class AdminFuncionamentoController : ControllerBase
             AceitaPedidos = true,
             MensagemAberto = "Estamos atendendo normalmente.",
             MensagemFechado = "Restaurante fechado no momento.",
-            HorarioFuncionamento = "Segunda a sabado, das 10h as 14h",
+            HorarioFuncionamento = "Segunda a sabado, das 06h as 15h",
             CriadoEm = DateTimeOffset.UtcNow,
             AtualizadoEm = DateTimeOffset.UtcNow
         };
@@ -96,11 +100,17 @@ public class AdminFuncionamentoController : ControllerBase
         return configuracao;
     }
 
-    private static FuncionamentoAdminResposta Mapear(ConfiguracaoRestaurante configuracao)
+    private static FuncionamentoAdminResposta Mapear(
+        ConfiguracaoRestaurante configuracao,
+        DateOnly dataAtual)
     {
+        var overrideManualHoje = configuracao.DataOverrideManual == dataAtual &&
+            configuracao.ModoFuncionamento is
+                ModoFuncionamento.AbertoManualmente or ModoFuncionamento.FechadoManualmente;
         var estaAberto = configuracao.EstaAtivo &&
             configuracao.AceitaPedidos &&
-            configuracao.ModoFuncionamento != ModoFuncionamento.FechadoManualmente;
+            (!overrideManualHoje ||
+                configuracao.ModoFuncionamento == ModoFuncionamento.AbertoManualmente);
 
         return new FuncionamentoAdminResposta
         {
@@ -108,8 +118,11 @@ public class AdminFuncionamentoController : ControllerBase
             MensagemStatus = estaAberto
                 ? configuracao.MensagemAberto ?? "Estamos atendendo normalmente."
                 : configuracao.MensagemFechado ?? "Restaurante fechado no momento.",
-            HorarioFuncionamento = configuracao.HorarioFuncionamento ?? "Segunda a sabado, das 10h as 14h",
-            AberturaManual = configuracao.ModoFuncionamento is ModoFuncionamento.AbertoManualmente or ModoFuncionamento.FechadoManualmente,
+            HorarioFuncionamento = configuracao.HorarioFuncionamento ?? "Segunda a sabado, das 06h as 15h",
+            AberturaManual = overrideManualHoje,
+            HorarioAutomatico = "06:00 as 15:00",
+            ProximaAbertura = "06:00",
+            FechamentoAutomatico = "15:00",
             DataUltimaAlteracao = configuracao.AtualizadoEm
         };
     }
@@ -136,6 +149,9 @@ public class FuncionamentoAdminResposta
     public string MensagemStatus { get; set; } = string.Empty;
     public string HorarioFuncionamento { get; set; } = string.Empty;
     public bool AberturaManual { get; set; }
+    public string HorarioAutomatico { get; set; } = string.Empty;
+    public string ProximaAbertura { get; set; } = string.Empty;
+    public string FechamentoAutomatico { get; set; } = string.Empty;
     public DateTimeOffset DataUltimaAlteracao { get; set; }
 }
 

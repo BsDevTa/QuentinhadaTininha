@@ -55,6 +55,13 @@ export const routes: Routes = [
           )
       },
       {
+        path: 'bebidas',
+        loadComponent: () =>
+          import('./administrativo/paginas/bebidas/bebidas.page').then(
+            (m) => m.BebidasPage
+          )
+      },
+      {
         path: 'funcionamento',
         loadComponent: () =>
           import('./administrativo/paginas/funcionamento/funcionamento.page').then(

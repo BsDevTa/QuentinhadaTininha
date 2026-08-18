@@ -11,6 +11,8 @@ namespace QuentinhasDaTininha.Infraestrutura.Funcionamento.Servicos;
 
 public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
 {
+    private static readonly TimeOnly HoraAberturaPadrao = new(6, 0);
+    private static readonly TimeOnly HoraFechamentoPadrao = new(15, 0);
     private const int QuantidadeDiasPadrao = 30;
     private const int QuantidadeMaximaDiasConsulta = 366;
     private readonly QuentinhasDaTininhaDbContext _dbContext;
@@ -131,21 +133,6 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             .AsNoTracking()
             .OrderBy(configuracao => configuracao.CriadoEm)
             .FirstOrDefaultAsync(cancellationToken);
-        var diasSemana = periodo
-            .Select(ConverterDiaSemana)
-            .Distinct()
-            .ToList();
-        var horarios = await _dbContext.HorariosFuncionamento
-            .AsNoTracking()
-            .Where(horario =>
-                diasSemana.Contains(horario.DiaSemana) &&
-                horario.EstaAtivo)
-            .ToListAsync(cancellationToken);
-        var horariosPorDia = horarios
-            .GroupBy(horario => horario.DiaSemana)
-            .ToDictionary(
-                grupo => grupo.Key,
-                grupo => grupo.ToList());
 
         var datas = periodo
             .Select(data =>
@@ -159,7 +146,7 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
                         data,
                         dataAtual,
                         configuracao,
-                        horariosPorDia)
+                        _servicoDataLocal.ObterAgora())
                     : avaliacaoData;
 
                 return new DisponibilidadeDataPublicaResposta
@@ -291,30 +278,28 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             return Bloquear(data, "Não conseguimos carregar o status do restaurante.");
         }
 
-        if (!configuracao.EstaAtivo ||
-            !configuracao.AceitaPedidos ||
-            configuracao.ModoFuncionamento == ModoFuncionamento.FechadoManualmente)
+        if (!configuracao.EstaAtivo || !configuracao.AceitaPedidos)
         {
             return Bloquear(
                 data,
                 configuracao.MensagemFechado ?? "Restaurante fechado no momento.");
         }
 
-        if (configuracao.ModoFuncionamento == ModoFuncionamento.AbertoManualmente)
+        var agoraLocal = _servicoDataLocal.ObterAgora();
+        if (data == _servicoDataLocal.ObterDataAtual() &&
+            configuracao.DataOverrideManual == _servicoDataLocal.ObterDataAtual())
         {
-            return Liberar(data);
-        }
+            if (configuracao.ModoFuncionamento == ModoFuncionamento.FechadoManualmente)
+            {
+                return Bloquear(
+                    data,
+                    configuracao.MensagemFechado ?? "Restaurante fechado no momento.");
+            }
 
-        var horarios = await _dbContext.HorariosFuncionamento
-            .AsNoTracking()
-            .Where(horario =>
-                horario.DiaSemana == ConverterDiaSemana(data) &&
-                horario.EstaAtivo)
-            .ToListAsync(cancellationToken);
-
-        if (horarios.Count == 0)
-        {
-            return Bloquear(data, "Restaurante fechado nessa data.");
+            if (configuracao.ModoFuncionamento == ModoFuncionamento.AbertoManualmente)
+            {
+                return Liberar(data);
+            }
         }
 
         if (data != _servicoDataLocal.ObterDataAtual())
@@ -322,10 +307,9 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             return Liberar(data);
         }
 
-        var horaAtual = TimeOnly.FromDateTime(DateTimeOffset.Now.DateTime);
-        var abertoNoHorario = horarios.Any(horario =>
-            horaAtual >= horario.HoraAbertura &&
-            horaAtual <= horario.HoraFechamento);
+        var horaAtual = TimeOnly.FromDateTime(agoraLocal.DateTime);
+        var abertoNoHorario = horaAtual >= HoraAberturaPadrao &&
+            horaAtual < HoraFechamentoPadrao;
 
         return abertoNoHorario
             ? Liberar(data)
@@ -338,7 +322,7 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
         DateOnly data,
         DateOnly dataAtual,
         ConfiguracaoRestaurante? configuracao,
-        IReadOnlyDictionary<DiaSemana, List<HorarioFuncionamento>> horariosPorDia)
+        DateTimeOffset agoraLocal)
     {
         if (ConverterDiaSemana(data) == DiaSemana.Domingo)
         {
@@ -352,24 +336,26 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             return Bloquear(data, "Não conseguimos carregar o status do restaurante.");
         }
 
-        if (!configuracao.EstaAtivo ||
-            !configuracao.AceitaPedidos ||
-            configuracao.ModoFuncionamento == ModoFuncionamento.FechadoManualmente)
+        if (!configuracao.EstaAtivo || !configuracao.AceitaPedidos)
         {
             return Bloquear(
                 data,
                 configuracao.MensagemFechado ?? "Restaurante fechado no momento.");
         }
 
-        if (configuracao.ModoFuncionamento == ModoFuncionamento.AbertoManualmente)
+        if (data == dataAtual && configuracao.DataOverrideManual == dataAtual)
         {
-            return Liberar(data);
-        }
+            if (configuracao.ModoFuncionamento == ModoFuncionamento.FechadoManualmente)
+            {
+                return Bloquear(
+                    data,
+                    configuracao.MensagemFechado ?? "Restaurante fechado no momento.");
+            }
 
-        if (!horariosPorDia.TryGetValue(ConverterDiaSemana(data), out var horarios) ||
-            horarios.Count == 0)
-        {
-            return Bloquear(data, "Restaurante fechado nessa data.");
+            if (configuracao.ModoFuncionamento == ModoFuncionamento.AbertoManualmente)
+            {
+                return Liberar(data);
+            }
         }
 
         if (data != dataAtual)
@@ -377,10 +363,9 @@ public class ServicoDisponibilidadePedido : IServicoDisponibilidadePedido
             return Liberar(data);
         }
 
-        var horaAtual = TimeOnly.FromDateTime(DateTimeOffset.Now.DateTime);
-        var abertoNoHorario = horarios.Any(horario =>
-            horaAtual >= horario.HoraAbertura &&
-            horaAtual <= horario.HoraFechamento);
+        var horaAtual = TimeOnly.FromDateTime(agoraLocal.DateTime);
+        var abertoNoHorario = horaAtual >= HoraAberturaPadrao &&
+            horaAtual < HoraFechamentoPadrao;
 
         return abertoNoHorario
             ? Liberar(data)

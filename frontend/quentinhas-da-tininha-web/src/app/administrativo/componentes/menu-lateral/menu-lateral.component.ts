@@ -14,6 +14,7 @@ import { AutenticacaoService } from '../../../nucleo/autenticacao/autenticacao.s
         <a href="#status">Funcionamento</a>
         <a href="#pratos">Pratos do dia</a>
         <a href="#acompanhamentos">Acompanhamentos</a>
+        <a href="/admin/bebidas">Bebidas</a>
       </nav>
       <button class="botao secundario" type="button" (click)="sair()">Sair</button>
     </aside>

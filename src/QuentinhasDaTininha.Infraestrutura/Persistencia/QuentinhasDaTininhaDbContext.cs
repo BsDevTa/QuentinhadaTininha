@@ -17,6 +17,7 @@ public class QuentinhasDaTininhaDbContext : DbContext
     public DbSet<GrupoAcompanhamento> GruposAcompanhamento { get; set; } = null!;
     public DbSet<GrupoAcompanhamentoItem> GruposAcompanhamentoItens { get; set; } = null!;
     public DbSet<Acompanhamento> Acompanhamentos { get; set; } = null!;
+    public DbSet<Bebida> Bebidas { get; set; } = null!;
     public DbSet<PratoAcompanhamento> PratosAcompanhamentos { get; set; } = null!;
     public DbSet<CardapioDia> CardapiosDia { get; set; } = null!;
     public DbSet<CardapioDiaPrato> CardapiosDiaPratos { get; set; } = null!;
@@ -24,6 +25,7 @@ public class QuentinhasDaTininhaDbContext : DbContext
     public DbSet<FechamentoExcepcional> FechamentosExcepcionais { get; set; } = null!;
     public DbSet<Pedido> Pedidos { get; set; } = null!;
     public DbSet<PedidoItem> PedidosItens { get; set; } = null!;
+    public DbSet<PedidoBebida> PedidosBebidas { get; set; } = null!;
     public DbSet<ImpressaoPedido> ImpressoesPedidos { get; set; } = null!;
     public DbSet<CepSalvador> CepsSalvador { get; set; } = null!;
     public DbSet<FreteBairro> FretesBairros { get; set; } = null!;

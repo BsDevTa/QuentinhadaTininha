@@ -24,11 +24,15 @@ import { FuncionamentoAdministrativoService } from '../../servicos/funcionamento
         <div [class.admin-funcionamento__status--fechado]="!atual.estaAberto" class="admin-funcionamento__status">
           <span>{{ atual.estaAberto ? 'Aberto' : 'Fechado' }}</span>
           <strong>{{ atual.estaAberto ? 'Restaurante aberto' : 'Restaurante fechado' }}</strong>
+          <small>Horario automatico: {{ atual.horarioAutomatico || '06:00 as 15:00' }}</small>
+          <small>Proxima abertura: {{ atual.proximaAbertura || '06:00' }}</small>
+          <small>Fechamento automatico: {{ atual.fechamentoAutomatico || '15:00' }}</small>
+          <small *ngIf="atual.aberturaManual">Override manual ativo hoje</small>
           <small>Ultima alteracao: {{ atual.dataUltimaAlteracao | date:'short' }}</small>
         </div>
         <div class="admin-funcionamento__acoes">
-          <button class="botao" type="button" (click)="definirAberto(true)" [disabled]="salvando()">Abrir restaurante</button>
-          <button class="botao secundario" type="button" (click)="definirAberto(false)" [disabled]="salvando()">Fechar restaurante</button>
+          <button class="botao" type="button" (click)="definirAberto(true)" [disabled]="salvando()">Abrir agora</button>
+          <button class="botao secundario" type="button" (click)="definirAberto(false)" [disabled]="salvando()">Fechar agora</button>
         </div>
       </article>
 

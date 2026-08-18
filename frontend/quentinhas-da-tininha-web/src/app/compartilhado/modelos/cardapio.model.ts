@@ -27,6 +27,14 @@ export interface Acompanhamento {
   ordemExibicao?: number;
 }
 
+export interface Bebida {
+  id: string;
+  nome: string;
+  descricao?: string | null;
+  preco: number;
+  imagemUrl?: string | null;
+}
+
 export interface Prato {
   id: string;
   nome: string;
@@ -82,6 +90,7 @@ export interface CardapioDia {
   nomeDiaSemana?: string;
   restaurante?: Restaurante;
   pratos: Prato[];
+  bebidas?: Bebida[];
 }
 
 export interface Restaurante {

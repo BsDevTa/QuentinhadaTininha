@@ -26,6 +26,7 @@ public class PedidoResposta
     public string? Referencia { get; set; }
     public string? Observacao { get; set; }
     public IReadOnlyList<PedidoItemResposta> Itens { get; set; } = Array.Empty<PedidoItemResposta>();
+    public IReadOnlyList<PedidoBebidaResposta> Bebidas { get; set; } = Array.Empty<PedidoBebidaResposta>();
     public DateTimeOffset CriadoEm { get; set; }
 }
 
@@ -38,4 +39,14 @@ public class PedidoItemResposta
     public string? Acompanhamentos { get; set; }
     public decimal ValorUnitario { get; set; }
     public string? Observacao { get; set; }
+}
+
+public class PedidoBebidaResposta
+{
+    public Guid Id { get; set; }
+    public Guid BebidaId { get; set; }
+    public string NomeBebida { get; set; } = string.Empty;
+    public int Quantidade { get; set; }
+    public decimal ValorUnitario { get; set; }
+    public decimal ValorTotal { get; set; }
 }

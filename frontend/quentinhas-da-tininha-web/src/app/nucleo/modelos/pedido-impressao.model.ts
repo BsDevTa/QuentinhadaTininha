@@ -37,6 +37,7 @@ export interface PedidoImpressao {
   referencia?: string | null;
   observacao?: string | null;
   itens: PedidoItemImpressao[];
+  bebidas?: PedidoBebidaImpressao[];
   criadoEm: string;
 }
 
@@ -48,4 +49,13 @@ export interface PedidoItemImpressao {
   acompanhamentos?: string | string[] | null;
   valorUnitario: number;
   observacao?: string | null;
+}
+
+export interface PedidoBebidaImpressao {
+  id: string;
+  bebidaId: string;
+  nomeBebida: string;
+  quantidade: number;
+  valorUnitario: number;
+  valorTotal?: number;
 }

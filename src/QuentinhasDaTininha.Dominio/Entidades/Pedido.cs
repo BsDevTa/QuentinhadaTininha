@@ -28,4 +28,5 @@ public class Pedido
     public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset AtualizadoEm { get; set; } = DateTimeOffset.UtcNow;
     public ICollection<PedidoItem> Itens { get; set; } = new List<PedidoItem>();
+    public ICollection<PedidoBebida> Bebidas { get; set; } = new List<PedidoBebida>();
 }

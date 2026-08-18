@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   Acompanhamento,
   AtualizacaoPrato,
+  Bebida,
   CardapioDia,
   DiaSemana,
   GrupoAcompanhamentoApi,
@@ -161,7 +162,8 @@ export class CardapioService {
         ordemExibicao: prato.ordemExibicao,
         precos: prato.precos,
         grupoAcompanhamento: prato.grupoAcompanhamento
-      }))
+      })),
+      bebidas: resposta.bebidas ?? []
     };
   }
 
@@ -232,6 +234,7 @@ interface CardapioDiaApi {
   nomeDiaSemana: string;
   restaurante: RestauranteApi;
   pratos: PratoApi[];
+  bebidas?: Bebida[];
 }
 
 interface RestauranteApi {

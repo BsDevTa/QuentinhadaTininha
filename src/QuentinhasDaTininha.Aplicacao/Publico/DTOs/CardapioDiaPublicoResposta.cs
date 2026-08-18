@@ -6,6 +6,7 @@ public class CardapioDiaPublicoResposta
     public string NomeDiaSemana { get; set; } = string.Empty;
     public RestauranteStatusPublicoResposta Restaurante { get; set; } = new();
     public IReadOnlyList<PratoPublicoResposta> Pratos { get; set; } = new List<PratoPublicoResposta>();
+    public IReadOnlyList<BebidaPublicaResposta> Bebidas { get; set; } = new List<BebidaPublicaResposta>();
 }
 
 public class RestauranteStatusPublicoResposta
@@ -59,4 +60,13 @@ public class AcompanhamentoPublicoResposta
     public string? GrupoExclusivo { get; set; }
     public bool Obrigatorio { get; set; }
     public int OrdemExibicao { get; set; }
+}
+
+public class BebidaPublicaResposta
+{
+    public Guid Id { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public string? Descricao { get; set; }
+    public decimal Preco { get; set; }
+    public string? ImagemUrl { get; set; }
 }
