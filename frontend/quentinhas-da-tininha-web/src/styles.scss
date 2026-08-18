@@ -1140,6 +1140,104 @@ img {
   padding-left: 0.35rem;
 }
 
+.lista-bebidas {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.lista-bebidas article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid rgba(111, 22, 13, 0.09);
+  border-radius: 14px;
+  padding: 0.78rem 0.85rem;
+  background: linear-gradient(180deg, #fffdf8 0%, #fff6eb 100%);
+  box-shadow: 0 6px 18px rgba(111, 22, 13, 0.06);
+}
+
+.lista-bebidas article > div:first-child {
+  display: grid;
+  gap: 0.16rem;
+}
+
+.lista-bebidas article strong {
+  color: var(--marrom-principal);
+  font-size: 0.98rem;
+  font-weight: 900;
+}
+
+.lista-bebidas article span {
+  color: var(--laranja-principal);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.controle-quantidade {
+  display: inline-flex;
+  min-width: 108px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(111, 22, 13, 0.12);
+  border-radius: 999px;
+  padding: 0.22rem;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.controle-quantidade span {
+  min-width: 1.7rem;
+  color: var(--marrom-principal);
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.controle-quantidade__botao {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: var(--branco);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    background 160ms ease;
+}
+
+.controle-quantidade__botao--menos {
+  background: linear-gradient(180deg, #f5a24d, #ef6c22);
+  box-shadow: 0 8px 16px rgba(239, 108, 34, 0.22);
+}
+
+.controle-quantidade__botao--mais {
+  background: linear-gradient(180deg, #ff8d3a, #ff6b00);
+  box-shadow: 0 8px 16px rgba(255, 107, 0, 0.24);
+}
+
+.controle-quantidade__botao:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.controle-quantidade__botao:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.controle-quantidade__botao:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+}
+
 .aviso-pedido {
   width: fit-content;
   border-radius: 8px;

@@ -217,9 +217,24 @@ import { Subscription, finalize } from 'rxjs';
                           <span>{{ bebida.preco | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</span>
                         </div>
                         <div class="controle-quantidade">
-                          <button type="button" (click)="alterarQuantidadeBebida(bebida.id, -1)" [disabled]="quantidadeBebida(bebida.id) === 0">-</button>
+                          <button
+                            class="controle-quantidade__botao controle-quantidade__botao--menos"
+                            type="button"
+                            aria-label="Diminuir quantidade de {{ bebida.nome }}"
+                            (click)="alterarQuantidadeBebida(bebida.id, -1)"
+                            [disabled]="quantidadeBebida(bebida.id) === 0"
+                          >
+                            −
+                          </button>
                           <span>{{ quantidadeBebida(bebida.id) }}</span>
-                          <button type="button" (click)="alterarQuantidadeBebida(bebida.id, 1)">+</button>
+                          <button
+                            class="controle-quantidade__botao controle-quantidade__botao--mais"
+                            type="button"
+                            aria-label="Aumentar quantidade de {{ bebida.nome }}"
+                            (click)="alterarQuantidadeBebida(bebida.id, 1)"
+                          >
+                            +
+                          </button>
                         </div>
                       </article>
                     }
