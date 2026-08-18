@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuentinhasDaTininha.Dominio")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+585a56181a6ccac9e2beb1c0369eced33403d9c5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+44c8bf4204084cd2689c846cc42e31972a6083e1")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuentinhasDaTininha.Dominio")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuentinhasDaTininha.Dominio")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
