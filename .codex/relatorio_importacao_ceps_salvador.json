@@ -1,17 +1,17 @@
 {
-  "Arquivo": "C:\\Users\\FOLHA_USER\\Documents\\QuentinhadaTininha\\dados\\ceps_salvador_importacao.csv",
+  "Arquivo": "C:\\Users\\Kong\\Documents\\QuentinhadaTininha\\dados\\ceps_bairros_faltantes_salvador_importacao.csv",
   "TamanhoLote": 1000,
-  "TotalLido": 11638,
-  "Validos": 11638,
-  "Inseridos": 0,
-  "Atualizados": 11638,
+  "TotalLido": 798,
+  "Validos": 798,
+  "Inseridos": 798,
+  "Atualizados": 0,
   "Ignorados": 0,
   "Invalidos": 0,
   "Duplicados": 0,
   "TotalAntes": 11638,
-  "TotalFinal": 11638,
-  "BairrosDistintos": 83,
-  "DuracaoSegundos": 10.72,
+  "TotalFinal": 12436,
+  "BairrosDistintos": 90,
+  "DuracaoSegundos": 2,
   "Erros": [],
   "Bairros": [
     {
@@ -70,6 +70,11 @@
       "Total": 259
     },
     {
+      "BairroNormalizado": "federacao",
+      "Bairro": "Federa\u00E7\u00E3o",
+      "Total": 251
+    },
+    {
       "BairroNormalizado": "mussurunga i",
       "Bairro": "Mussurunga I",
       "Total": 250
@@ -123,6 +128,11 @@
       "BairroNormalizado": "bairro da paz",
       "Bairro": "Bairro da Paz",
       "Total": 178
+    },
+    {
+      "BairroNormalizado": "rio vermelho",
+      "Bairro": "Rio Vermelho",
+      "Total": 172
     },
     {
       "BairroNormalizado": "cajazeiras xi",
@@ -185,6 +195,11 @@
       "Total": 126
     },
     {
+      "BairroNormalizado": "garcia",
+      "Bairro": "Garcia",
+      "Total": 124
+    },
+    {
       "BairroNormalizado": "piata",
       "Bairro": "Piat\u00E3",
       "Total": 116
@@ -230,6 +245,11 @@
       "Total": 104
     },
     {
+      "BairroNormalizado": "brotas",
+      "Bairro": "Brotas",
+      "Total": 101
+    },
+    {
       "BairroNormalizado": "fazenda grande iii",
       "Bairro": "Fazenda Grande III",
       "Total": 101
@@ -253,6 +273,11 @@
       "BairroNormalizado": "boca da mata",
       "Bairro": "Boca da Mata",
       "Total": 92
+    },
+    {
+      "BairroNormalizado": "barra",
+      "Bairro": "Barra",
+      "Total": 91
     },
     {
       "BairroNormalizado": "canabrava",
@@ -360,6 +385,11 @@
       "Total": 41
     },
     {
+      "BairroNormalizado": "graca",
+      "Bairro": "Gra\u00E7a",
+      "Total": 41
+    },
+    {
       "BairroNormalizado": "imbui",
       "Bairro": "Imbu\u00ED",
       "Total": 36
@@ -392,6 +422,11 @@
     {
       "BairroNormalizado": "alphaville i",
       "Bairro": "Alphaville I",
+      "Total": 18
+    },
+    {
+      "BairroNormalizado": "campo grande",
+      "Bairro": "Campo Grande",
       "Total": 18
     },
     {
@@ -432,39 +467,39 @@
   ],
   "Consultas": [
     {
-      "Cep": "41760-900",
-      "Bairro": "Stiep",
-      "BairroFrete": "STIEP",
+      "Cep": "40080-001",
+      "Bairro": "Campo Grande",
+      "BairroFrete": "Campo Grande",
       "Atendido": true,
-      "ValorFrete": 15.00
+      "ValorFrete": 10.00
     },
     {
-      "Cep": "41770-010",
-      "Bairro": "Stiep",
-      "BairroFrete": "STIEP",
+      "Cep": "40080-016",
+      "Bairro": "Campo Grande",
+      "BairroFrete": "Campo Grande",
       "Atendido": true,
-      "ValorFrete": 15.00
+      "ValorFrete": 10.00
     },
     {
-      "Cep": "41770-015",
-      "Bairro": "Stiep",
-      "BairroFrete": "STIEP",
+      "Cep": "40080-018",
+      "Bairro": "Campo Grande",
+      "BairroFrete": "Campo Grande",
       "Atendido": true,
-      "ValorFrete": 15.00
+      "ValorFrete": 10.00
     },
     {
-      "Cep": "41770-020",
-      "Bairro": "Stiep",
-      "BairroFrete": "STIEP",
+      "Cep": "40080-020",
+      "Bairro": "Campo Grande",
+      "BairroFrete": "Campo Grande",
       "Atendido": true,
-      "ValorFrete": 15.00
+      "ValorFrete": 10.00
     },
     {
-      "Cep": "41770-030",
-      "Bairro": "Stiep",
-      "BairroFrete": "STIEP",
+      "Cep": "40080-025",
+      "Bairro": "Campo Grande",
+      "BairroFrete": "Campo Grande",
       "Atendido": true,
-      "ValorFrete": 15.00
+      "ValorFrete": 10.00
     }
   ]
 }
